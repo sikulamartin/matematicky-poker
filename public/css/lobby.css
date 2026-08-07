@@ -1,0 +1,333 @@
+/* ==========================================================================
+   Skupinová hra
+
+   Sekce: vstupní karty → čekárna s kódem → hra s polem a sestavou vedle něj
+
+   Stejná smlouva jako u ostatních komponent: barvy, tvary a písma se berou
+   výhradně z proměnných v tokens.css, aby to sedlo do všech tří motivů.
+
+   Rozvržení stojí na `auto-fit`, ne na breakpointech: karty i sestava se
+   zalomí samy podle toho, kolik místa zbylo. Zlom pro hrací pole (pod ním
+   se sestava přesune pod pole) je v responsive.css k ostatním.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- vstup */
+.lobby-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-5);
+  width: 100%;
+}
+
+.lobby-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--sp-4);
+  width: 100%;
+  max-width: var(--stack-w);
+}
+
+.lobby-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.lobby-card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-sm);
+  font-size: 1.125rem;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.lobby-card-title .icon {
+  width: calc(18px * var(--ui));
+  height: calc(18px * var(--ui));
+  color: var(--accent);
+  flex: none;
+}
+
+.lobby-card-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* Popiska nad polem, ne vedle něj: na mobilu je vedle sebe stejně nic
+   nedrží a takhle má pole celou šířku karty. */
+.lobby-field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(5px * var(--ui));
+  font-family: var(--label-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.lobby-field .field-text,
+.lobby-field .field-select {
+  flex: none;
+  width: 100%;
+}
+
+/* Kód se opisuje z cizí obrazovky, takže musí být čitelný znak po znaku —
+   mřížkové písmo a rozpalované mezery. */
+.code-input {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.lobby-check {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 0.875rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.lobby-check input {
+  width: calc(16px * var(--ui));
+  height: calc(16px * var(--ui));
+  accent-color: var(--accent);
+  flex: none;
+}
+
+.lobby-card .btn-roll {
+  margin-top: auto;
+}
+
+/* -------------------------------------------------------------- čekárna */
+.lobby-room {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  align-items: start;
+  gap: var(--sp-4);
+  width: 100%;
+  max-width: var(--stack-w);
+}
+
+.lobby-code-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  text-align: center;
+}
+
+.lobby-code {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 9vw, 3rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  /* mezera za posledním znakem, ať ho letter-spacing neodsune z osy */
+  text-indent: 0.18em;
+  color: var(--accent);
+}
+
+.lobby-code-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.lobby-party-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.lobby-hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.lobby-hint:empty {
+  display: none;
+}
+
+.lobby-room-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.lobby-room-actions .btn {
+  flex: 1;
+  min-width: calc(120px * var(--ui));
+  justify-content: center;
+}
+
+/* -------------------------------------------------------------- sestava */
+/* Stejná kostra jako řádek žebříčku, ale s vlastními třídami: tady se
+   průběžně přepisuje skóre i postup a řádek nese jiné údaje. */
+.party-list {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background-color: var(--border);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.party-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: calc(9px * var(--ui)) calc(12px * var(--ui));
+  background-color: var(--surface);
+}
+
+/* S pořadím přibude sloupec vlevo — jinak je řádek stejný. Třídu dává
+   klient, ne selektor `:has()`: pořadí zná stejně jen ten, kdo řádek skládá. */
+.party-row.is-ranked {
+  grid-template-columns: auto 1fr auto;
+}
+
+.party-rank {
+  min-width: calc(24px * var(--ui));
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--text-faint);
+}
+
+.party-row.is-podium .party-rank,
+.party-row.is-podium .party-score {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.party-row.is-mine {
+  background-color: var(--accent-soft);
+}
+
+.party-who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.party-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: calc(6px * var(--ui));
+  font-weight: 700;
+  font-size: 0.9375rem;
+  min-width: 0;
+}
+
+.party-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.party-score {
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 1.25rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+/* V dialogu na konci hry sedí sestava v užším sloupci než na stránce. */
+.party-list--dialog {
+  margin-top: var(--sp-2);
+  text-align: left;
+}
+
+/* ------------------------------------------------------------------ hra */
+.lobby-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(10px * var(--ui));
+  width: 100%;
+}
+
+/* Pole vlevo, sestava vpravo. Sestava má pevnou šířku, ať se pole nezmenšuje
+   podle toho, jak dlouhé přezdívky si kdo zvolil. */
+.lobby-play {
+  display: grid;
+  grid-template-columns: auto minmax(calc(240px * var(--ui)), calc(320px * var(--ui)));
+  align-items: start;
+  gap: var(--sp-4);
+  width: 100%;
+  justify-content: center;
+}
+
+.lobby-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+}
+
+.lobby-side .section-head {
+  margin: 0;
+}
+
+/* Zadavatel, který jen rozdává, žádné pole nemá — zůstane mu konzole
+   s posledním číslem a sestava, kde vidí, jak si ostatní vedou. */
+.lobby-game.is-dealer .board-wrap {
+  display: none;
+}
+
+.lobby-game.is-dealer .lobby-play {
+  grid-template-columns: minmax(min(100%, calc(280px * var(--ui))), calc(460px * var(--ui)));
+}
+
+/* Konzole skupinové hry nese o prvek víc než ostatní (odznak žolíků), takže
+   dostane větší rozestup — jinak se odznak lepí na popisku vedle. */
+.lobby-game .console-actions {
+  gap: var(--sp-3);
+}
+
+.lobby-turn {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--label-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  text-align: right;
+  text-wrap: pretty;
+}

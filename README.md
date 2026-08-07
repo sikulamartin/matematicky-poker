@@ -2,7 +2,9 @@
 
 Kombinační hra s čísly 1–13 na poli 5×5. Taháš karty z balíčku, rozhoduješ, kam je zapíšeš, a sbíráš body za pokerové kombinace ve všech řádcích, sloupcích a obou úhlopříčkách. Zapsané číslo už nejde přesunout — každý tah je konečný.
 
-Celá hra běží jako statický web v prohlížeči. Žádný backend, žádný build, žádné závislosti a žádná data neopouštějí zařízení hráče.
+Hra běží jako statický web v prohlížeči. Výjimky jsou dvě: režim **o žebříček**, kde partii řídí server (veřejná tabulka rekordů jinak nemá cenu — skóre spočítané v prohlížeči si každý přepíše), a **hra ve skupině**, kde server rozdává jednu řadu čísel celému lobby.
+
+Bez serveru je web pořád plně hratelný. Odpadne jenom žebříček a hra ve skupině.
 
 **Živá verze:** [matematicky-poker](https://matematickypoker.netlify.app/)
 
@@ -10,11 +12,14 @@ Celá hra běží jako statický web v prohlížeči. Žádný backend, žádný
 
 | Režim | Stránka | Popis |
 |---|---|---|
-| **Hra — lehká** | `easy.html` | Plná hra bez časového tlaku. |
-| **Hra — těžká** | `hard.html` | Odpočet 3–300 sekund na jedno číslo. Co nestihneš uložit, propadne a políčko zůstane prázdné. |
+| **Hra — lehká** | `easy.html` | Plná hra bez časového tlaku. Karty rozdává a body počítá server, aby se partie dala připsat do statistik profilu; bez připojení hra běží dál místně a nezapíše se. |
+| **Hra — těžká** | `hard.html` | Odpočet 3–300 sekund na jedno číslo. Co nestihneš uložit, propadne a políčko zůstane prázdné. Jinak stejné jako lehká — server rozdává, statistiky se počítají u něj. |
+| **Hra — o žebříček** | `ranked.html` | Karty rozdává a body počítá server. Výsledek jde do veřejné tabulky. Vyžaduje připojení. |
+| **Hra — ve skupině** | `skupina.html` | Zadavatel tahá čísla pro celou skupinu, každý je skládá do vlastního pole. Na konci pořadí skupiny. Vyžaduje připojení. |
+| **Žebříček** | `leaderboard.html` | Nejlepší hráči za dnešek, týden, měsíc a celkově. |
 | **Výběr čísel** | `number selection.html` | Samostatný generátor pro hru na papíře. Historie tahů, přehled zbývajících karet, rozehraná hra přežije reload. |
 | **Tabulka** | `table.html` | Prázdné pole k ručnímu vyplnění s průběžným bodováním. |
-| **Profil** | `account.html` | Lokální účty (bez hesla a bez serveru), statistiky a správa uložených dat. |
+| **Profil** | `account.html` | Lokální účty (bez hesla a bez registrace), statistiky ověřené serverem a správa uložených dat. |
 | **Pravidla** | `rules.html` | Kompletní pravidla a bodovací tabulka. |
 | **Zásady** | `privacy.html` | Co se ukládá, kam a jak to smazat. |
 
@@ -25,24 +30,82 @@ Dál:
 - **Vlastní dialogy** místo `alert()` / `confirm()` / `prompt()` — stylovatelné, přístupné, s ochrannou lhůtou proti nechtěnému potvrzení dojezdem stisku.
 - **Souhlas s ukládáním** — bez něj hra funguje, jen si po zavření karty nic nepamatuje.
 - **Responzivní layout** — od úzkých telefonů po velké monitory, pod 860 px se lišta sbalí do hamburgeru.
+- **Žebříček řízený serverem** — čtyři období (dnes, tento týden, tento měsíc, celkově), jeden nejlepší výsledek na hráče, skóre vzniká na serveru.
+- **Skupinová hra v lobby** — kód o pěti znacích, až dvanáct hráčů, sdílená řada čísel a průběžné pořadí vedle pole.
 
 ## Spuštění
 
-Repozitář je čistě statický. Stačí ho naklonovat a otevřít přes lokální server:
+### Bez serveru — stačí statický server
 
 ```bash
 git clone https://github.com/sikulamartin/matematicky-poker.git
 cd matematicky-poker
-python3 -m http.server 8000
+python3 -m http.server 8000 --directory public
 ```
 
-Pak otevři <http://localhost:8000>.
+Otevři <http://localhost:8000>. Hrát jde všechno; `ranked.html`, `skupina.html` a `leaderboard.html` řeknou, že server neodpovídá, a `easy.html` s `hard.html` přepnou na místní hru — partie se v ní nezapíšou do statistik profilu.
 
-Dvojklik na `index.html` (`file://`) není dobrý nápad — cookies přes něj nefungují, takže se rozbijí profily. Samotná hra by šla, ukládání ne.
+Dvojklik na `public/index.html` (`file://`) není dobrý nápad — cookies přes něj nefungují, takže se rozbijí profily.
 
-Nic se neinstaluje, nic se nekompiluje — žádné `package.json`, žádný bundler. Jediná externí věc jsou webfonty z Google Fonts; bez internetu se web vykreslí systémovým písmem.
+### Se žebříčkem — Netlify CLI
 
-Nasazení je jen nahrání souborů na jakýkoli statický hosting. Pozor jen na `number selection.html` — má v názvu mezeru a v odkazech je psaný jako `number%20selection.html`.
+```bash
+npm install
+npm run dev          # netlify dev na http://localhost:8888
+```
+
+`netlify dev` naservíruje `public/` a k tomu spustí funkce z `netlify/functions/` včetně lokální sandboxové náhrady Netlify Blobs. Produkční data se přes ni nedají číst.
+
+### Bez Netlify, ale se žebříčkem
+
+```bash
+npm run serve       # http://localhost:8788
+```
+
+`tests/server.mjs` je náhrada všech tří funkcí: drží data v paměti a všechnu herní
+logiku bere ze stejného `lib/run.mjs` a `lib/lobby.mjs` jako produkce, takže se pod
+ním dá zkoušet i `ranked.html` a `skupina.html`. Nic se neinstaluje.
+
+### Testy
+
+```bash
+npm test
+```
+
+Projede serverový automat partie v Node — bez Netlify, protože
+`netlify/functions/lib/run.mjs` schválně nesahá na síť ani na úložiště. Kromě
+běžného průběhu hry testuje pokusy o podvrh, časový limit těžké obtížnosti
+a scénář s uschovanými žolíky.
+
+| Soubor | Co hlídá |
+|---|---|
+| `tests/run.mjs` | stavový automat partie: pravidla, žolíci, limit, pokusy o podvrh |
+| `tests/joker.mjs` | uschované žolíky na konci pole a náhrobek dohrané partie |
+| `tests/zebricek.mjs` | zápis do žebříčku proti dvěma napodobeninám úložiště (s ETagy i bez nich) a hranice období v českém čase |
+| `tests/statistiky.mjs` | počítání statistik profilu a jejich podmíněný zápis do záznamu hráče včetně souběhu dvou karet |
+| `tests/skupina.mjs` | lobby skupinové hry: sdílená řada čísel, oprávnění zadavatele, uschovaní žolíci, propadnutí v těžké obtížnosti, pořadí a nové kolo |
+
+`tests/zebricek.mjs` si podstrkuje vlastní úložiště přes nepovinný parametr
+`submitScore(entry, store)`, takže testuje skutečný zápisový cyklus, ne jeho
+kopii.
+
+**Pozor při testování v prohlížeči:** headless Chrome s `--virtual-time-budget`
+zrychluje hodiny stránky, ale server běží v reálném čase. Klient si myslí, že
+mezi tahy počkal 260 ms, server vidí 4 ms a odmítá je jako `too_fast`. Není to
+chyba hry — jen se takhle nedá měřit nic, co závisí na čase. Reálný průběh
+partie je 52 požadavků na 25 políček.
+
+## Nasazení na Netlify
+
+1. Naklikej v Netlify **Add new site → Import an existing project** a vyber repozitář.
+2. Build nastavení se načte z [netlify.toml](netlify.toml), nic se nevyplňuje ručně:
+   - publish adresář `public`
+   - funkce `netlify/functions`
+3. Netlify Blobs se zapne samo při prvním zápisu — žádný klíč, žádná druhá služba, žádná konfigurace.
+
+Publish adresář je schválně `public/`, ne kořen repozitáře: Netlify nahraje publish adresář tak, jak je, a v kořeni by s ním šlo nahoru i `node_modules` a serverový kód.
+
+Pozor na `number selection.html` — má v názvu mezeru a v odkazech je psaný jako `number%20selection.html`.
 
 ## Pravidla ve zkratce
 
@@ -76,48 +139,85 @@ Nasazení je jen nahrání souborů na jakýkoli statický hosting. Pozor jen na
 | Pár vedle sebe | `4 11 11 2 7` | 15 |
 | Pár | `4 11 2 7 11` | 10 |
 
-Zdroj pravdy je pole `COMBOS` v [js/scoring.js](js/scoring.js) — tabulka v `rules.html` i tady v README ho jen opisuje.
+Zdroj pravdy je pole `COMBOS` v [public/shared/rules.js](public/shared/rules.js) — tabulka v `rules.html` i tady v README ho jen opisuje.
+
+`shared/rules.js` běží doslova dvakrát: v prohlížeči jako klasický `<script>` a v Netlify funkci jako CommonJS modul (proto ten UMD obal). Od chvíle, kdy skóre počítá i server, musí obě strany dát na stejné pole stejné číslo — dvě kopie bodovací tabulky by se dřív nebo později rozešly a hráč by v žebříčku viděl jiné body, než mu ukázala hra.
 
 ## Struktura projektu
 
 ```
 .
-├── index.html                 rozcestník
-├── difficulty.html            volba obtížnosti
-├── easy.html  hard.html       hra (bez času / s odpočtem)
-├── number selection.html      generátor čísel pro hru na papíře
-├── table.html                 ruční tabulka s bodováním
-├── account.html               profil a statistiky
-├── rules.html                 pravidla
-├── privacy.html               zásady zpracování dat
+├── netlify.toml               publish adresář, funkce, přesměrování /api/*
+├── package.json               jediné závislosti: @netlify/blobs + netlify-cli
 │
-├── css/
-│   ├── main.css               jediný <link> v HTML, importuje zbytek
-│   ├── tokens.css             sdílené škály + smlouva proměnných pro motivy
-│   ├── base.css               reset, rozměry pole, kostra stránky
-│   ├── components.css         lišta, tlačítka, rozcestník, dialogy
-│   ├── board.css              konzole nad polem a hrací pole
-│   ├── picker.css             stránka Výběr čísel
-│   ├── prose.css              textové stránky (Pravidla, Zásady)
-│   ├── account.css            odznak účtu, Profil, lišta souhlasu
-│   ├── responsive.css         zvětšování pro velké displeje i zmenšování
-│   └── theme-{terminal,academism,legacy}.css
+├── public/                    ← publish adresář, celý statický web
+│   ├── index.html                 rozcestník
+│   ├── difficulty.html            volba režimu
+│   ├── easy.html  hard.html       místní hra (bez času / s odpočtem)
+│   ├── ranked.html                hra o žebříček, řízená serverem
+│   ├── skupina.html               hra ve skupině — lobby, sdílená čísla, pořadí
+│   ├── leaderboard.html           tabulka nejlepších
+│   ├── number selection.html      generátor čísel pro hru na papíře
+│   ├── table.html                 ruční tabulka s bodováním
+│   ├── account.html               profil a statistiky
+│   ├── rules.html                 pravidla
+│   ├── privacy.html               zásady zpracování dat
+│   │
+│   ├── shared/rules.js        pravidla hry pro OBĚ strany (UMD)
+│   │
+│   ├── css/
+│   │   ├── main.css               jediný <link> v HTML, importuje zbytek
+│   │   ├── tokens.css             sdílené škály + smlouva proměnných pro motivy
+│   │   ├── base.css               reset, rozměry pole, kostra stránky
+│   │   ├── components.css         lišta, tlačítka, rozcestník, dialogy
+│   │   ├── board.css              konzole nad polem a hrací pole
+│   │   ├── picker.css             stránka Výběr čísel
+│   │   ├── prose.css              textové stránky (Pravidla, Zásady)
+│   │   ├── account.css            odznak účtu, Profil, lišta souhlasu
+│   │   ├── leaderboard.css        žebříček, taby, lišta spojení
+│   │   ├── lobby.css              skupinová hra: čekárna, sestava, pořadí
+│   │   ├── responsive.css         zvětšování pro velké displeje i zmenšování
+│   │   └── theme-{terminal,academism,legacy}.css
+│   │
+│   ├── js/
+│   │   ├── icons.js               SVG sprite, načítá se jako první
+│   │   ├── theme.js               přepínač motivů
+│   │   ├── ui.js                  dialogy, výběr hodnoty, hlášky
+│   │   ├── consent.js             souhlas s ukládáním
+│   │   ├── store.js               lokální profily, mezipaměť statistik ze serveru
+│   │   ├── account.js             odznak účtu v liště
+│   │   ├── nav.js                 hamburgerová nabídka
+│   │   ├── scoring.js             napojení bodování na tabulku v DOM
+│   │   ├── deck.js                balíček v prohlížeči
+│   │   ├── game.js                místní hra bez serveru — záložní režim
+│   │   ├── api.js                 jediné místo, kde web sahá na síť
+│   │   ├── online.js              hra na serveru: easy, hard i žebříček
+│   │   ├── skupina.js             skupinová hra — tenký klient s dotazováním
+│   │   ├── leaderboard.js         stránka Žebříček
+│   │   ├── profile.js             stránka Profil
+│   │   ├── numbers.js             stránka Výběr čísel
+│   │   └── freetable.js           stránka Tabulka
+│   │
+│   └── img/                   ikony, favicon, podkladové vzory
 │
-├── js/
-│   ├── icons.js               SVG sprite, načítá se jako první
-│   ├── theme.js               přepínač motivů
-│   ├── ui.js                  dialogy, výběr hodnoty, hlášky
-│   ├── consent.js             souhlas s ukládáním
-│   ├── store.js               lokální profily a statistiky
-│   ├── account.js             odznak účtu v liště
-│   ├── nav.js                 hamburgerová nabídka
-│   ├── scoring.js             bodování 12 linií
-│   ├── deck.js                balíček 54 karet
-│   ├── game.js                řízení hry (easy + hard)
-│   ├── numbers.js             stránka Výběr čísel
-│   └── freetable.js           stránka Tabulka
+├── netlify/functions/
+│   ├── hra.mjs                POST /api/hra — start, tah, žolík, konec
+│   ├── skupina.mjs            POST /api/skupina — lobby, tažení, pokládání
+│   ├── zebricek.mjs           GET  /api/zebricek — výpis pořadí
+│   ├── profil.mjs             POST /api/profil — ověřené statistiky hráče
+│   └── lib/
+│       ├── run.mjs                stavový automat partie (čistá logika)
+│       ├── lobby.mjs              stavový automat lobby (čistá logika)
+│       ├── stats.mjs              výpočet statistik profilu (čistá logika)
+│       └── store.mjs              Netlify Blobs: partie, hráči, žebříček, lobby
 │
-├── img/                       ikony, favicon, podkladové vzory
+├── tests/
+│   ├── run.mjs                testy serverového automatu (npm test)
+│   ├── joker.mjs              žolíci na konci pole, náhrobek dohrané partie
+│   ├── zebricek.mjs           zápis do žebříčku s ETagy i bez nich
+│   ├── statistiky.mjs         statistiky profilu: výpočet i souběžný zápis
+│   ├── skupina.mjs            lobby: sdílená čísla, oprávnění, pořadí
+│   └── server.mjs             lokální náhrada všech funkcí (npm run serve)
 └── _original/                 první verze webu, ponechána pro srovnání
 ```
 
@@ -131,34 +231,41 @@ Složka `_original/` je archiv původní implementace před přepsáním. Nic z 
 |---|---|---|
 | `MPIcons` | `js/icons.js` | `markup(name)`, `names` |
 | `MPTheme` | `js/theme.js` | `apply(id)`, `current()`, `themes` |
-| `MPUI` | `js/ui.js` | `open()`, `pickValue()`, `toast()`, `isOpen()` |
+| `MPUI` | `js/ui.js` | `open()`, `pickValue()`, `toast()`, `isOpen()`, `close()` |
 | `MPConsent` | `js/consent.js` | `state()`, `granted()`, `set()`, `onChange()`, `cookie` |
-| `MPStore` | `js/store.js` | `list()`, `active()`, `create()`, `record()`, `exportJSON()`, `onChange()`, … |
+| `MPStore` | `js/store.js` | `list()`, `active()`, `create()`, `setStats()`, `exportJSON()`, `onChange()`, … |
 | `MPAccount` | `js/account.js` | `promptName()`, `openMenu()`, `refresh()` |
 | `MPDeck` | `js/deck.js` | `create()`, `VALUES`, `COPIES`, `JOKERS` |
-| `MPScore` | `js/scoring.js` | `attach(table, totalEl)`, `evaluate(grid)`, `COMBOS` |
+| `MPScore` | `js/scoring.js` | `attach(table, totalEl)`, `evaluate(grid)`, `combos` |
+| `MPRules` | `shared/rules.js` | `COMBOS`, `evaluate()`, `scoreGrid()`, `buildDeck()`, … |
+| `MPApi` | `js/api.js` | `startRun()`, `act()`, `lobby()`, `leaderboard()`, `stats()`, `resetStats()`, `probe()`, `player()` |
+| `MPGame` | `js/game.js` | `start({ statsNote })` — spouští ji `online.js`, sama se nespustí |
+| `MPRanked` | `js/online.js` | `publishAllowed()`, `setPublish()`, `decided()` |
 
 ### Pořadí načítání
 
 Na pořadí `<script>` tagů záleží a při přidávání stránky je potřeba ho dodržet:
 
 ```html
-<script src="js/icons.js"></script>   <!-- první v <body>, sprite musí být v DOM -->
+<script src="js/icons.js"></script>      <!-- první v <body>, sprite musí být v DOM -->
 ...
+<script src="shared/rules.js"></script>  <!-- před scoring.js i deck.js -->
 <script src="js/theme.js"></script>
 <script src="js/ui.js"></script>
-<script src="js/consent.js"></script>  <!-- před store.js -->
+<script src="js/consent.js"></script>    <!-- před store.js -->
 <script src="js/store.js"></script>
-<script src="js/account.js"></script>  <!-- před nav.js -->
+<script src="js/account.js"></script>    <!-- před nav.js -->
 <script src="js/nav.js"></script>
 <!-- dál už jen skripty konkrétní stránky -->
 ```
 
-Tři tvrdé závislosti:
+Čtyři tvrdé závislosti:
 
 - `icons.js` musí být první prvek v `<body>`, jinak odkazy `<use href="#i-…">` nemají na co ukázat.
+- `shared/rules.js` běží před `scoring.js` a `deck.js` — oba si z něj berou bodovací tabulku i složení balíčku.
 - `consent.js` běží před `store.js` — store se ho ptá, jestli vůbec smí sáhnout na disk.
 - `account.js` běží před `nav.js` — nav si obsah `.rail-actions` přebírá do sbalené nabídky, co přijde později, už tam nespadne.
+- `store.js` běží před `api.js` — api se ho ptá, kterému profilu má připsat identitu; a `game.js` před `online.js`, protože online.js mu při výpadku serveru předává řízení.
 
 Volba motivu se navíc nasazuje malým inline skriptem v `<head>` každé stránky, aby web při načtení neproblikl výchozím motivem.
 
@@ -175,23 +282,132 @@ Přidání motivu:
 
 Motivy: `terminal`, `academism` (výchozí), `legacy`. Historické názvy `papir`, `anthropic`, `studio`, `noc` se automaticky mapují na nástupce.
 
+Přepínač v liště je rozbalovací seznam: spouštěč ukazuje zvolený motiv, po kliknutí se rozbalí `role="listbox"` se všemi motivy (šipky, Home/End, Enter, Escape). V hamburgerové nabídce se spouštěč schová a seznam se rozloží napevno pod nadpis „Motiv“ — o to se stará `responsive.css`, ne JavaScript. Další motiv v poli `THEMES` se do seznamu přidá sám, šířku lišty už neovlivní.
+
+## Server a žebříček
+
+Celý server jsou čtyři funkce a čtyři úložiště v Netlify Blobs. Žádná databáze, žádný druhý účet.
+
+| Endpoint | Co dělá |
+|---|---|
+| `POST /api/hra` | jediný vstup do partie: `start`, `draw`, `place`, `joker`, `usejoker`, `timeout`, `giveup` |
+| `POST /api/skupina` | jediný vstup do skupinové hry: `create`, `join`, `state`, `start`, `draw`, `place`, `storejoker`, `usejoker`, `timeout`, `finish`, `restart`, `leave`, `hostplaying` |
+| `GET /api/zebricek?obdobi=day\|week\|month\|all` | výpis pořadí |
+| `POST /api/profil` | ověřené statistiky hráče; `action: 'reset'` je vynuluje. POST proto, že k nim je potřeba tajemství — v adrese by skončilo v historii a v logu |
+
+**Klient nikdy neposílá skóre.** Balíček i pole leží na serveru, klient říká jen „polož kartu na 2,3“ a dostane zpátky nový stav. Odpověď schválně neobsahuje zbytek balíčku (`publicState()` v [run.mjs](netlify/functions/lib/run.mjs)) — kdyby ho posílala, mohl by si hráč tahy naplánovat dopředu a celá práce by byla k ničemu.
+
+Přes stejný endpoint jde i lehká a těžká obtížnost. Není to kvůli žebříčku, ale kvůli statistikám profilu: číslo, které si spočítá prohlížeč, si hráč v konzoli přepíše, a žádná kontrola s tím nic neudělá, protože běží na stejném místě, kde se podvádí. Rozdíl je jen v tom, co se s výsledkem stane — do žebříčku jde pouze `ranked.html` a jen se souhlasem se zveřejněním.
+
+Další věci, které z toho plynou:
+
+- **Identita hráče** je dvojice náhodné id + tajemství, kterou server vydá při první partii. Tajemství se ukládá jako SHA‑256 otisk. Pod identitou leží i statistiky profilu, takže se zahodí jen na výslovné přání (Smazat všechna data), ne při vypnutí žebříčku. Identit je tolik, kolik má prohlížeč místních profilů — `localStorage['mp-player']` je mapa `profileId → identita`, aby si dva sourozenci u jednoho notebooku nesečetli skóre dohromady. Je to slabá identita a nemá předstírat nic víc — brání jedinému, ale podstatnému: aby jeden hráč nezaplavil žebříček pod deseti přezdívkami z jednoho prohlížeče. Záznam hráče se proto nesmí přepsat verzí bez otisku: bez něj se hráč příští partii neprokáže, dostane novou identitu a v tabulce mu přibude řádek místo toho, aby se výsledek srovnal s jeho nejlepším.
+- **`runId` je klíč od partie.** Náhodné UUID, kdo ho má, hraje. Tajemství se u každého tahu neověřuje — uhodnout UUID je stejně nemožné a ušetří to jedno čtení z úložiště na tah.
+- **Časový limit těžké obtížnosti hlídá server.** Bez toho by stačilo v prohlížeči vypnout odpočet a hrát na neomezený čas, ale zapsat se jako těžká obtížnost. Pozdní tah kartu nepoloží — propadne. Rezerva 1,5 s pokrývá cestu požadavku.
+- **Dohraná partie po sobě nechává náhrobek**, nemaže se. Je to malý záznam
+  s koncovým stavem místo celého balíčku. Kdyby se mazala, dostal by 404 každý
+  požadavek, který dorazí po tom posledním — opakované odeslání při výpadku
+  spojení, druhý klik, prohlížeč, který si požadavek zopakoval sám. Hráč pak
+  uviděl *„Partie na serveru už není“* přesně ve chvíli, kdy položil poslední
+  kartu. Přehrát se z náhrobku nedá nic: nejsou v něm karty a další akce
+  narazí na `run_over`.
+- **Úklid** běží líně — při zhruba každém dvacátém startu se smažou náhrobky
+  starší hodiny a partie, které nikdo nedohrál (6 h). Bez toho by úložiště jen
+  rostlo, protože zavřenou kartu prohlížeče nemá kdo ohlásit.
+- **Zápis do žebříčku je až po náhrobku a smí selhat.** Je to nejkřehčí část
+  celého tahu — čtyři období, každé s vlastním cyklem. Když se dělal první a
+  spadl, propadla s ním celá odpověď: partie zůstala v úložišti nedohraná,
+  hráč dostal 500 a po dalším kliknutí totéž. Vypadalo to, že *poslední kartu
+  prostě nejde položit*. Dohraná partie je fakt sám o sobě; neúspěšný zápis
+  stojí hráče řádek v tabulce, ne odehranou hru (`boardFailed` v odpovědi).
+- **Souběžné zápisy** do žebříčku řeší podmíněný zápis: čte se s `consistency: 'strong'`, zapisuje přes `onlyIfMatch: etag`, a když někdo mezitím stihl zapsat, celý cyklus se opakuje. Bez toho by Blobs dělaly „poslední vyhrává“ a výsledky by se ztrácely.
+- **ETag nemusí dorazit.** Lokální náhrada Blobs v `netlify dev` vrací tělo bez
+  hlavičky `etag`. Dokud se v tom případě posílalo `onlyIfNew`, odpovídalo
+  úložiště 412 (záznam přece existuje), cyklus šestkrát selhal a skončil
+  výjimkou — pod `netlify dev` tedy nešla dohrát žádná partie od té druhé dál.
+  Existující záznam bez ETagu se proto zapisuje bez podmínky: souběh se
+  neuhlídá, ale v lokálním vývoji hraje jeden člověk. Hlídá to
+  [tests/zebricek.mjs](tests/zebricek.mjs).
+- **Období jsou čtyři** a každé je vlastní klíč: `d-RRRR-MM-DD`, `w-RRRR-Www`, `m-RRRR-MM` a `all`. Hranice dne, týdne i měsíce se počítají v **českém čase**, ne v UTC — partie dohraná ve 23:30 by jinak spadla do včerejška a v tabulce „Dnes“ by se neobjevila.
+- **Na hráče se drží jediný nejlepší výsledek** v každém období. Jinak by deset dobrých partií jednoho člověka vytlačilo z první desítky všechny ostatní.
+- **Do žebříčku jdou jen dohrané partie** se všemi 25 políčky, a jen když hráč zapnul zveřejnění přezdívky.
+
+### Skupinová hra
+
+Lobby je jeden záznam v úložišti `mp-lobby` pod pětiznakovým kódem. Drží balíček,
+řadu vytažených čísel a pole všech hráčů. Stavový automat je
+[lib/lobby.mjs](netlify/functions/lib/lobby.mjs) — stejně jako `run.mjs` nesahá
+na síť ani na úložiště, takže se dá celý otestovat v Node
+([tests/skupina.mjs](tests/skupina.mjs)).
+
+- **Sdílená řada čísel je celý smysl režimu.** Kdyby si každý tahal sám, vyhrál
+  by ten, kdo dostal lepší karty. Takhle mají všichni stejná čísla a liší se jen
+  tím, kam je položili. Čísla tahá zadavatel; každý hráč má `cursor` — kolik jich
+  už vyřídil — a jeho aktuální číslo je vždycky `sequence[cursor]`.
+- **Zaostat je dovolené.** Zadavatel může táhnout dál, i když někdo ještě
+  nepoložil: pomalejšímu se čísla nakupí ve frontě a dohání je popořadě. V těžké
+  obtížnosti to neplatí — termín je společný pro celou skupinu (počítá se od
+  vytažení) a co se nestihne, propadne. Kdyby byl termín individuální, hrál by
+  pomalý hráč s delším časem než ostatní.
+- **Žolíka dostane skupina naráz a každý s ním naloží po svém** — položí ho
+  s vlastní hodnotou, nebo si ho uschová. Sdílenou řadu to nerozhodí: `cursor`
+  se posune tak jako tak, žolík je prostě vyřízený jinak. Uschovaný žolík se
+  pak pokládá mimo řadu (spotřebuje políčko, ne číslo z fronty), takže jde
+  uplatnit i s číslem v ruce a přežije i dojetí balíčku — hráč s žolíkem v ruce
+  se proto neuzavře jako dohraný, dokud ho nepoloží.
+- **Kód lobby neprokazuje nic** — zná ho celá skupina, to je jeho účel. Co smí
+  konkrétní hráč, se pozná až podle dvojice `playerId` + `token`, kterou dostane
+  při připojení. Token leží v lobby, které se stejně čte při každé akci, takže
+  ověření nestojí ani jedno čtení navíc.
+- **Souběžné zápisy** jsou tu častější než u žebříčku: do jednoho záznamu píše
+  každé položené číslo. Řeší to `updateLobby()` v
+  [store.mjs](netlify/functions/lib/store.mjs) — přečti s ETagem, uprav, zapiš
+  podmíněně, při kolizi zopakuj úpravu nad čerstvým stavem. Úprava proto musí
+  být přepočitatelná.
+- **Klient se ptá, neposlouchá.** Žádné WebSockety — statický hosting by kvůli
+  nim musel držet spojení. Cadence se řídí tím, na co se čeká: 0,7 s když hráč
+  čeká na další číslo, 1,2 s u zadavatele, 2,2 s v čekárně a při vlastním
+  rozmýšlení, 3 s po konci hry (hlídá se jen, jestli přijde další kolo).
+- **Akce hráče se řadí do fronty, dotaz na stav se zahazuje.** Dokud se akce při
+  obsazené lince rovnou zahazovala, mizela hráči kliknutí — stisk se trefil do
+  právě běžícího dotazu na pozadí a neprovedl se vůbec, bez chyby a bez hlášky.
+- **Výsledky skupinové hry nejdou do veřejného žebříčku.** Hraje se se sdílenými
+  čísly a pod taktovkou zadavatele, takže se s partiemi o žebříček porovnat
+  nedají. Pořadí skupiny žije jen v lobby a mizí s ním (úklid po 6 hodinách od
+  poslední akce).
+
+### Co server pořád neumí
+
+Server brání podvrhu skóre, přehrání staré partie i hraní se znalostí balíčku dopředu. **Nebrání tomu, aby dobře hrál skript** — a bez měření chování hráče se s tím rozumně dělat nic nedá. Tenhle problém má každá online hra.
+
 ## Co se ukládá
 
-Nic se neposílá na server — hra žádný nemá. Všechno leží v prohlížeči hráče a dělí se na dvě kategorie:
+Do žebříčku jde jen to, co hráč sám odešle dohranou partií v režimu o žebříček — přezdívka, skóre, obtížnost, délka hry a datum. Lehká a těžká obtížnost se serverem hrají, ale nezveřejňují nic: k identitě hráče se připíšou jen jeho vlastní čísla, která vidí on sám. Bez zapnutého ukládání se na server nechodí vůbec a hraje se místně. Ve skupinové hře jde na server přezdívka a rozehrané pole, ale vidí je jenom ti, kdo znají kód lobby, a s lobby to i zmizí. Zbytek leží v prohlížeči a dělí se na dvě kategorie:
 
 | Kategorie | Co | Kde | Podmíněno souhlasem |
 |---|---|---|---|
 | Nezbytné | volba motivu, záznam o souhlasu | `localStorage['mp-theme']`, `localStorage` + cookie `mp_consent` | ne |
-| Volitelné | lokální profily a statistiky | `localStorage['mp-profiles']`, cookies `mp_profile`, `mp_stats` | ano |
+| Volitelné | lokální profily a mezipaměť statistik | `localStorage['mp-profiles']`, cookies `mp_profile`, `mp_stats` | ano |
 | Volitelné | rozehraná partie ve Výběru čísel | `localStorage['mp-picker']` | ano |
+| Volitelné | souhlas se zveřejněním v žebříčku | `localStorage['mp-publish']` | ano |
+| Volitelné | identita hráče (žebříček i statistiky), mapa profileId → identita | `localStorage['mp-player']` | ano |
+| Volitelné | místo v rozehrané skupinové hře | `localStorage['mp-seat']` | ano |
 
-Bez souhlasu drží `store.js` data jen v paměti karty: hra funguje normálně, po zavření se nic nezachová. Udělení souhlasu paměť rovnou uloží, odvolání uložené stopy smaže. Cookies jsou jen záloha aktivního profilu pro případ, že prohlížeč vyhodí `localStorage` — proto se zrcadlí jen aktivní profil, do 4 kB se víc nevejde.
+Bez souhlasu drží `store.js` data jen v paměti karty: hra funguje normálně, po zavření se nic nezachová. Udělení souhlasu paměť rovnou uloží, odvolání uložené stopy smaže. Cookies jsou jen záloha aktivního profilu pro případ, že prohlížeč vyhodí `localStorage` — proto se zrcadlí jen aktivní profil, do 4 kB se víc nevejde. Statistiky v prohlížeči jsou mezipaměť; smazat je tady znamená přijít o zobrazení, ne o čísla — ta drží server pod identitou hráče, a ta se maže spolu s ostatními daty.
 
-### Kontroly skóre — a čím nejsou
+Zveřejnění přezdívky je vědomě oddělené od souhlasu s ukládáním: jedno znamená „pamatuj si mě“, druhé „ukaž mě ostatním“. Ptá se na něj vlastní dialog před první partií o žebříček a přepnout jde v profilu.
 
-`store.js` má tři vrstvy kontrol: žeton partie (`beginRun` → jeden zápis), test věrohodnosti (body jsou násobky pěti, strop 1500, dohraná partie nemůže být kratší než 5 sekund) a kontrolní součet uloženého záznamu.
+### Kde vzniká skóre
 
-**Není to zabezpečení a nikdy jím být nemůže.** Celá hra běží u hráče, klíč k podpisu leží ve stejném souboru. Kdo si přečte zdroják, podvrhne si skóre. Kontroly zvedají laťku z „napiš do konzole jeden řádek“ na „přečti si zdroják a napiš skript“ a hlavně chytají poškozené zápisy — ručně přepsanou cookie, půlku objektu po zaplněném disku. Nepodvrhnutelnou tabulku rekordů umí jedině server, který sám drží balíček a sám vyhodnocuje tahy.
+Skóre i statistiky vznikají výhradně na serveru, ze stavu partie, kterou sám odehrál. Endpoint, kterým by šlo body poslat, neexistuje: `apply()` v [run.mjs](netlify/functions/lib/run.mjs) zná jen `draw`, `place`, `joker`, `usejoker`, `timeout`, `giveup` a `state`, cizí pole v těle požadavku propadnou. Statistiky se pak počítají v [stats.mjs](netlify/functions/lib/stats.mjs) z hodnot, které nikdo neposlal — skóre spočítal server, délku změřily jeho hodiny, obtížnost je ta, se kterou se partie zakládala.
+
+Prohlížeč si čísla jenom zrcadlí (`MPStore.setStats()`), aby šla ukázat i bez spojení. Kdo mezipaměť přepíše, oklame do nejbližšího spojení sám sebe: první odpověď ze serveru ji přepíše zpátky.
+
+**Dřív to tak nebylo.** Místní hra si počítala statistiky sama a `store.js` je hlídal žetonem partie, mezemi věrohodnosti a kontrolním součtem. Nic z toho zabezpečení nebylo a být nemohlo — hra běžela u hráče a klíč k podpisu ležel ve stejném souboru. Zůstal jen ten kontrolní součet, a to v roli, která mu patří: chytá poškozený zápis, ne podvod.
+
+**Co tím nepadá:** skript, který hraje dobře v reálném čase. Brzda pouští jedno tažení za 120 ms, víc se bez měření chování hráče dělat nedá. Padá podvrh skóre, přehrání staré partie a hraní se znalostí balíčku dopředu.
+
+**Cena** je připojení a 52 požadavků na partii. Bez serveru se easy i hard hrají dál místně — hra je úplná, jen se nikam nezapíše a dialog na konci to řekne.
 
 ## Ovládání a přístupnost
 
@@ -206,7 +422,9 @@ Hrací pole je `<table>` s `<caption>`, ne mřížka divů. Dialogy si hlídají
 
 ## Když v tom budeš hrabat
 
-Žádný build, žádné testy — úpravy se dělají přímo v souborech a ověřují v prohlížeči. Kód je psaný ve stylu ES5 (`var`, `function`, žádné moduly).
+Žádný build ani bundler. Klientský kód je psaný ve stylu ES5 (`var`, `function`, žádné moduly), serverové funkce jsou moderní ESM (`.mjs`) — proto `package.json` **nemá** `"type": "module"`: `shared/rules.js` musí zůstat CommonJS, aby ho uměl načíst prohlížeč jako obyčejný `<script>` i funkce přes `import`.
+
+Serverová logika se ověřuje pomocí `npm test`, klientská pořád jen v prohlížeči.
 
 Co držet:
 
@@ -215,3 +433,5 @@ Co držet:
 - **Žádná emoji v UI.** Ikony kreslí `js/icons.js` linkou 1,6 px a berou barvu z `currentColor`.
 - **Nezlomitelné mezery** po jednopísmenných předložkách a spojkách (`v&nbsp;poli`) — česká sazba je nenechává viset na konci řádku.
 - **Nové globální rozhraní** pověs na `window` jako `MP*` a doplň ho do tabulky výš.
+- **Pravidla hry patří do `shared/rules.js`**, ne do `scoring.js` ani do funkce. Dvě kopie bodovací tabulky se rozejdou a žebříček přestane sedět s tím, co hráč viděl ve hře.
+- **`publicState()` nesmí prozradit balíček.** Když do stavu partie přibude pole, rozmysli si, jestli ho klient opravdu smí vidět.

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="cs" data-theme="academism">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Matematický poker — těžká obtížnost s odpočtem času na každé číslo.">
+  <meta name="color-scheme" content="light dark">
+  <title>Těžká hra — Matematický Poker</title>
+  <link rel="icon" type="image/x-icon" href="img/image_Kv_uh2AR_1719232116258_512.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400..700&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@200..700&family=Roboto:wght@400;500;700&family=Schibsted+Grotesk:wght@400..900&family=Source+Serif+4:opsz,wght@8..60,300..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <script>
+    // motiv se nasadí ještě před vykreslením, aby stránka neproblikla
+    (function () {
+      try {
+        var t = localStorage.getItem('mp-theme');
+        if (t === 'papir' || t === 'anthropic') { t = 'academism'; }
+        if (t === 'studio') { t = 'terminal'; }
+        if (t === 'noc') { t = 'legacy'; }
+        if (t !== 'terminal' && t !== 'academism' && t !== 'legacy') { t = 'academism'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { /* localStorage nedostupný */ }
+    })();
+  </script>
+</head>
+
+<body data-mode="hard" class="page-hard">
+  <script src="js/icons.js"></script>
+  <div class="app">
+    <header class="rail">
+      <nav class="crumbs" aria-label="Drobečková navigace">
+        <a href="index.html"><svg class="icon" aria-hidden="true"><use href="#i-home"></use></svg>Domů</a>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <a href="difficulty.html">Hra</a>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <span class="crumb-current" aria-current="page">Těžká</span>
+      </nav>
+      <div class="rail-actions">
+        <a class="btn btn--ghost" href="rules.html">Pravidla</a>
+        <div data-theme-switch></div>
+      </div>
+    </header>
+
+    <main class="app-main page-board">
+      <div class="console corner-dots">
+        <div class="console-draw is-empty" id="drawTile">
+          <span class="console-label" id="drawOrder">tah</span>
+          <span class="console-draw-value" id="drawValue">–</span>
+        </div>
+
+        <div class="console-stats">
+          <div class="stat">
+            <span class="stat-label">Body</span>
+            <span class="stat-value" id="totalScore">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Políčka</span>
+            <span class="stat-value" id="placedCount">0/25</span>
+          </div>
+          <div class="stat stat--timer" id="timerTile" hidden>
+            <span class="stat-label">Zbývá</span>
+            <span class="stat-value" id="timerValue">00:00</span>
+          </div>
+        </div>
+
+        <div class="console-actions">
+          <div class="field" id="setupRow">
+            <label for="timeInput">Sekund</label>
+            <input id="timeInput" type="number" min="3" max="300" step="1" value="10"
+              inputmode="numeric">
+          </div>
+          <button type="button" class="joker-chip" id="jokerBadge" disabled
+            title="Uschovaní žolíci — klikni pro uplatnění">
+            <svg class="icon" aria-hidden="true"><use href="#i-joker"></use></svg><span id="jokerCount">0</span>
+          </button>
+          <button type="button" class="btn btn-roll" id="rollButton">Start</button>
+        </div>
+      </div>
+
+      <!-- Partie běží na serveru, aby se dala připsat do statistik. Když
+           spojení není, hra pokračuje místně a lišta to řekne. -->
+      <div class="net-bar" id="netBar" hidden>
+        <svg class="icon" aria-hidden="true"><use href="#i-alert"></use></svg>
+        <span id="netText">Server neodpovídá.</span>
+        <button type="button" class="btn btn--ghost" id="netRetry">Zkusit znovu</button>
+      </div>
+
+      <div class="board-wrap">
+        <table class="board" id="board">
+          <caption class="visually-hidden">Hrací pole 5×5 s bodovým hodnocením řádků, sloupců a úhlopříček.</caption>
+          <colgroup>
+            <col class="col-score">
+            <col class="col-play">
+            <col class="col-play">
+            <col class="col-play">
+            <col class="col-play">
+            <col class="col-play">
+            <col class="col-score">
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="corner" scope="col" title="Úhlopříčka zleva shora">0</th>
+              <th scope="col">0</th>
+              <th scope="col">0</th>
+              <th scope="col">0</th>
+              <th scope="col">0</th>
+              <th scope="col">0</th>
+              <th class="corner" scope="col" title="Úhlopříčka zprava shora">0</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">0</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <th aria-hidden="true"></th>
+            </tr>
+            <tr>
+              <th scope="row">0</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <th aria-hidden="true"></th>
+            </tr>
+            <tr>
+              <th scope="row">0</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <th aria-hidden="true"></th>
+            </tr>
+            <tr>
+              <th scope="row">0</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <th aria-hidden="true"></th>
+            </tr>
+            <tr>
+              <th scope="row">0</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <th aria-hidden="true"></th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="shared/rules.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/consent.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/scoring.js"></script>
+  <script src="js/deck.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/online.js"></script>
+</body>
+
+</html>

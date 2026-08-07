@@ -1,0 +1,800 @@
+/* ==========================================================================
+   Komponenty sdílené všemi stránkami
+
+   Sekce: ikony → tlačítka → lišta → přepínač motivů → rozcestník
+          → dialogy → hlášky → drobnosti
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ ikony */
+.icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+/* --------------------------------------------------------------- tlačítka */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(7px * var(--ui));
+  padding: calc(10px * var(--ui)) calc(17px * var(--ui));
+  border: var(--hairline) solid transparent;
+  border-radius: var(--r-btn);
+  background-color: var(--btn-bg);
+  color: var(--btn-ink);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  transition: background-color var(--t-fast), border-color var(--t-fast),
+    color var(--t-fast), transform var(--t-fast), opacity var(--t-fast);
+}
+
+.btn .icon {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.btn:hover:not(:disabled) {
+  background-color: var(--btn-bg-hover);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.btn--ghost {
+  background-color: transparent;
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: calc(6px * var(--ui)) calc(13px * var(--ui));
+  font-size: 0.78125rem;
+  border-radius: var(--r-pill);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.btn--quiet {
+  background-color: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.btn--quiet:hover:not(:disabled) {
+  background-color: var(--surface-3);
+}
+
+.btn--danger {
+  background-color: var(--bad);
+  color: #fff;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background-color: var(--bad);
+  filter: brightness(1.08);
+}
+
+/* ------------------------------------------------------------------ lišta */
+/* Lišta se při rolování přilepí k hornímu okraji. Podklad nekreslí sama, ale
+   pseudoprvek: ten smí přetéct do odsazení .app (nahoru o padding shellu, do
+   stran o --gutter), takže obsah neprosvítá rohy, a přitom se nehne šířka
+   obsahu ani spodní linka, kterou si na .rail kreslí motiv terminál. */
+.rail {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  /* Svislé odsazení drží obsah stránky od přilepené lišty. Vodorovné zůstává
+     nulové — drobečky mají vlastní vnitřní odsazení a musí lícovat s kartou
+     i hracím polem pod sebou. Výška lišty vstupuje do --chrome v base.css. */
+  padding-block: var(--rail-pad-y);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  min-height: calc(34px * var(--ui));
+}
+
+.rail::before {
+  content: "";
+  position: absolute;
+  /* 12px = padding-top shellu .app. Dole končí podklad na hraně padding boxu,
+     aby zůstala vidět spodní linka, kterou si .rail kreslí v motivu terminál. */
+  inset: calc(-12px * var(--ui)) calc(-1 * var(--gutter)) 0;
+  z-index: -1;
+  background-color: var(--bg);
+  pointer-events: none;
+}
+
+/* Tam, kde backdrop-filter funguje, zůstane podklad průsvitný — jinak by
+   neprůhledný pruh uřízl tónovací přechody, které má body u horní hrany. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .rail::before {
+    background-color: color-mix(in srgb, var(--bg) 72%, transparent);
+    backdrop-filter: blur(12px) saturate(1.4);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  }
+}
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  min-width: 0;
+}
+
+.crumbs a,
+.crumbs .crumb-current {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(5px * var(--ui));
+  padding: calc(5px * var(--ui)) calc(9px * var(--ui));
+  border-radius: var(--r-sm);
+  white-space: nowrap;
+}
+
+.crumbs a {
+  color: var(--text-muted);
+  transition: color var(--t-fast), background-color var(--t-fast);
+}
+
+.crumbs a:hover {
+  color: var(--text);
+  background-color: var(--surface-2);
+}
+
+.crumbs .crumb-sep {
+  color: var(--text-faint);
+  user-select: none;
+  font-size: 0.75rem;
+}
+
+.crumbs .crumb-current {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.rail-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+/* ------------------------------------------------- hamburgerová nabídka */
+/* Odkaz a přepínač motivů se na úzkém displeji vedle drobečků nevejdou.
+   js/nav.js proto obsah .rail-actions rozdělí do pojmenovaných skupin
+   (.rail-group), zabalí je do .rail-panel a přidá hamburger.
+
+   Skupina = nadpis + řada položek. Na široké liště se nadpisy nekreslí
+   a všechno leží v jedné řadě jako dřív; ve sbalené nabídce (responsive.css)
+   je z každé skupiny sekce s popiskem. Nová položka do lišty se tím pádem
+   nemusí nikde zvlášť řešit: dostane v HTML data-rail-group="Název"
+   a v nabídce si sama založí (nebo rozšíří) svou sekci. */
+.rail-panel,
+.rail-group,
+.rail-group-items {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.rail-burger,
+.rail-group-label {
+  display: none;
+}
+
+@keyframes rail-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-6px * var(--ui)));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* -------------------------------------------------------- přepínač motivů */
+/* Rozbalovací seznam: v liště stojí jen zvolený motiv, ostatní se ukážou
+   po kliknutí. Řada tří tlačítek brala šířku, kterou lišta potřebuje jinde.
+
+   Před názvem motivu stojí lomítko místo barevné tečky. Tečka slibovala, že
+   ukazuje paletu, ale v 10 px to nepozná nikdo — a v každém motivu působila
+   jako cizí prvek. Lomítko je jen oddělovač, takže nic neslibuje. */
+.theme-menu {
+  position: relative;
+}
+
+.theme-trigger,
+.theme-option {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(6px * var(--ui));
+  border-radius: var(--r-pill);
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background-color var(--t-fast), border-color var(--t-fast),
+    color var(--t-fast);
+}
+
+.theme-menu .theme-name::before {
+  content: "/";
+  margin-right: calc(6px * var(--ui));
+  color: var(--text-faint);
+  transition: color var(--t-fast);
+}
+
+.theme-trigger {
+  padding: calc(5px * var(--ui)) calc(10px * var(--ui));
+  border: var(--hairline) solid var(--border);
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.theme-trigger:hover {
+  border-color: var(--border-strong);
+}
+
+.theme-trigger:hover .theme-name::before,
+.theme-trigger[aria-expanded="true"] .theme-name::before {
+  color: var(--accent);
+}
+
+/* Šipka se při rozbalení otočí — jediné vodítko, že se seznam otevřel,
+   protože samotný spouštěč zůstává stejný. */
+.theme-caret {
+  color: var(--text-faint);
+  transition: transform var(--t-fast), color var(--t-fast);
+}
+
+.theme-trigger[aria-expanded="true"] .theme-caret {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+
+/* Seznam visí na pravé hraně spouštěče: v liště je vpravo od něj málo
+   místa, doleva se rozbalí vždycky. z-index nad panelem nabídky (30). */
+.theme-list {
+  position: absolute;
+  top: calc(100% + 6px * var(--ui));
+  right: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 100%;
+  padding: calc(4px * var(--ui));
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.theme-list[data-open="false"] {
+  display: none;
+}
+
+.theme-list[data-open="true"] {
+  animation: theme-list-in var(--t-fast) both;
+}
+
+@keyframes theme-list-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-4px * var(--ui)));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.theme-option {
+  width: 100%;
+  padding: calc(6px * var(--ui)) calc(10px * var(--ui));
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  white-space: nowrap;
+}
+
+/* Zaškrtnutí drží pravou hranu, název se roztáhne přes zbytek řádku. */
+.theme-option .theme-name {
+  margin-right: auto;
+}
+
+.theme-option:hover {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.theme-option:hover .theme-name::before,
+.theme-option[aria-selected="true"] .theme-name::before {
+  color: var(--accent);
+}
+
+.theme-option[aria-selected="true"] {
+  color: var(--text);
+}
+
+/* Fajfka je v seznamu vždycky, jen neviditelná — kdyby se přidávala až
+   zvolené položce, řádky by se při přepnutí motivu o její šířku posunuly. */
+.theme-check {
+  color: var(--accent);
+  opacity: 0;
+}
+
+.theme-option[aria-selected="true"] .theme-check {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------ rozcestník */
+/* Nadpis i perex stojí na ose sloupce — sazba převzatá z motivu Legacy,
+   kde měla bílá karta rozcestníku nadpis vždycky na střed. Platí pro
+   všechny motivy, aby se hlavička stránky nestěhovala při přepnutí. */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  /* nadpis a perex patří k sobě těsněji než perex k rozcestníku pod ním */
+  gap: clamp(8px, 1.4vh, calc(14px * var(--ui)));
+  width: 100%;
+  max-width: var(--stack-w);
+  /* aby se nadpis mohl měřit sloupcem, ne oknem — viz .hero-title */
+  container-type: inline-size;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8px * var(--ui));
+  font-family: var(--label-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.eyebrow::before {
+  content: "";
+  width: calc(22px * var(--ui));
+  height: 1px;
+  background-color: var(--border-strong);
+}
+
+/* Stupeň nadpisu se odvozuje od šířky sloupce (cqi), ne od šířky okna (vw).
+   Každý motiv má jinak široké písmo — Archivo v 700 je o poznání širší než
+   serif v regularu — a při měření oknem se jeden motiv do řádku vejde
+   a druhý ne. Sloupec je pro všechny stejný, takže nadpis drží na jednom
+   řádku ve všech třech. Řádek s vw zůstává jako fallback. */
+.hero-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(2.2rem, 8vw, 4.2rem);
+  font-size: clamp(2.2rem, 8.6cqi, 4.2rem);
+  line-height: 1;
+  letter-spacing: var(--display-tracking);
+  color: var(--text);
+  /* když se to na úzkém displeji přece jen zlomí, ať jsou řádky vyrovnané */
+  text-wrap: balance;
+}
+
+/* dvoutónový nadpis — první část ustupuje, druhá nese důraz */
+.hero-title .quiet {
+  color: var(--text-faint);
+  margin-right: 0.24em;
+}
+
+/* Perex smí až na hranu sloupce — o šířce rozhoduje --stack-w, ne míra v `ch`.
+   Jinak končí řádek jinde než rozcestník pod ním a blok vypadá uříznutě. */
+/* Dolní mez clamp() platí až někam k 640 px šířky, takže o velikosti perexu
+   na mobilu rozhoduje jenom ona — ne prostřední člen. Proto je nízko: 14 px
+   drží perex nad popiskem v rozcestníku a pod nadpisem, kam patří. */
+.hero-sub {
+  color: var(--text-muted);
+  font-size: clamp(0.875rem, 2.2vw, 1.12rem);
+  line-height: 1.55;
+  max-width: 100%;
+  margin-inline: auto;
+  text-wrap: pretty;
+}
+
+.menu {
+  display: grid;
+  gap: 1px;
+  width: 100%;
+  max-width: var(--stack-w);
+  background-color: var(--border);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.menu-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: clamp(13px, 2.2vh, calc(18px * var(--ui)))
+           clamp(14px, 2.4vw, calc(20px * var(--ui)));
+  background-color: var(--surface);
+  color: var(--text);
+  transition: background-color var(--t-fast);
+}
+
+.menu-item:hover {
+  background-color: var(--surface-2);
+}
+
+.menu-icon {
+  display: grid;
+  place-items: center;
+  width: calc(38px * var(--ui));
+  height: calc(38px * var(--ui));
+  border-radius: var(--r-sm);
+  background-color: var(--surface-2);
+  border: var(--hairline) solid var(--border);
+  color: var(--text-muted);
+  font-size: 1.1875rem;
+  transition: color var(--t-fast), background-color var(--t-fast),
+    border-color var(--t-fast);
+}
+
+.menu-item:hover .menu-icon {
+  color: var(--accent);
+  border-color: var(--accent);
+  background-color: var(--accent-soft);
+}
+
+.menu-label {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-sm);
+  font-size: clamp(1rem, 2.8vw, 1.22rem);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.15;
+}
+
+.menu-desc {
+  display: block;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+  text-wrap: pretty;
+}
+
+.menu-arrow {
+  color: var(--text-faint);
+  font-size: 1.0625rem;
+  transition: transform var(--t-fast), color var(--t-fast);
+}
+
+.menu-item:hover .menu-arrow {
+  color: var(--accent);
+  transform: translateX(3px);
+}
+
+/* ----------------------------------------------------- hlavička sekce */
+/* Nadnadpis sekce i jeho počitadlo drží společně na ose, ne na krajích —
+   stejná osa jako .hero a .prose h2. */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--sp-3);
+  margin-bottom: calc(9px * var(--ui));
+  padding-bottom: calc(7px * var(--ui));
+  border-bottom: var(--hairline) solid var(--border);
+}
+
+.section-title {
+  font-family: var(--label-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.section-meta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------- dialogy */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  background-color: var(--overlay);
+  backdrop-filter: blur(2px);
+  animation: fadeIn 140ms ease;
+}
+
+.overlay[hidden] {
+  display: none !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.dialog {
+  width: 100%;
+  max-width: calc(480px * var(--ui));
+  max-height: 92dvh;
+  overflow-y: auto;
+  padding: clamp(20px, 4vw, calc(28px * var(--ui)));
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  animation: dialogIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dialogIn {
+  from {
+    transform: translateY(10px) scale(0.98);
+    opacity: 0;
+  }
+}
+
+.dialog-icon {
+  display: grid;
+  place-items: center;
+  width: calc(38px * var(--ui));
+  height: calc(38px * var(--ui));
+  margin-bottom: var(--sp-3);
+  border-radius: var(--r-sm);
+  background-color: var(--surface-2);
+  border: var(--hairline) solid var(--border);
+  color: var(--text-muted);
+  font-size: 1.25rem;
+}
+
+.dialog-icon .icon {
+  width: calc(20px * var(--ui));
+  height: calc(20px * var(--ui));
+}
+
+.dialog-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 4.2vw, 1.6rem);
+  font-weight: var(--display-weight-sm);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.1;
+  margin-bottom: calc(7px * var(--ui));
+  text-wrap: balance;
+}
+
+.dialog-text {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-bottom: var(--sp-4);
+  text-wrap: pretty;
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.dialog-actions .btn {
+  flex: 1 1 calc(140px * var(--ui));
+}
+
+/* mřížka pro volbu hodnoty žolíka */
+.value-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: calc(6px * var(--ui));
+  margin-bottom: var(--sp-4);
+}
+
+.value-btn {
+  padding: clamp(9px, 2.2vw, calc(12px * var(--ui))) 0;
+  background-color: var(--surface-2);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-sm);
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: clamp(1rem, 4vw, 1.1875rem);
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color var(--t-fast), border-color var(--t-fast),
+    color var(--t-fast);
+}
+
+.value-btn:hover {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.dialog-score {
+  display: flex;
+  align-items: baseline;
+  gap: calc(10px * var(--ui));
+  padding: var(--sp-3) 0 var(--sp-4);
+  margin-bottom: var(--sp-2);
+  border-top: var(--hairline) solid var(--border);
+  border-bottom: var(--hairline) solid var(--border);
+}
+
+.dialog-score-value {
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: clamp(2.6rem, 13vw, 3.6rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.dialog-score-label {
+  font-family: var(--label-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* Řádek pod skóre — komu se partie zapsala a jestli něco překonala. */
+.dialog-note {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--ui));
+  margin-bottom: var(--sp-4);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.dialog-note .icon {
+  width: calc(16px * var(--ui));
+  height: calc(16px * var(--ui));
+  color: var(--text-faint);
+}
+
+.dialog-note.is-record,
+.dialog-note.is-record .icon {
+  color: var(--good);
+}
+
+.dialog-note.is-warn,
+.dialog-note.is-warn .icon {
+  color: var(--warn);
+}
+
+/* ---------------------------------------------------------------- hlášky */
+.toasts {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px * var(--ui));
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(7px * var(--ui));
+  pointer-events: none;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--ui));
+  padding: calc(9px * var(--ui)) calc(15px * var(--ui));
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border-strong);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-md);
+  font-size: 0.84375rem;
+  font-weight: 600;
+  color: var(--text);
+  animation: toastIn 200ms ease;
+}
+
+.toast .icon {
+  width: calc(16px * var(--ui));
+  height: calc(16px * var(--ui));
+}
+
+.toast--warn {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
+.toast--joker {
+  border-color: var(--joker);
+  color: var(--joker);
+}
+
+.toast.is-leaving {
+  animation: toastOut 240ms ease forwards;
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
+
+@keyframes toastOut {
+  to {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------- drobnosti */
+.note {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background-color: var(--surface-2);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-sm);
+  margin-bottom: var(--sp-4);
+}
+
+.note .icon {
+  width: calc(19px * var(--ui));
+  height: calc(19px * var(--ui));
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.note p:last-child {
+  margin-bottom: 0;
+}
+
+.kbd {
+  display: inline-block;
+  min-width: calc(22px * var(--ui));
+  padding: 1px calc(6px * var(--ui));
+  background-color: var(--surface-2);
+  border: var(--hairline) solid var(--border-strong);
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}

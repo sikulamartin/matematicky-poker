@@ -1,0 +1,37 @@
+# Nastavení nasazení na Netlify.
+#
+# Statický web leží v public/ — schválně ne v kořeni repozitáře. Netlify
+# nahraje publish adresář tak, jak je, a v kořeni by s ním šlo nahoru
+# i node_modules a serverový kód.
+#
+# Funkce v netlify/functions/ jsou psané jako Netlify Functions v2
+# (`export default async (request) => Response`). Soubory mají příponu .mjs,
+# aby je Node bral jako ESM — package.json schválně NEMÁ "type": "module",
+# protože public/shared/rules.js musí zůstat CommonJS, aby ho uměl načíst
+# prohlížeč jako obyčejný <script> i funkce přes import.
+
+[build]
+  publish = "public"
+  command = "echo 'staticky web, nic se nesestavuje'"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Krátké adresy místo /.netlify/functions/…
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"
+
+# Sdílená pravidla si prohlížeč tahá jako běžný skript — ať se nemění tak
+# často, aby to stálo za revalidaci při každém načtení.
+[[headers]]
+  for = "/shared/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

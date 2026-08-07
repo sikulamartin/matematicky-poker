@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="cs" data-theme="academism">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Skupinová hra — zadavatel tahá čísla, celá skupina je skládá do vlastních polí a na konci se srovná pořadí.">
+  <meta name="color-scheme" content="light dark">
+  <title>Skupinová hra — Matematický Poker</title>
+  <link rel="icon" type="image/x-icon" href="img/image_Kv_uh2AR_1719232116258_512.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400..700&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@200..700&family=Roboto:wght@400;500;700&family=Schibsted+Grotesk:wght@400..900&family=Source+Serif+4:opsz,wght@8..60,300..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <script>
+    // motiv se nasadí ještě před vykreslením, aby stránka neproblikla
+    (function () {
+      try {
+        var t = localStorage.getItem('mp-theme');
+        if (t === 'papir' || t === 'anthropic') { t = 'academism'; }
+        if (t === 'studio') { t = 'terminal'; }
+        if (t === 'noc') { t = 'legacy'; }
+        if (t !== 'terminal' && t !== 'academism' && t !== 'legacy') { t = 'academism'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { /* localStorage nedostupný */ }
+    })();
+  </script>
+</head>
+
+<body data-mode="skupina">
+  <script src="js/icons.js"></script>
+  <div class="app">
+    <header class="rail">
+      <nav class="crumbs" aria-label="Drobečková navigace">
+        <a href="index.html"><svg class="icon" aria-hidden="true"><use href="#i-home"></use></svg>Domů</a>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <a href="difficulty.html">Hra</a>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <span class="crumb-current" aria-current="page">Ve skupině</span>
+      </nav>
+      <div class="rail-actions">
+        <a class="btn btn--ghost" href="rules.html">Pravidla</a>
+        <div data-theme-switch></div>
+      </div>
+    </header>
+
+    <main class="app-main page-board">
+      <!-- Spojení je u téhle stránky podmínka, ne ozdoba — bez serveru se
+           lobby nedá ani založit, tak to musí být vidět nahoře. -->
+      <div class="net-bar" id="netBar" hidden>
+        <svg class="icon" aria-hidden="true"><use href="#i-alert"></use></svg>
+        <span id="netText">Server neodpovídá.</span>
+        <button type="button" class="btn btn--ghost" id="netRetry">Zkusit znovu</button>
+      </div>
+
+      <!-- ------------------------------------------------------ vstup -->
+      <section class="lobby-entry" id="entryView">
+        <div class="hero">
+          <h1 class="hero-title"><span class="quiet">Hra ve</span>skupině</h1>
+          <p class="hero-sub">Jeden zakládá a&nbsp;tahá čísla, ostatní se připojí kódem.
+            Všichni dostávají tu samou řadu čísel a&nbsp;každý si ji skládá do vlastního
+            pole — na konci se pole obodují a&nbsp;srovná se pořadí.</p>
+        </div>
+
+        <div class="lobby-forms">
+          <form class="card lobby-card" id="createForm">
+            <h2 class="lobby-card-title">
+              <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>Založit lobby
+            </h2>
+            <p class="lobby-card-note">Budeš zadavatel: tvoje tlačítko rozdává čísla celé skupině.</p>
+
+            <label class="lobby-field" for="hostName">Tvoje přezdívka
+              <input class="field-text" id="hostName" type="text" maxlength="24"
+                autocomplete="nickname" placeholder="Hráč">
+            </label>
+
+            <label class="lobby-field" for="modeSelect">Obtížnost
+              <select class="field-select" id="modeSelect">
+                <option value="easy">Lehká — bez času</option>
+                <option value="hard">Těžká — odpočet na každé číslo</option>
+              </select>
+            </label>
+
+            <label class="lobby-field" for="timeInput" id="timeLabel" hidden>Sekund na číslo
+              <input class="field-text" id="timeInput" type="number" min="3" max="300" step="1"
+                value="20" inputmode="numeric">
+            </label>
+
+            <label class="lobby-check">
+              <input type="checkbox" id="hostPlays" checked>
+              <span>Hraju taky, nejenom rozdávám</span>
+            </label>
+
+            <button type="submit" class="btn btn-roll" id="createBtn">Založit lobby</button>
+          </form>
+
+          <form class="card lobby-card" id="joinForm">
+            <h2 class="lobby-card-title">
+              <svg class="icon" aria-hidden="true"><use href="#i-users"></use></svg>Připojit se
+            </h2>
+            <p class="lobby-card-note">Kód dostaneš od toho, kdo lobby založil.</p>
+
+            <label class="lobby-field" for="codeInput">Kód lobby
+              <input class="field-text code-input" id="codeInput" type="text" maxlength="5"
+                autocapitalize="characters" autocomplete="off" spellcheck="false"
+                placeholder="ABCDE">
+            </label>
+
+            <label class="lobby-field" for="joinName">Tvoje přezdívka
+              <input class="field-text" id="joinName" type="text" maxlength="24"
+                autocomplete="nickname" placeholder="Hráč">
+            </label>
+
+            <button type="submit" class="btn btn-roll" id="joinBtn">Připojit se</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ----------------------------------------------------- čekárna -->
+      <section class="lobby-room" id="roomView" hidden>
+        <div class="card lobby-code-card">
+          <span class="console-label">Kód lobby</span>
+          <p class="lobby-code" id="roomCode">–––––</p>
+          <p class="lobby-card-note" id="roomMode">Lehká obtížnost</p>
+          <div class="lobby-code-actions">
+            <button type="button" class="btn btn--ghost" id="copyCode">
+              <svg class="icon" aria-hidden="true"><use href="#i-copy"></use></svg>Kopírovat kód
+            </button>
+            <button type="button" class="btn btn--ghost" id="copyLink">
+              <svg class="icon" aria-hidden="true"><use href="#i-copy"></use></svg>Kopírovat odkaz
+            </button>
+          </div>
+        </div>
+
+        <div class="card lobby-party-card">
+          <div class="section-head">
+            <h2 class="section-title">Sestava</h2>
+            <span class="section-meta" id="roomMeta">1 hráč</span>
+          </div>
+          <ul class="party-list" id="roomParty"></ul>
+          <p class="lobby-hint" id="roomHint">Čeká se, až zadavatel spustí hru.</p>
+          <div class="lobby-room-actions">
+            <button type="button" class="btn btn-roll" id="startBtn" hidden>Spustit hru</button>
+            <button type="button" class="btn btn--quiet" id="leaveRoom">Odejít</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- --------------------------------------------------------- hra -->
+      <section class="lobby-game" id="gameView" hidden>
+        <div class="console corner-dots">
+          <div class="console-draw is-empty" id="drawTile">
+            <span class="console-label" id="drawOrder">číslo</span>
+            <span class="console-draw-value" id="drawValue">–</span>
+          </div>
+
+          <div class="console-stats">
+            <div class="stat">
+              <span class="stat-label">Body</span>
+              <span class="stat-value" id="totalScore">0</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Políčka</span>
+              <span class="stat-value" id="placedCount">0/25</span>
+            </div>
+            <div class="stat stat--timer" id="timerTile" hidden>
+              <span class="stat-label">Zbývá</span>
+              <span class="stat-value" id="timerValue">00:00</span>
+            </div>
+          </div>
+
+          <div class="console-actions">
+            <button type="button" class="joker-chip" id="jokerBadge" disabled
+              title="Uschovaní žolíci — klikni pro uplatnění">
+              <svg class="icon" aria-hidden="true"><use href="#i-joker"></use></svg><span id="jokerCount">0</span>
+            </button>
+            <span class="lobby-turn" id="turnHint">Čeká se na číslo</span>
+            <button type="button" class="btn btn-roll" id="drawBtn" hidden>Vytáhnout číslo</button>
+          </div>
+        </div>
+
+        <div class="lobby-play">
+          <div class="board-wrap">
+            <table class="board" id="board">
+              <caption class="visually-hidden">Hrací pole 5×5 s bodovým hodnocením řádků, sloupců a úhlopříček.</caption>
+              <colgroup>
+                <col class="col-score">
+                <col class="col-play">
+                <col class="col-play">
+                <col class="col-play">
+                <col class="col-play">
+                <col class="col-play">
+                <col class="col-score">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th class="corner" scope="col" title="Úhlopříčka zleva shora">0</th>
+                  <th scope="col">0</th>
+                  <th scope="col">0</th>
+                  <th scope="col">0</th>
+                  <th scope="col">0</th>
+                  <th scope="col">0</th>
+                  <th class="corner" scope="col" title="Úhlopříčka zprava shora">0</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">0</th>
+                  <td></td><td></td><td></td><td></td><td></td>
+                  <th aria-hidden="true"></th>
+                </tr>
+                <tr>
+                  <th scope="row">0</th>
+                  <td></td><td></td><td></td><td></td><td></td>
+                  <th aria-hidden="true"></th>
+                </tr>
+                <tr>
+                  <th scope="row">0</th>
+                  <td></td><td></td><td></td><td></td><td></td>
+                  <th aria-hidden="true"></th>
+                </tr>
+                <tr>
+                  <th scope="row">0</th>
+                  <td></td><td></td><td></td><td></td><td></td>
+                  <th aria-hidden="true"></th>
+                </tr>
+                <tr>
+                  <th scope="row">0</th>
+                  <td></td><td></td><td></td><td></td><td></td>
+                  <th aria-hidden="true"></th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="lobby-side" aria-label="Průběžné pořadí">
+            <div class="section-head">
+              <h2 class="section-title" id="sideTitle">Skupina</h2>
+              <span class="section-meta" id="sideMeta">–</span>
+            </div>
+            <ul class="party-list" id="sideParty"></ul>
+            <p class="lobby-hint" id="sideHint"></p>
+            <div class="lobby-room-actions">
+              <button type="button" class="btn btn--ghost" id="restartBtn" hidden>Hrát znovu</button>
+              <button type="button" class="btn btn--quiet" id="finishBtn" hidden>Ukončit hru</button>
+              <button type="button" class="btn btn--quiet" id="leaveGame">Odejít</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared/rules.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/consent.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/skupina.js"></script>
+</body>
+
+</html>

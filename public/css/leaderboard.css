@@ -1,0 +1,190 @@
+/* ==========================================================================
+   Žebříček a hra o žebříček
+
+   Sekce: přepínač období → tabulka pořadí → lišta spojení → výběr režimu
+
+   Stejná smlouva jako u ostatních komponent: barvy, tvary a písma se berou
+   výhradně z proměnných v tokens.css, aby to sedlo do všech tří motivů.
+   ========================================================================== */
+
+/* ------------------------------------------------------ přepínač období */
+/* Taby, ne rozbalovací seznam: období jsou čtyři, vejdou se vedle sebe
+   a přepínání mezi nimi je to hlavní, co na téhle stránce hráč dělá.
+   Na nejužších displejích se řádek zalomí — proto `flex-wrap`, jinak by
+   „Tento měsíc“ přetekl ven z pilulky. */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(4px * var(--ui));
+  margin-bottom: calc(12px * var(--ui));
+  padding: calc(3px * var(--ui));
+  background-color: var(--surface-2);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-pill);
+}
+
+.tab {
+  flex: 1;
+  padding: calc(8px * var(--ui)) calc(12px * var(--ui));
+  border: 0;
+  border-radius: var(--r-pill);
+  background-color: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tab[aria-selected="true"] {
+  background-color: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+/* --------------------------------------------------------- tabulka pořadí */
+.board-list {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background-color: var(--border);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.board-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: calc(10px * var(--ui)) calc(14px * var(--ui));
+  background-color: var(--surface);
+}
+
+/* Pořadí je číslo, ne odrážka — dostane tabulární číslice a pevnou šířku,
+   ať jednociferná a dvouciferná místa nerozhoupají sloupec se jmény. */
+.board-rank {
+  min-width: calc(28px * var(--ui));
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--text-faint);
+}
+
+/* První tři místa nesou akcent. Zlato/stříbro/bronz sem schválně nejdou:
+   v každém motivu je jiná paleta a tři cizí barvy by ji rozbily. */
+.board-row.is-podium .board-rank {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.board-row.is-mine {
+  background-color: var(--accent-soft);
+}
+
+.board-who {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.board-name {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  min-width: 0;
+}
+
+/* Přezdívka může mít až 24 znaků a na telefonu by vytlačila sloupec s body
+   mimo řádek. Usekne se tedy ona — ne rozložení tabulky. */
+.board-nick {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.board-score {
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 1.375rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.board-row.is-podium .board-score {
+  color: var(--accent);
+}
+
+/* ----------------------------------------------------------- lišta spojení */
+/* Hra o žebříček bez serveru neexistuje, takže výpadek není drobnost
+   v rohu — patří nad hrací pole, kde se na něj kouká. */
+.net-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: max(var(--board-w), calc(320px * var(--ui)));
+  padding: calc(9px * var(--ui)) calc(12px * var(--ui));
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--warn);
+  border-radius: var(--r-md);
+  color: var(--warn);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.net-bar .icon {
+  width: calc(17px * var(--ui));
+  height: calc(17px * var(--ui));
+  flex: none;
+}
+
+.net-bar span {
+  flex: 1;
+  min-width: 0;
+  text-wrap: pretty;
+}
+
+.net-bar .btn {
+  flex: none;
+}
+
+/* --------------------------------------------------------- výběr režimu */
+/* Nativní <select> ve stejném tvaru jako číselné pole vedle něj —
+   vlastní rozbalovací seznam by na mobilu jen překážel. */
+.field-select {
+  padding: calc(7px * var(--ui)) calc(8px * var(--ui));
+  background-color: var(--surface-inset);
+  border: var(--hairline) solid var(--border-strong);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
