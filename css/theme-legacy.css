@@ -197,12 +197,9 @@
 
 /* ---------------------------------------------------------- rozcestník */
 /* Starý rozcestník byl bílá karta s nadpisem na střed a pod ním tři široká
-   šedá tlačítka pod sebou. Dlaždice .menu-item tuhle roli přebírají. */
-:root[data-theme="legacy"] .hero {
-  align-items: center;
-  text-align: center;
-}
-
+   šedá tlačítka pod sebou. Dlaždice .menu-item tuhle roli přebírají.
+   Zarovnání nadpisu na střed převzaly components.css a prose.css, takže
+   ho už motiv nemusí přepisovat — platí ve všech třech. */
 :root[data-theme="legacy"] .hero-title {
   text-transform: uppercase;
   line-height: 1;
@@ -211,10 +208,6 @@
 /* .MP byl celý v jedné barvě — tlumená první polovina sem nepatří */
 :root[data-theme="legacy"] .hero-title .quiet {
   color: inherit;
-}
-
-:root[data-theme="legacy"] .hero-sub {
-  margin-inline: auto;
 }
 
 :root[data-theme="legacy"] .menu {

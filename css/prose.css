@@ -7,6 +7,8 @@
   max-width: var(--stack-w);
 }
 
+/* Nadpisy i nadnadpisy stojí na ose sloupce — stejná sazba jako .hero.
+   Souvislý text pod nimi zůstává zarovnaný vlevo, na střed by se četl špatně. */
 .prose h1 {
   font-family: var(--font-display);
   font-size: clamp(2rem, 6.5vw, 3rem);
@@ -14,6 +16,7 @@
   letter-spacing: var(--display-tracking);
   line-height: 1;
   margin-bottom: var(--sp-3);
+  text-align: center;
   text-wrap: balance;
 }
 
@@ -28,6 +31,7 @@
   margin-bottom: var(--sp-3);
   padding-bottom: calc(7px * var(--ui));
   border-bottom: var(--hairline) solid var(--border);
+  text-align: center;
 }
 
 /* O šířce řádku rozhoduje sloupec (--stack-w), ne míra v `ch` — ta by v každém
@@ -52,6 +56,7 @@
   font-weight: 700;
 }
 
+/* perex je podnadpis stránky, drží osu nadpisu nad sebou */
 .lead {
   font-family: var(--font-display);
   font-weight: var(--display-weight-sm);
@@ -61,6 +66,8 @@
   color: var(--text);
   margin-bottom: var(--sp-5);
   max-width: 100%;
+  margin-inline: auto;
+  text-align: center;
   text-wrap: pretty;
 }
 

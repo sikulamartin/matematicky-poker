@@ -406,10 +406,12 @@
 }
 
 /* ----------------------------------------------------- hlavička sekce */
+/* Nadnadpis sekce i jeho počitadlo drží společně na ose, ne na krajích —
+   stejná osa jako .hero a .prose h2. */
 .section-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: center;
   gap: var(--sp-3);
   margin-bottom: calc(9px * var(--ui));
   padding-bottom: calc(7px * var(--ui));

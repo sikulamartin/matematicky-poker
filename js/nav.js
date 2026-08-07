@@ -112,8 +112,12 @@
     burger.setAttribute('aria-controls', panel.id);
     burger.innerHTML = iconMarkup('menu');
 
-    actions.appendChild(panel);
+    // Hamburger stojí v DOM před panelem, ať tabulátor pokračuje z něj rovnou
+    // do otevřené nabídky. Fokus se do panelu neposílá programově: prohlížeč
+    // by ho vyhodnotil jako klávesový a orámoval by první položku i při
+    // otevření myší.
     actions.appendChild(burger);
+    actions.appendChild(panel);
     actions.setAttribute('data-nav', '');
 
     var menu = { actions: actions, panel: panel, burger: burger, open: false };
@@ -123,12 +127,6 @@
       var next = !menu.open;
       closeAll(menu);
       setOpen(menu, next);
-      if (next) {
-        var first = panel.querySelector('a, button');
-        if (first) {
-          first.focus();
-        }
-      }
     });
 
     // Odkaz nabídku zavírá; tlačítka motivů schválně ne, ať jde motiv

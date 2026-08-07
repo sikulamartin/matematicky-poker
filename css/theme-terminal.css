@@ -311,6 +311,8 @@
 :root[data-theme="terminal"] .prose h2 {
   display: flex;
   align-items: center;
+  /* flexový nadpis se nezarovná přes text-align — osu drží justify-content */
+  justify-content: center;
   gap: calc(10px * var(--ui));
   font-weight: 500;
   letter-spacing: 0.24em;
