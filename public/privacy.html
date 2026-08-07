@@ -172,6 +172,12 @@
                 <td>do smazání</td>
               </tr>
               <tr>
+                <td><code>mp-preview</code></td>
+                <td>Jestli má hra ukazovat náhled bodů u volných políček</td>
+                <td>localStorage · nezbytné</td>
+                <td>do smazání</td>
+              </tr>
+              <tr>
                 <td><code>mp-consent</code></td>
                 <td>Záznam, jak ses rozhodl o ukládání</td>
                 <td>localStorage · nezbytné</td>
@@ -235,9 +241,11 @@
           služby, kterou si vyžádáš, nebo s&nbsp;tvým souhlasem.
         </p>
         <ul>
-          <li><strong>Nezbytné</strong> — motiv a&nbsp;záznam o&nbsp;tvém rozhodnutí.
-            Bez nich by se web pokaždé vrátil do výchozího stavu a&nbsp;lišta se
-            souhlasem by se ptala znovu a&nbsp;znovu. Souhlas nepotřebují.</li>
+          <li><strong>Nezbytné</strong> — motiv, náhled bodů a&nbsp;záznam o&nbsp;tvém
+            rozhodnutí. Bez nich by se web pokaždé vrátil do výchozího stavu
+            a&nbsp;lišta se souhlasem by se ptala znovu a&nbsp;znovu. Jsou to
+            nastavení rozhraní, nic o&nbsp;tobě neříkají, a&nbsp;souhlas proto
+            nepotřebují.</li>
           <li><strong>Se souhlasem</strong> — profily a&nbsp;statistiky. Zapíšou se až
             potom, co v&nbsp;liště klikneš na <em>Povolit ukládání</em>. Do té doby
             si hra výsledky drží jen v&nbsp;paměti otevřené karty a&nbsp;jejím zavřením

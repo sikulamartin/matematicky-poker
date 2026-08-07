@@ -305,11 +305,8 @@
     --chrome: calc(198px + 2 * var(--rail-pad-y));
   }
 
-  .console {
-    flex-wrap: wrap;
-    row-gap: calc(7px * var(--ui));
-  }
-
+  /* Zalomení konzole řeší board.css na každé šířce; tady se jen dorovnají
+     proporce prvků, které se do jednoho řádku na telefonu nevejdou. */
   .console-draw {
     flex: 1 1 auto;
     min-width: 0;

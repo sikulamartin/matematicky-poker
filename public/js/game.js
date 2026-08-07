@@ -139,6 +139,11 @@
           delete cell.dataset.ghost;
         }
       });
+
+      /* Až po popiscích — náhled si k nim připisuje počet bodů. */
+      if (window.MPPreview) {
+        MPPreview.paint(cells, pending ? pending.value : null);
+      }
     }
 
     function renderButton() {
@@ -455,6 +460,9 @@
         cell.classList.remove('filled', 'from-joker', 'just-placed');
         cell.removeAttribute('title');
       });
+      if (window.MPPreview) {
+        MPPreview.clear(cells);
+      }
       scorer.recalculate();
       pending = null;
       placed = 0;

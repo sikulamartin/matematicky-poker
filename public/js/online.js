@@ -202,6 +202,11 @@
 
       board.classList.toggle('is-placing', Boolean(state.pending) && !state.over);
 
+      /* Až po vyplnění buněk a popisků — náhled čte obojí z DOM. */
+      if (window.MPPreview) {
+        MPPreview.paint(cells, state.pending && !state.over ? state.pending.value : null);
+      }
+
       (state.lines || []).forEach(function (points, index) {
         var out = scoreOut[index];
         if (!out) {
@@ -805,6 +810,11 @@
         cell.classList.remove('filled', 'from-joker', 'just-placed');
         cell.removeAttribute('title');
       });
+      /* Bez stavu se renderBoard() hned vrací, takže by náhled z minulé
+         partie zůstal viset na prázdném poli. */
+      if (window.MPPreview) {
+        MPPreview.clear(cells);
+      }
       scoreOut.forEach(function (out) {
         out.textContent = '0';
         out.classList.remove('is-scoring');

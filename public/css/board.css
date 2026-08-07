@@ -6,10 +6,17 @@
    ========================================================================== */
 
 /* ---------------------------------------------------------------- konzole */
+/* Zalomení platí na každé šířce, ne až na telefonu. Konzole nese čtyři až
+   šest prvků, jejichž šířka závisí na motivu, na --ui i na tom, jestli je
+   před startem vidět pole pro nastavení — přetečení se tím pádem nedá
+   spolehlivě odhadnout dopředu. Když se všechno vejde, zalomení nic nedělá;
+   když ne, spadne ovládání na druhý řádek místo ven z rámu. */
 .console {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: calc(8px * var(--ui));
+  row-gap: calc(7px * var(--ui));
   width: 100%;
   max-width: max(var(--board-w), calc(320px * var(--ui)));
   padding: calc(7px * var(--ui)) calc(8px * var(--ui))
@@ -79,12 +86,24 @@
   }
 }
 
+/* Roste do zbylého místa a smršťovat se smí, ale ne donekonečna: s původním
+   `min-width: 0` se při plné konzoli stlačila na pár pixelů a z „Body“
+   i „Políčka“ zbyly výseče písmen. Dokud se vejde tenhle základ, drží konzole
+   jeden řádek; když ani on nezbyde, zalomí se ovládání pod něj.
+
+   Hodnota je v pixelech, ne `min-content`: nejdelší slovo v údaji je delší,
+   než kolik údaj doopravdy potřebuje (popisky se smějí zalomit), a přísnější
+   mez zbytečně lámala konzoli na širokém monitoru.
+
+   A schválně se nenásobí --ui. Není to rozměr návrhu, ale poslední mez pro
+   případ nouze — a ta nouze nastává právě na velkém displeji, kde --ui zvedá
+   všechno ostatní, ale šířku konzole drží hrací pole. */
 .console-stats {
   display: flex;
   align-items: stretch;
   gap: 0;
   flex: 1;
-  min-width: 0;
+  min-width: 112px;
 }
 
 .stat {
@@ -144,8 +163,12 @@
   }
 }
 
+/* Ovládání se zalomí ze stejného důvodu jako celá konzole: na úzkém telefonu
+   se pole pro nastavení, vypínač náhledu, žolíci a hlavní tlačítko do jednoho
+   řádku nevejdou. */
 .console-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: calc(6px * var(--ui));
   flex: none;
@@ -194,6 +217,42 @@
   55% {
     box-shadow: 0 0 0 6px transparent;
   }
+}
+
+/* Vypínač náhledu bodů. Tvarem sedí na .joker-chip vedle sebe, ale nese
+   stav místo počtu, takže se místo .has-jokers řídí podle aria-pressed —
+   stav ovládacího prvku patří do atributu, ne do třídy navíc. */
+.preview-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(8px * var(--ui)) calc(9px * var(--ui));
+  border-radius: var(--r-btn);
+  border: var(--hairline) solid var(--border);
+  background-color: var(--surface-2);
+  color: var(--text-muted);
+  font-family: var(--label-font);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--t-fast), border-color var(--t-fast),
+    color var(--t-fast);
+}
+
+.preview-chip .icon {
+  width: calc(17px * var(--ui));
+  height: calc(17px * var(--ui));
+}
+
+.preview-chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.preview-chip[aria-pressed="true"] {
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .btn-roll {
@@ -401,6 +460,34 @@
 .board.is-placing td:not(.filled):hover::after,
 .board.is-placing td:not(.filled):focus-visible::after {
   opacity: 0.45;
+}
+
+/* Náhled bodů — kolik by čekající číslo na tomhle políčku přineslo.
+   Sedí v rohu, aby se nepral s duchem čísla uprostřed: ten se ukáže jen pod
+   kurzorem, tohle svítí na všech volných políčkách naráz. To je celý smysl —
+   pole se dá přelétnout očima místo počítání dvanácti linií v hlavě.
+
+   Píše ho js/preview.js do data-delta, takže vypnutý náhled je prostě pole
+   bez atributu a nepotřebuje vlastní třídu na tabulce. */
+.board.is-placing td:not(.filled)[data-delta]::before {
+  content: attr(data-delta);
+  position: absolute;
+  top: calc(var(--cell) * 0.07);
+  right: calc(var(--cell) * 0.09);
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: calc(var(--cell) * 0.2);
+  line-height: 1;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Nejvyšší okamžitý zisk. Schválně jen barvou — je to pomůcka pro oko,
+   ne doporučený tah: zabrané políčko má cenu, kterou tohle číslo nevidí. */
+.board.is-placing td:not(.filled).is-best::before {
+  color: var(--accent);
 }
 
 /* ručně vyplňovaná tabulka */

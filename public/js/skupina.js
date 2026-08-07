@@ -703,6 +703,18 @@
 
       board.classList.toggle('is-placing', canPlace);
 
+      /* Náhled bodů. Žolík z fronty ještě nemá hodnotu, takže není co
+         počítat — natažený žolík z ruky ji naopak má a náhled se ho týká
+         stejně jako obyčejného čísla. */
+      if (window.MPPreview) {
+        var preview = null;
+        if (canPlace) {
+          preview = armedJoker !== null ? armedJoker
+            : (mine.pending.type === 'joker' ? null : mine.pending.value);
+        }
+        MPPreview.paint(cells, preview);
+      }
+
       /* Prochází se bodové buňky, ne přijaté linie: po novém kole přijde
          prázdný seznam a body z minulého kola by na okrajích pole zůstaly
          viset. */
@@ -1072,6 +1084,9 @@
         cell.classList.remove('filled', 'from-joker', 'just-placed');
         cell.removeAttribute('title');
       });
+      if (window.MPPreview) {
+        MPPreview.clear(cells);
+      }
       scoreOut.forEach(function (out) {
         out.textContent = '0';
         out.classList.remove('is-scoring');

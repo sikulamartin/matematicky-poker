@@ -26,6 +26,7 @@ Bez serveru je web pořád plně hratelný. Odpadne jenom žebříček a hra ve 
 Dál:
 
 - **Tři vizuální motivy** — Terminál, Academism, Legacy. Volba se ukládá a platí napříč stránkami.
+- **Náhled bodů** — u každého volného políčka svítí, kolik by tam čekající číslo přineslo. Nejvyšší zisk je zvýrazněný barvou. Počítá to prohlížeč z toho, co je vidět na obrazovce, takže se to nepere se serverovým skóre; vypínač je v konzoli nad polem.
 - **Žolíci** — dva v balíčku. Jde je použít hned s vlastní hodnotou, nebo uschovat na později; uschovaný žolík nespotřebuje tah.
 - **Vlastní dialogy** místo `alert()` / `confirm()` / `prompt()` — stylovatelné, přístupné, s ochrannou lhůtou proti nechtěnému potvrzení dojezdem stisku.
 - **Souhlas s ukládáním** — bez něj hra funguje, jen si po zavření karty nic nepamatuje.
@@ -84,6 +85,7 @@ a scénář s uschovanými žolíky.
 | `tests/zebricek.mjs` | zápis do žebříčku proti dvěma napodobeninám úložiště (s ETagy i bez nich) a hranice období v českém čase |
 | `tests/statistiky.mjs` | počítání statistik profilu a jejich podmíněný zápis do záznamu hráče včetně souběhu dvou karet |
 | `tests/skupina.mjs` | lobby skupinové hry: sdílená řada čísel, oprávnění zadavatele, uschovaní žolíci, propadnutí v těžké obtížnosti, pořadí a nové kolo |
+| `tests/nahled.mjs` | náhled bodů: zisk na dotčených liniích proti přepočtu celého pole, chování vypínače |
 
 `tests/zebricek.mjs` si podstrkuje vlastní úložiště přes nepovinný parametr
 `submitScore(entry, store)`, takže testuje skutečný zápisový cyklus, ne jeho
@@ -188,6 +190,7 @@ Zdroj pravdy je pole `COMBOS` v [public/shared/rules.js](public/shared/rules.js)
 │   │   ├── account.js             odznak účtu v liště
 │   │   ├── nav.js                 hamburgerová nabídka
 │   │   ├── scoring.js             napojení bodování na tabulku v DOM
+│   │   ├── preview.js             náhled bodů u volných políček + jeho vypínač
 │   │   ├── deck.js                balíček v prohlížeči
 │   │   ├── game.js                místní hra bez serveru — záložní režim
 │   │   ├── api.js                 jediné místo, kde web sahá na síť
@@ -237,6 +240,7 @@ Složka `_original/` je archiv původní implementace před přepsáním. Nic z 
 | `MPAccount` | `js/account.js` | `promptName()`, `openMenu()`, `refresh()` |
 | `MPDeck` | `js/deck.js` | `create()`, `VALUES`, `COPIES`, `JOKERS` |
 | `MPScore` | `js/scoring.js` | `attach(table, totalEl)`, `evaluate(grid)`, `combos` |
+| `MPPreview` | `js/preview.js` | `paint(cells, value)`, `clear(cells)`, `deltas(grid, value)`, `enabled()`, `set()`, `mount()` |
 | `MPRules` | `shared/rules.js` | `COMBOS`, `evaluate()`, `scoreGrid()`, `buildDeck()`, … |
 | `MPApi` | `js/api.js` | `startRun()`, `act()`, `lobby()`, `leaderboard()`, `stats()`, `resetStats()`, `probe()`, `player()` |
 | `MPGame` | `js/game.js` | `start({ statsNote })` — spouští ji `online.js`, sama se nespustí |
@@ -249,7 +253,7 @@ Na pořadí `<script>` tagů záleží a při přidávání stránky je potřeba
 ```html
 <script src="js/icons.js"></script>      <!-- první v <body>, sprite musí být v DOM -->
 ...
-<script src="shared/rules.js"></script>  <!-- před scoring.js i deck.js -->
+<script src="shared/rules.js"></script>  <!-- před scoring.js, deck.js i preview.js -->
 <script src="js/theme.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/consent.js"></script>    <!-- před store.js -->
@@ -259,10 +263,11 @@ Na pořadí `<script>` tagů záleží a při přidávání stránky je potřeba
 <!-- dál už jen skripty konkrétní stránky -->
 ```
 
-Čtyři tvrdé závislosti:
+Tvrdé závislosti:
 
 - `icons.js` musí být první prvek v `<body>`, jinak odkazy `<use href="#i-…">` nemají na co ukázat.
-- `shared/rules.js` běží před `scoring.js` a `deck.js` — oba si z něj berou bodovací tabulku i složení balíčku.
+- `shared/rules.js` běží před `scoring.js`, `deck.js` a `preview.js` — všechny si z něj berou bodovací tabulku nebo složení balíčku.
+- `preview.js` běží před herními skripty (`game.js`, `online.js`, `skupina.js`) — ty ho volají při každém překreslení pole.
 - `consent.js` běží před `store.js` — store se ho ptá, jestli vůbec smí sáhnout na disk.
 - `account.js` běží před `nav.js` — nav si obsah `.rail-actions` přebírá do sbalené nabídky, co přijde později, už tam nespadne.
 - `store.js` běží před `api.js` — api se ho ptá, kterému profilu má připsat identitu; a `game.js` před `online.js`, protože online.js mu při výpadku serveru předává řízení.
@@ -386,7 +391,7 @@ Do žebříčku jde jen to, co hráč sám odešle dohranou partií v režimu o 
 
 | Kategorie | Co | Kde | Podmíněno souhlasem |
 |---|---|---|---|
-| Nezbytné | volba motivu, záznam o souhlasu | `localStorage['mp-theme']`, `localStorage` + cookie `mp_consent` | ne |
+| Nezbytné | volba motivu, zapnutý náhled bodů, záznam o souhlasu | `localStorage['mp-theme']`, `localStorage['mp-preview']`, `localStorage` + cookie `mp_consent` | ne |
 | Volitelné | lokální profily a mezipaměť statistik | `localStorage['mp-profiles']`, cookies `mp_profile`, `mp_stats` | ano |
 | Volitelné | rozehraná partie ve Výběru čísel | `localStorage['mp-picker']` | ano |
 | Volitelné | souhlas se zveřejněním v žebříčku | `localStorage['mp-publish']` | ano |
