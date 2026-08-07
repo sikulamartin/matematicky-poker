@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="cs" data-theme="academism">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Lokální profil v matematickém pokeru — statistiky, správa účtů a nakládání s daty.">
+  <meta name="color-scheme" content="light dark">
+  <title>Profil — Matematický Poker</title>
+  <link rel="icon" type="image/x-icon" href="img/image_Kv_uh2AR_1719232116258_512.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400..700&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@200..700&family=Roboto:wght@400;500;700&family=Schibsted+Grotesk:wght@400..900&family=Source+Serif+4:opsz,wght@8..60,300..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <script>
+    // motiv se nasadí ještě před vykreslením, aby stránka neproblikla
+    (function () {
+      try {
+        var t = localStorage.getItem('mp-theme');
+        if (t === 'papir' || t === 'anthropic') { t = 'academism'; }
+        if (t === 'studio') { t = 'terminal'; }
+        if (t === 'noc') { t = 'legacy'; }
+        if (t !== 'terminal' && t !== 'academism' && t !== 'legacy') { t = 'academism'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { /* localStorage nedostupný */ }
+    })();
+  </script>
+</head>
+
+<body>
+  <script src="js/icons.js"></script>
+  <div class="app">
+    <header class="rail">
+      <nav class="crumbs" aria-label="Drobečková navigace">
+        <a href="index.html"><svg class="icon" aria-hidden="true"><use href="#i-home"></use></svg>Domů</a>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <span class="crumb-current" aria-current="page">Profil</span>
+      </nav>
+      <div class="rail-actions">
+        <a class="btn btn--ghost" href="difficulty.html">Hrát</a>
+        <div data-theme-switch></div>
+      </div>
+    </header>
+
+    <main class="app-main app-main--top">
+      <div class="hero">
+        <h1 class="hero-title"><span class="quiet">Můj</span>profil</h1>
+        <!-- Nezlomitelné mezery po jednopísmenných předložkách a spojkách —
+             česká sazba je nenechává viset na konci řádku. -->
+        <p class="hero-sub">
+          Účet je jen přezdívka v&nbsp;tomhle prohlížeči — bez e‑mailu, hesla
+          a&nbsp;bez serveru. Statistiky se počítají profilu, který je právě vybraný.
+        </p>
+      </div>
+
+      <section class="block" aria-labelledby="statsHead">
+        <div class="section-head">
+          <h2 class="section-title" id="statsHead">Statistiky</h2>
+          <span class="section-meta" id="statsWho">–</span>
+        </div>
+        <div class="note note--warn" id="statsWarning" hidden>
+          <svg class="icon" aria-hidden="true"><use href="#i-alert"></use></svg>
+          <p>Uložená čísla neseděla s&nbsp;kontrolním součtem, takže se načetla jako
+            vynulovaná. Stává se to po ručním zásahu do úložiště nebo když
+            prohlížeč nedopsal záznam do konce.</p>
+        </div>
+        <div class="stats-grid" id="statsGrid"></div>
+      </section>
+
+      <section class="block" aria-labelledby="profilesHead">
+        <div class="section-head">
+          <h2 class="section-title" id="profilesHead">Profily</h2>
+          <span class="section-meta" id="profileCount">0 z 8</span>
+        </div>
+        <div class="profile-list" id="profileList"></div>
+        <div class="block-actions">
+          <button type="button" class="btn" id="newProfile">
+            <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>Nový profil
+          </button>
+        </div>
+      </section>
+
+      <section class="block" aria-labelledby="dataHead">
+        <div class="section-head">
+          <h2 class="section-title" id="dataHead">Data a soukromí</h2>
+          <span class="pill pill--off" id="consentState">–</span>
+        </div>
+        <div class="data-list">
+          <div class="data-row">
+            <span class="data-copy">
+              <span class="data-title">Ukládání do prohlížeče</span>
+              <span class="data-desc" id="consentDesc">–</span>
+            </span>
+            <button type="button" class="btn" id="consentToggle">Zapnout ukládání</button>
+          </div>
+          <div class="data-row">
+            <span class="data-copy">
+              <span class="data-title">Záloha profilů</span>
+              <span class="data-desc">Stáhne všechny profily i&nbsp;statistiky jako soubor JSON.
+                Hodí se před vymazáním prohlížeče.</span>
+            </span>
+            <button type="button" class="btn btn--quiet" id="exportData">
+              <svg class="icon" aria-hidden="true"><use href="#i-download"></use></svg>Stáhnout
+            </button>
+          </div>
+          <div class="data-row">
+            <span class="data-copy">
+              <span class="data-title">Vynulovat statistiky</span>
+              <span class="data-desc">Aktivní profil zůstane, ale rekordy i&nbsp;počet her se
+                vrátí na nulu.</span>
+            </span>
+            <button type="button" class="btn btn--quiet" id="resetStats">Vynulovat</button>
+          </div>
+          <div class="data-row">
+            <span class="data-copy">
+              <span class="data-title">Smazat všechna data</span>
+              <span class="data-desc">Odstraní všechny profily z&nbsp;localStorage i&nbsp;cookies
+                <code>mp_profile</code> a&nbsp;<code>mp_stats</code>.</span>
+            </span>
+            <button type="button" class="btn btn--danger" id="wipeAll">
+              <svg class="icon" aria-hidden="true"><use href="#i-trash"></use></svg>Smazat vše
+            </button>
+          </div>
+          <div class="data-row">
+            <span class="data-copy">
+              <span class="data-title">Zásady zpracování a&nbsp;cookies</span>
+              <span class="data-desc">Co přesně se ukládá, na jak dlouho a&nbsp;jaká máš práva.</span>
+            </span>
+            <a class="btn btn--ghost" href="privacy.html">
+              <svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg>Přečíst
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/consent.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+
+</html>

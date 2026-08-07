@@ -5,7 +5,7 @@
   'use strict';
 
   var STORAGE_KEY = 'mp-theme';
-  var DEFAULT = 'terminal';
+  var DEFAULT = 'academism';
 
   var THEMES = [
     { id: 'terminal', label: 'Terminál' },

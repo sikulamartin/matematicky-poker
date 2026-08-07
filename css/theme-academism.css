@@ -34,6 +34,11 @@
    uvedený výchozí swatch i důvod.
    ========================================================================== */
 
+/* Holý :root je tu proto, že academism je výchozí motiv: stránka bez atributu
+   data-theme (nebo než ho stihne nasadit js/theme.js) se vykreslí v něm.
+   Ostatní motivy si sáhnou o stupeň výš specificitou svého [data-theme=…],
+   takže je tenhle blok nepřebije. */
+:root,
 :root[data-theme="academism"] {
   color-scheme: light;
 
@@ -76,7 +81,11 @@
   /* -------------------------------------------------------------- text */
   --text: #141413;                /* --swatch--slate-dark */
   --text-muted: #5e5d59;          /* --swatch--slate-light */
-  --text-faint: #87867f;          /* --swatch--cloud-dark */
+  /* Nejtlumenější stupeň textu nese anthropickou oranžovou. Bere tmavý jíl
+     --swatch--accent, ne světlý --swatch--clay #d97757: klay má na ivory
+     kontrast 3,0 : 1, tenhle odstín 3,9 : 1, tedy o kus lepší než šedá
+     --swatch--cloud-dark #87867f (3,5 : 1), kterou nahrazuje. */
+  --text-faint: #c6613f;          /* --swatch--accent (tmavý jíl) */
 
   /* ------------------------------------------------------------ akcent */
   --accent: #c6613f;              /* --swatch--accent (tmavý jíl) */
@@ -219,6 +228,17 @@
   border-color: var(--bad);
 }
 
+/* Ikonové mazací tlačítko je jen obtažené, ne vyplněné — ivory inkoust
+   z .btn--danger výš by na průhledném podkladu zmizel. Výplň dostane
+   až při najetí. */
+:root[data-theme="academism"] .btn--icon.btn--danger {
+  color: var(--bad);
+}
+
+:root[data-theme="academism"] .btn--icon.btn--danger:hover:not(:disabled) {
+  color: var(--accent-ink);
+}
+
 :root[data-theme="academism"] .btn-roll.is-restart {
   border-color: var(--good);
 }
@@ -264,6 +284,10 @@
 :root[data-theme="academism"] .stat-label,
 :root[data-theme="academism"] .field label,
 :root[data-theme="academism"] .dialog-score-label,
+:root[data-theme="academism"] .stat-card-head,
+:root[data-theme="academism"] .pill,
+:root[data-theme="academism"] .legal-meta,
+:root[data-theme="academism"] .account-avatar,
 :root[data-theme="academism"] .score-table thead th {
   font-weight: 500;              /* --font--mono-medium */
   letter-spacing: 0.08em;
@@ -274,6 +298,14 @@
    aby bylo na první pohled poznat, že se ještě netáhlo. */
 :root[data-theme="academism"] .console-draw:not(.is-empty) {
   border-color: var(--clay);
+}
+
+/* Prázdný stav visí na --text-faint, a ten je teď jílový. Kdyby ho vzal,
+   vypadalo by nenatažené číslo aktivně. Vrací se mu proto cloud-dark
+   napřímo — platí pro herní konzoli i pro velké číslo na Výběru čísel. */
+:root[data-theme="academism"] .console-draw.is-empty .console-draw-value,
+:root[data-theme="academism"] .draw-number.is-idle {
+  color: #87867f;                /* --swatch--cloud-dark */
 }
 
 /* Velká čísla v serifu — na hracím poli i na stránce Výběr čísel. */
@@ -319,5 +351,53 @@
 /* Karta pravidel: plochá, jen obrys. */
 :root[data-theme="academism"] .card {
   background-color: var(--surface);
+}
+
+/* ------------------------------------------------------- účet a souhlas */
+/* Odznak účtu je tentýž tvar jako sekundární tlačítko v liště (.chip_layout),
+   jen s kolečkem iniciál vlevo — proto přebírá jeho odsazení i stupeň. */
+:root[data-theme="academism"] .account-chip {
+  padding: 3px 0.875rem 3px 3px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-color: var(--border-strong);
+}
+
+:root[data-theme="academism"] .account-chip:hover {
+  background-color: var(--surface-2);
+  border-color: var(--text);
+}
+
+/* Jíl je vyhrazený akcentu, ale na výplň se používá jeho světlá varianta —
+   na kolečku iniciál je proto text slate-dark, ne ivory. */
+:root[data-theme="academism"] .account-avatar {
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Velká čísla statistik patří do serifu, stejně jako skóre v dialogu. */
+:root[data-theme="academism"] .stat-card-value {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Plochý motiv nemá stín, takže dělicí linky v seznamech musí být vidět —
+   stejný postup jako u rozcestníku .menu. */
+:root[data-theme="academism"] .profile-list,
+:root[data-theme="academism"] .data-list {
+  background-color: var(--border-strong);
+}
+
+/* Souhlas je vyskakující vrstva jako dialog — stín si nechává, obrys taky. */
+:root[data-theme="academism"] .consent-text,
+:root[data-theme="academism"] .stat-card-meta,
+:root[data-theme="academism"] .data-desc {
+  font-family: var(--font-display);
+  line-height: 1.5;
+}
+
+:root[data-theme="academism"] .consent-icon {
+  color: var(--accent);
 }
 

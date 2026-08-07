@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="cs" data-theme="academism">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Zásady zpracování údajů a cookies matematického pokeru — co se ukládá do prohlížeče a jak to smazat.">
+  <meta name="color-scheme" content="light dark">
+  <title>Zásady a cookies — Matematický Poker</title>
+  <link rel="icon" type="image/x-icon" href="img/image_Kv_uh2AR_1719232116258_512.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400..700&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@200..700&family=Roboto:wght@400;500;700&family=Schibsted+Grotesk:wght@400..900&family=Source+Serif+4:opsz,wght@8..60,300..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <script>
+    // motiv se nasadí ještě před vykreslením, aby stránka neproblikla
+    (function () {
+      try {
+        var t = localStorage.getItem('mp-theme');
+        if (t === 'papir' || t === 'anthropic') { t = 'academism'; }
+        if (t === 'studio') { t = 'terminal'; }
+        if (t === 'noc') { t = 'legacy'; }
+        if (t !== 'terminal' && t !== 'academism' && t !== 'legacy') { t = 'academism'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { /* localStorage nedostupný */ }
+    })();
+  </script>
+</head>
+
+<body>
+  <script src="js/icons.js"></script>
+  <div class="app">
+    <header class="rail">
+      <nav class="crumbs" aria-label="Drobečková navigace">
+        <a href="index.html"><svg class="icon" aria-hidden="true"><use href="#i-home"></use></svg>Domů</a>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <span class="crumb-current" aria-current="page">Zásady a cookies</span>
+      </nav>
+      <div class="rail-actions">
+        <a class="btn btn--ghost" href="account.html">Profil</a>
+        <div data-theme-switch></div>
+      </div>
+    </header>
+
+    <main class="app-main app-main--top">
+      <article class="prose card corner-dots">
+        <h1>Zásady a cookies</h1>
+        <p class="legal-meta">Verze 1 · účinné od 7. srpna 2026</p>
+
+        <!-- Nezlomitelné mezery po jednopísmenných předložkách a spojkách —
+             česká sazba je nenechává viset na konci řádku. -->
+        <p class="lead">
+          Matematický poker běží celý ve tvém prohlížeči. Neběží k&nbsp;němu žádný server,
+          který by o&nbsp;tobě sbíral data — všechno, co si hra pamatuje, zůstává
+          na tvém zařízení.
+        </p>
+
+        <h2>Kdo za web odpovídá</h2>
+        <p>
+          Provozovatelem webu je <strong>Martin Šikula</strong>,
+          kontakt <strong>sikula.martin@email.cz</strong>. Na tuhle adresu piš cokoli,
+          co se týká zpracování údajů nebo těchhle zásad.
+        </p>
+
+        <h2>Jaké údaje web zpracovává</h2>
+        <p>
+          Hra od tebe nechce e‑mail, jméno ani telefon a&nbsp;nic z&nbsp;toho neumí uložit.
+          Zpracovává jedině tohle, a&nbsp;všechno výhradně v&nbsp;úložišti tvého prohlížeče:
+        </p>
+        <ul>
+          <li><strong>Přezdívka profilu</strong> — text, který si zvolíš. Klidně smyšlený;
+            nikde se neověřuje a&nbsp;nemusí tě identifikovat.</li>
+          <li><strong>Herní statistiky</strong> — nejlepší skóre celkově i&nbsp;zvlášť
+            pro lehkou a&nbsp;těžkou obtížnost, počet hraných a&nbsp;dohraných her,
+            čas nejrychlejší dohrané hry a&nbsp;datum poslední partie.</li>
+          <li><strong>Nastavení</strong> — vybraný vizuální motiv a&nbsp;záznam o&nbsp;tom,
+            jak ses rozhodl v&nbsp;téhle liště se souhlasem.</li>
+        </ul>
+        <div class="note">
+          <svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg>
+          <p>
+            Data se nikam neodesílají, nikomu nepředávají a&nbsp;nikdo je odsud nečte —
+            ani provozovatel. Nejsou v&nbsp;nich reklamní ani analytické nástroje.
+          </p>
+        </div>
+
+        <h2>Co se ukládá do prohlížeče</h2>
+        <p>
+          Cookies i&nbsp;localStorage jsou dva způsoby, jak si web něco poznamená
+          na tvém zařízení. Web používá oba. Cookie je tu jenom jako záloha:
+          když si vymažeš localStorage, profil se z&nbsp;ní obnoví.
+        </p>
+
+        <div class="table-scroll">
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th scope="col">Název</th>
+                <th scope="col">K čemu je</th>
+                <th scope="col">Druh</th>
+                <th scope="col">Platnost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>mp-theme</code></td>
+                <td>Vybraný vizuální motiv</td>
+                <td>localStorage · nezbytné</td>
+                <td>do smazání</td>
+              </tr>
+              <tr>
+                <td><code>mp-consent</code></td>
+                <td>Záznam, jak ses rozhodl o ukládání</td>
+                <td>localStorage · nezbytné</td>
+                <td>do smazání</td>
+              </tr>
+              <tr>
+                <td><code>mp_consent</code></td>
+                <td>Totéž rozhodnutí, aby platilo i po vymazání localStorage</td>
+                <td>cookie · nezbytné</td>
+                <td>180 dnů</td>
+              </tr>
+              <tr>
+                <td><code>mp-profiles</code></td>
+                <td>Všechny lokální profily i jejich statistiky</td>
+                <td>localStorage · se souhlasem</td>
+                <td>do smazání</td>
+              </tr>
+              <tr>
+                <td><code>mp_profile</code></td>
+                <td>Přezdívka aktivního profilu — záloha</td>
+                <td>cookie · se souhlasem</td>
+                <td>180 dnů</td>
+              </tr>
+              <tr>
+                <td><code>mp_stats</code></td>
+                <td>Statistiky aktivního profilu — záloha s kontrolním součtem</td>
+                <td>cookie · se souhlasem</td>
+                <td>180 dnů</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Všechny cookies jsou vlastní (nikoli cizí), mají příznak
+          <code>SameSite=Lax</code> a&nbsp;na zabezpečeném spojení i&nbsp;<code>Secure</code>.
+          Žádná třetí strana k&nbsp;nim nemá přístup.
+        </p>
+
+        <h2>Právní základ a souhlas</h2>
+        <p>
+          Uložit něco do prohlížeče smí web podle <strong>§ 89 odst. 3 zákona
+          č. 127/2005 Sb.</strong> buď tehdy, když to nutně potřebuje k&nbsp;fungování
+          služby, kterou si vyžádáš, nebo s&nbsp;tvým souhlasem.
+        </p>
+        <ul>
+          <li><strong>Nezbytné</strong> — motiv a&nbsp;záznam o&nbsp;tvém rozhodnutí.
+            Bez nich by se web pokaždé vrátil do výchozího stavu a&nbsp;lišta se
+            souhlasem by se ptala znovu a&nbsp;znovu. Souhlas nepotřebují.</li>
+          <li><strong>Se souhlasem</strong> — profily a&nbsp;statistiky. Zapíšou se až
+            potom, co v&nbsp;liště klikneš na <em>Povolit ukládání</em>. Do té doby
+            si hra výsledky drží jen v&nbsp;paměti otevřené karty a&nbsp;jejím zavřením
+            zmizí.</li>
+        </ul>
+        <p>
+          Souhlas je dobrovolný a&nbsp;jde ho kdykoli odvolat — hra funguje dál,
+          jen si nic nepamatuje. Odvolání není zpětné, ale protože se data nikam
+          neodesílala, znamená to prostě jejich smazání z&nbsp;tvého zařízení.
+        </p>
+
+        <h2>Jak dlouho se data drží</h2>
+        <ul>
+          <li>localStorage nemá dobu platnosti — drží se, dokud ho nesmažeš ty
+            nebo prohlížeč.</li>
+          <li>Cookies vyprší po <strong>180 dnech</strong> a&nbsp;při každé návštěvě
+            se lhůta obnoví.</li>
+          <li>Smazáním profilu, vynulováním statistik nebo odvoláním souhlasu
+            se data smažou hned.</li>
+        </ul>
+
+        <h2>Tvoje práva</h2>
+        <p>
+          Protože se údaje nikam neodesílají a&nbsp;provozovatel k&nbsp;nim nemá přístup,
+          zvládneš všechno sám a&nbsp;okamžitě — přímo na stránce
+          <a href="account.html">Profil</a>:
+        </p>
+        <ul>
+          <li><strong>Přístup a přenositelnost</strong> — tlačítko <em>Stáhnout</em>
+            uloží všechna data jako soubor JSON.</li>
+          <li><strong>Oprava</strong> — přezdívku profilu jde kdykoli přepsat.</li>
+          <li><strong>Výmaz</strong> — <em>Smazat vše</em> odstraní profily
+            z&nbsp;localStorage i&nbsp;cookies.</li>
+          <li><strong>Odvolání souhlasu</strong> — <em>Vypnout ukládání</em>,
+            nebo tlačítko níž.</li>
+        </ul>
+        <p>
+          Práva podle nařízení GDPR (přístup, oprava, výmaz, omezení, přenositelnost,
+          námitka) můžeš uplatnit i&nbsp;u&nbsp;provozovatele na kontaktu výš. Stížnost
+          lze podat u&nbsp;Úřadu pro ochranu osobních údajů, Pplk. Sochora 27,
+          170 00 Praha 7.
+        </p>
+
+        <h2>Změna nastavení</h2>
+        <p>
+          Rozhodnutí o&nbsp;ukládání jde kdykoli změnit. Tlačítko znovu otevře lištu,
+          kterou jsi viděl při první návštěvě.
+        </p>
+        <div class="block-actions">
+          <button type="button" class="btn" data-consent-reopen>
+            <svg class="icon" aria-hidden="true"><use href="#i-cookie"></use></svg>Změnit nastavení ukládání
+          </button>
+          <a class="btn btn--quiet" href="account.html">
+            <svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg>Spravovat data
+          </a>
+        </div>
+
+        <h2>Změny zásad</h2>
+        <p>
+          Když se ukládání změní, změní se i&nbsp;tenhle text a&nbsp;stoupne číslo verze
+          nahoře. Podstatná změna znamená, že se lišta se souhlasem ozve znovu.
+        </p>
+      </article>
+    </main>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/consent.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+
+</html>

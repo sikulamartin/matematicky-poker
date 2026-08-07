@@ -1,7 +1,7 @@
 /* ==========================================================================
    Motiv TERMINÁL — uhlová čerň, limetkový akcent, mono typografie
 
-   Výchozí motiv. Hodnoty i kompozice jsou převzaté z pause / settings menu
+   Hodnoty i kompozice jsou převzaté z pause / settings menu
    projektu carGame (src/style.css, sekce „DESIGNOVÉ TOKENY UI“ a „PAUSE MENU“).
    Tam design vlastní dokumentaci nemá, takže pravidla, na kterých stojí,
    shrnuje tenhle komentář:
@@ -27,7 +27,6 @@
    tvar prvku (rastr, rohové značky, `//` před nadpisy, podtržené taby).
    ========================================================================== */
 
-:root,
 :root[data-theme="terminal"] {
   color-scheme: dark;
 
@@ -337,8 +336,10 @@
 }
 
 /* Mono je širší než grotesk — souvislý text musí o stupeň dolů, jinak se
-   z odstavce stane zeď. */
+   z odstavce stane zeď. Platí to i pro perex: ve stejném stupni jako
+   v ostatních motivech je na mobilu skoro tak nápadný jako nadpis nad ním. */
 :root[data-theme="terminal"] .hero-sub {
+  font-size: clamp(0.8125rem, 2vw, 1rem);
   letter-spacing: 0.01em;
   line-height: 1.7;
 }
@@ -348,7 +349,11 @@
 :root[data-theme="terminal"] .prose p,
 :root[data-theme="terminal"] .prose ul,
 :root[data-theme="terminal"] .prose ol,
-:root[data-theme="terminal"] .dialog-text {
+:root[data-theme="terminal"] .dialog-text,
+:root[data-theme="terminal"] .consent-text,
+:root[data-theme="terminal"] .stat-card-meta,
+:root[data-theme="terminal"] .data-desc,
+:root[data-theme="terminal"] .list-empty {
   font-size: 0.8rem;
   line-height: 1.75;
   letter-spacing: 0.02em;
@@ -360,6 +365,8 @@
 :root[data-theme="terminal"] .draw-order,
 :root[data-theme="terminal"] .dialog-score-label,
 :root[data-theme="terminal"] .field label,
+:root[data-theme="terminal"] .stat-card-head,
+:root[data-theme="terminal"] .legal-meta,
 :root[data-theme="terminal"] .score-table thead th {
   font-weight: 500;
   letter-spacing: 0.16em;
@@ -496,6 +503,79 @@
   text-transform: uppercase;
   background-color: rgba(8, 8, 8, 0.92);
   border-color: var(--accent-ring);
+}
+
+/* ------------------------------------------------------ 5. účet a souhlas */
+/* Odznak účtu je hodnotový štítek z carGame: mono verzálky, ostrý roh,
+   iniciály v akcentovém obtažení místo výplně. */
+:root[data-theme="terminal"] .account-chip {
+  padding: calc(4px * var(--ui)) calc(11px * var(--ui)) calc(4px * var(--ui))
+           calc(4px * var(--ui));
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-color: var(--border-strong);
+}
+
+:root[data-theme="terminal"] .account-chip:hover {
+  background-color: transparent;
+  border-color: var(--accent-ring);
+  color: var(--text);
+}
+
+:root[data-theme="terminal"] .account-avatar {
+  background-color: transparent;
+  border: var(--hairline) solid var(--accent-ring);
+  color: var(--accent);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+:root[data-theme="terminal"] .account-chip.is-anon .account-avatar {
+  border-color: var(--border-strong);
+  color: var(--text-faint);
+}
+
+/* Štítek stavu = tentýž hodnotový odznak jako .section-meta. */
+:root[data-theme="terminal"] .pill {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  background-color: var(--surface-2);
+}
+
+:root[data-theme="terminal"] .pill--on {
+  background-color: var(--accent-soft);
+  border-color: var(--accent-ring);
+}
+
+/* Karta statistiky se hlásí obtažením, ne výplní — proto jen linka a rastr
+   pod ní. Číslo je jediné, co v kartě smí být světlé. */
+:root[data-theme="terminal"] .stat-card {
+  background-color: var(--surface-2);
+}
+
+:root[data-theme="terminal"] .stat-card-value {
+  letter-spacing: -0.01em;
+}
+
+/* Lišta souhlasu je vyskakující vrstva jako dialog — dostane jeho podklad;
+   rohové značky „L“ jí kreslí .corner-dots. */
+:root[data-theme="terminal"] .consent-card {
+  background-color: #0c0c0c;
+  border-color: var(--border-strong);
+}
+
+:root[data-theme="terminal"] .consent-icon {
+  background-color: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--accent);
+}
+
+:root[data-theme="terminal"] .consent-title {
+  letter-spacing: 0.01em;
 }
 
 /* Rámeček by se na nízkém displeji potkal s ovládáním vedle pole. */

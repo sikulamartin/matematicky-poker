@@ -10,6 +10,12 @@
   max-width: var(--stack-w);
 }
 
+/* Na výběru čísel není hrací pole, takže konzoli nesmí škrtit šířka pole
+   z board.css — drží se šířky sloupce jako karta nad ní a sekce pod ní. */
+.picker .console {
+  max-width: none;
+}
+
 .draw-stage {
   display: flex;
   align-items: center;

@@ -1,0 +1,563 @@
+/* ==========================================================================
+   Účty, statistiky a souhlas s ukládáním
+
+   Sekce: odznak v liště → výběr profilu v dialogu → stránka Profil
+          → lišta souhlasu
+
+   Stejná smlouva jako u ostatních komponent: barvy, tvary a písma se berou
+   výhradně z proměnných v tokens.css, aby to sedlo do všech tří motivů.
+   ========================================================================== */
+
+/* -------------------------------------------------------- odznak v liště */
+.account-slot {
+  display: flex;
+  align-items: center;
+}
+
+.account-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(7px * var(--ui));
+  padding: calc(4px * var(--ui)) calc(10px * var(--ui)) calc(4px * var(--ui))
+           calc(4px * var(--ui));
+  border: var(--hairline) solid var(--border-strong);
+  border-radius: var(--r-pill);
+  background-color: transparent;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 0.78125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color var(--t-fast), border-color var(--t-fast),
+    color var(--t-fast);
+}
+
+.account-chip:hover {
+  background-color: var(--surface-2);
+  border-color: var(--accent);
+}
+
+/* --text-faint je v motivu Academism jílový, takže by šipka odznaku svítila
+   akcentem. Tlumené drobnosti proto berou --text-muted. */
+.account-chip .icon {
+  width: calc(14px * var(--ui));
+  height: calc(14px * var(--ui));
+  color: var(--text-muted);
+}
+
+/* Iniciály v kolečku. Stejný prvek slouží i v dialogu a v seznamu profilů,
+   proto má vlastní třídu a ne jen selektor uvnitř odznaku. */
+.account-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: calc(24px * var(--ui));
+  height: calc(24px * var(--ui));
+  border-radius: var(--r-pill);
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--label-font);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/* Host = zatím žádný profil. Odznak nesmí vypadat aktivně, jinak by se
+   pletl s přihlášeným účtem. */
+.account-chip.is-anon {
+  color: var(--text-muted);
+}
+
+.account-chip.is-anon .account-avatar {
+  background-color: var(--surface-2);
+  color: var(--text-muted);
+}
+
+/* Dlouhá přezdívka nesmí roztlačit lištu — v panelu nabídky se smí rozvinout,
+   tam je na ni celá šířka okna (viz responsive.css). */
+.account-name {
+  max-width: calc(96px * var(--ui));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------- výběr profilu v dialogu */
+.picker-list {
+  display: grid;
+  gap: calc(6px * var(--ui));
+  margin-bottom: var(--sp-4);
+}
+
+.picker-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: calc(9px * var(--ui)) calc(11px * var(--ui));
+  background-color: var(--surface-2);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--t-fast), border-color var(--t-fast);
+}
+
+.picker-row:hover {
+  border-color: var(--accent);
+}
+
+.picker-row[aria-current="true"] {
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.picker-row .icon {
+  margin-left: auto;
+  color: var(--accent);
+}
+
+.picker-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.picker-name {
+  font-weight: 700;
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.picker-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------ zadání přezdívky */
+.name-form {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+.name-form .btn {
+  flex: none;
+}
+
+.field-text {
+  flex: 1;
+  min-width: 0;
+  padding: calc(9px * var(--ui)) calc(11px * var(--ui));
+  background-color: var(--surface-inset);
+  border: var(--hairline) solid var(--border-strong);
+  border-radius: var(--r-sm);
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
+  color: var(--text);
+}
+
+.field-text::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* ======================================================== stránka Profil */
+/* Sekce stránky drží stejnou šířku sloupce jako .hero a .menu, aby všechno
+   lícovalo na jedné ose. */
+.block {
+  width: 100%;
+  max-width: var(--stack-w);
+}
+
+.block-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.list-empty {
+  padding: var(--sp-4);
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------ statistiky */
+/* Šest sloupců schválně: dělí se beze zbytku na tři i na dvě, takže tři
+   rekordy sednou do horní řady a dva souhrny do spodní. Automatická mřížka
+   (auto-fit) by z pěti karet udělala čtyři a jednu osiřelou. */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: calc(10px * var(--ui));
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: calc(5px * var(--ui));
+  padding: calc(14px * var(--ui)) calc(16px * var(--ui)) calc(15px * var(--ui));
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* tři rekordy nahoře po dvou sloupcích, dva souhrny dole po třech */
+.stat-card:nth-child(-n+3) {
+  grid-column: span 2;
+}
+
+.stat-card:nth-child(n+4) {
+  grid-column: span 3;
+}
+
+.stat-card-head {
+  display: flex;
+  align-items: center;
+  gap: calc(7px * var(--ui));
+  font-family: var(--label-font);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stat-card-head .icon {
+  width: calc(14px * var(--ui));
+  height: calc(14px * var(--ui));
+  color: var(--accent);
+}
+
+.stat-card-value {
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: clamp(1.9rem, 7vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card-meta {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* Nula není výsledek, jen prázdno — nesmí přebít kartu, kde už něco je. */
+.stat-card.is-empty .stat-card-value {
+  color: var(--text-muted);
+  opacity: 0.45;
+}
+
+.stat-card.is-empty .stat-card-head .icon {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* --------------------------------------------------------- seznam profilů */
+/* Mřížka s mezerou 1 px místo rámečků kolem každého řádku — stejný postup
+   jako u rozcestníku .menu, aby seznam nedělal mřížku v mřížce. */
+.profile-list,
+.data-list {
+  display: grid;
+  gap: 1px;
+  background-color: var(--border);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.profile-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: calc(11px * var(--ui)) calc(14px * var(--ui));
+  background-color: var(--surface);
+}
+
+.profile-row.is-active {
+  background-color: var(--accent-soft);
+}
+
+.profile-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.profile-name {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  min-width: 0;
+}
+
+.profile-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-wrap: pretty;
+}
+
+.profile-actions {
+  display: flex;
+  align-items: center;
+  gap: calc(5px * var(--ui));
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Tlačítko jen s ikonou — mazání a přejmenování se do řádku textem nevejdou. */
+.btn--icon {
+  padding: calc(7px * var(--ui));
+  background-color: transparent;
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+}
+
+.btn--icon .icon {
+  width: calc(16px * var(--ui));
+  height: calc(16px * var(--ui));
+}
+
+.btn--icon:hover:not(:disabled) {
+  background-color: var(--surface-2);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.btn--icon.btn--danger {
+  color: var(--bad);
+}
+
+.btn--icon.btn--danger:hover:not(:disabled) {
+  background-color: var(--bad);
+  border-color: var(--bad);
+  color: #fff;
+  filter: none;
+}
+
+/* --------------------------------------------------------------- štítek */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(5px * var(--ui));
+  padding: 1px calc(9px * var(--ui));
+  border: var(--hairline) solid var(--border-strong);
+  border-radius: var(--r-pill);
+  font-family: var(--label-font);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.pill--on {
+  color: var(--good);
+  border-color: var(--good);
+}
+
+.pill--off {
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------- data a soukromí */
+.data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  padding: calc(13px * var(--ui)) calc(14px * var(--ui));
+  background-color: var(--surface);
+}
+
+.data-copy {
+  flex: 1 1 calc(240px * var(--ui));
+  min-width: 0;
+}
+
+.data-title {
+  display: block;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  margin-bottom: 2px;
+}
+
+.data-desc {
+  display: block;
+  font-size: 0.78125rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.data-row .btn {
+  flex: none;
+}
+
+/* ------------------------------------------------------- lišta souhlasu */
+/* Leží nad stránkou, ale POD modálním dialogem (z-index 50) a hláškami (60):
+   dialog je vždycky odpověď na akci hráče a musí být navrchu. */
+.consent {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding: var(--gutter);
+  pointer-events: none;
+}
+
+.consent-card {
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: var(--sp-3) var(--sp-4);
+  width: 100%;
+  max-width: calc(660px * var(--ui));
+  padding: clamp(16px, 3vw, calc(22px * var(--ui)));
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  animation: consentIn var(--t-med) both;
+}
+
+@keyframes consentIn {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+}
+
+.consent-icon {
+  display: grid;
+  place-items: center;
+  width: calc(38px * var(--ui));
+  height: calc(38px * var(--ui));
+  border-radius: var(--r-sm);
+  background-color: var(--surface-2);
+  border: var(--hairline) solid var(--border);
+  color: var(--text-muted);
+}
+
+.consent-icon .icon {
+  width: calc(20px * var(--ui));
+  height: calc(20px * var(--ui));
+}
+
+.consent-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-sm);
+  font-size: clamp(1.05rem, 3.4vw, 1.25rem);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.15;
+  margin-bottom: calc(5px * var(--ui));
+}
+
+.consent-text {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.consent-text strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.consent-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.consent-actions .btn {
+  flex: 1 1 calc(160px * var(--ui));
+}
+
+/* ------------------------------------------------------------ drobnosti */
+/* Varovná varianta poznámky — používá ji dialog účtu, když je ukládání
+   vypnuté, a stránka se zásadami. */
+.note--warn {
+  border-color: var(--warn);
+}
+
+.note--warn .icon {
+  color: var(--warn);
+}
+
+.note--warn a {
+  text-decoration: underline;
+}
+
+/* Patička rozcestníku — jediná věta a odkaz na zásady. Drží osu sloupce
+   stejně jako .hero a .menu nad ní. */
+.foot-note {
+  width: 100%;
+  max-width: var(--stack-w);
+  margin-top: calc(4px * var(--ui));
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.foot-note a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.foot-note a:hover {
+  color: var(--accent);
+}
+
+/* Název cookie nebo klíče v úložišti se čte jako kód, ne jako věta. */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--text);
+}
+
+/* Řádek s technickými údaji pod nadpisem právní stránky. */
+.legal-meta {
+  font-family: var(--label-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  text-align: center;
+  margin-bottom: var(--sp-5);
+}

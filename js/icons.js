@@ -25,7 +25,28 @@
     alert: '<path d="M12 4.2 21.2 19.8H2.8z"/><path d="M12 10v4.1"/><path d="M12 17.2v.7"/>',
     check: '<path d="M4.8 12.4 10 17.6 19.2 6.8"/>',
     close: '<path d="M6 6l12 12M18 6 6 18"/>',
-    menu: '<path d="M3.8 6.8h16.4M3.8 12h16.4M3.8 17.2h16.4"/>'
+    menu: '<path d="M3.8 6.8h16.4M3.8 12h16.4M3.8 17.2h16.4"/>',
+    user: '<circle cx="12" cy="8.2" r="3.9"/><path d="M4.6 20.4a7.4 7.4 0 0 1 14.8 0"/>',
+    users: '<circle cx="9.4" cy="8.4" r="3.5"/><path d="M2.9 20.2a6.5 6.5 0 0 1 13 0"/>' +
+      '<path d="M16.4 5.2a3.5 3.5 0 0 1 0 6.4"/><path d="M17.8 14.8a6.5 6.5 0 0 1 3.3 5.4"/>',
+    shield: '<path d="M12 3.2 19.4 6v5.6c0 4.2-2.9 7.7-7.4 9.2-4.5-1.5-7.4-5-7.4-9.2V6z"/>' +
+      '<path d="M9 12.1l2.1 2.2 4-4.4"/>',
+    cookie: '<path d="M12 3.4a8.6 8.6 0 1 0 8.6 8.6 4 4 0 0 1-4.9-4.9 4 4 0 0 1-3.7-3.7z"/>' +
+      '<circle cx="9.2" cy="10.3" r="1.1" fill="currentColor" stroke="none"/>' +
+      '<circle cx="13.7" cy="15.1" r="1.1" fill="currentColor" stroke="none"/>' +
+      '<circle cx="8.7" cy="15.6" r="1" fill="currentColor" stroke="none"/>',
+    trash: '<path d="M4.6 6.6h14.8"/>' +
+      '<path d="M9.4 6.6V4.9a1.4 1.4 0 0 1 1.4-1.4h2.4a1.4 1.4 0 0 1 1.4 1.4v1.7"/>' +
+      '<path d="M6.7 6.6 7.6 19a1.6 1.6 0 0 0 1.6 1.5h5.6a1.6 1.6 0 0 0 1.6-1.5l.9-12.4"/>' +
+      '<path d="M10.4 10.2v6.4M13.6 10.2v6.4"/>',
+    download: '<path d="M12 3.6v11.2"/><path d="M7.6 10.6 12 15l4.4-4.4"/>' +
+      '<path d="M4.4 18.2v1.2a1.2 1.2 0 0 0 1.2 1.2h12.8a1.2 1.2 0 0 0 1.2-1.2v-1.2"/>',
+    plus: '<path d="M12 4.8v14.4M4.8 12h14.4"/>',
+    pencil: '<path d="M4.2 19.8h4l10-10a2.1 2.1 0 0 0 0-3l-1-1a2.1 2.1 0 0 0-3 0l-10 10z"/>' +
+      '<path d="M13.4 6.6l4 4"/>',
+    bolt: '<path d="M13.4 2.8 5.2 13.4h5.6l-.6 7.8 8.2-10.6h-5.6z"/>',
+    star: '<path d="m12 3.4 2.68 5.6 6.02.85-4.35 4.3 1.03 6.05L12 17.35 6.62 20.2l1.03-6.05L3.3 9.85l6.02-.85z"/>',
+    chevronDown: '<path d="m6.6 9.6 5.4 5.2 5.4-5.2"/>'
   };
 
   var sprite = '<svg class="mp-sprite" aria-hidden="true" focusable="false">';

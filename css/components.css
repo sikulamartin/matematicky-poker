@@ -321,9 +321,12 @@
 
 /* Perex smí až na hranu sloupce — o šířce rozhoduje --stack-w, ne míra v `ch`.
    Jinak končí řádek jinde než rozcestník pod ním a blok vypadá uříznutě. */
+/* Dolní mez clamp() platí až někam k 640 px šířky, takže o velikosti perexu
+   na mobilu rozhoduje jenom ona — ne prostřední člen. Proto je nízko: 14 px
+   drží perex nad popiskem v rozcestníku a pod nadpisem, kam patří. */
 .hero-sub {
   color: var(--text-muted);
-  font-size: clamp(0.95rem, 2.2vw, 1.12rem);
+  font-size: clamp(0.875rem, 2.2vw, 1.12rem);
   line-height: 1.55;
   max-width: 100%;
   margin-inline: auto;
@@ -578,6 +581,34 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-faint);
+}
+
+/* Řádek pod skóre — komu se partie zapsala a jestli něco překonala. */
+.dialog-note {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--ui));
+  margin-bottom: var(--sp-4);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.dialog-note .icon {
+  width: calc(16px * var(--ui));
+  height: calc(16px * var(--ui));
+  color: var(--text-faint);
+}
+
+.dialog-note.is-record,
+.dialog-note.is-record .icon {
+  color: var(--good);
+}
+
+.dialog-note.is-warn,
+.dialog-note.is-warn .icon {
+  color: var(--warn);
 }
 
 /* ---------------------------------------------------------------- hlášky */

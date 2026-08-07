@@ -69,6 +69,18 @@
     var secondsPerDraw = 0;
     var secondsLeft = 0;
 
+    // Žeton partie z MPStore.beginRun(). Vydá se při prvním tažení — ne při
+    // načtení stránky, protože v těžké obtížnosti hráč nejdřív zadává čas na
+    // tah a to do délky hry nepatří. Bez žetonu statistiky výsledek nepřijmou.
+    var runToken = null;
+
+    var RECORD_LABELS = {
+      best: 'nejlepší skóre',
+      easy: 'rekord v lehké',
+      hard: 'rekord v těžké',
+      fastest: 'nejrychlejší hra'
+    };
+
     /* ------------------------------------------------------- vykreslení */
 
     function formatTime(seconds) {
@@ -232,6 +244,9 @@
       if (over || busy || pending) {
         return;
       }
+      if (runToken === null && window.MPStore) {
+        runToken = window.MPStore.beginRun(mode);
+      }
       if (placed >= CELLS_TOTAL) {
         finish();
         return;
@@ -368,6 +383,51 @@
       }, AUTO_ROLL_DELAY);
     }
 
+    function escapeHTML(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    /** Zapíše dohranou partii do statistik aktivního profilu. */
+    function saveResult(total, full) {
+      if (!window.MPStore || runToken === null) {
+        return null;
+      }
+      var outcome = window.MPStore.record({
+        token: runToken,
+        score: total,
+        complete: full
+      });
+      runToken = null;      // žeton platí na jedinou partii
+      return outcome;
+    }
+
+    /** Řádek pod skóre: co se povedlo překonat, nebo kde rekord pořád stojí. */
+    function resultNote(outcome) {
+      if (!outcome) {
+        return '';
+      }
+      // Zamítnutý zápis znamená, že do hry někdo sáhl zvenčí. Mlčet by bylo
+      // horší než to říct — hráč jinak nepochopí, proč statistiky stojí.
+      if (!outcome.profile) {
+        return '<p class="dialog-note is-warn">' + window.MPIcons.markup('alert') +
+          'Výsledek se nezapsal — nesedí kontrola věrohodnosti.</p>';
+      }
+      var name = escapeHTML(outcome.profile.name);
+      if (outcome.records.length) {
+        var labels = outcome.records.map(function (key) {
+          return RECORD_LABELS[key];
+        });
+        return '<p class="dialog-note is-record">' + window.MPIcons.markup('trophy') +
+          'Nový rekord (' + name + '): ' + labels.join(', ') + '</p>';
+      }
+      return '<p class="dialog-note">' + window.MPIcons.markup('user') + name +
+        ' — osobní rekord zůstává ' + outcome.profile.stats.best + ' bodů.</p>';
+    }
+
     function finish(reason) {
       if (over) {
         return;
@@ -379,6 +439,8 @@
       render();
 
       var full = placed >= CELLS_TOTAL;
+      var total = scorer.getTotal();
+      var outcome = saveResult(total, full);
       var text = full
         ? 'Zaplnil jsi celé pole.'
         : (reason || 'Hra skončila.') + ' Zaplněno ' + placed + ' z ' + CELLS_TOTAL + ' políček.';
@@ -393,9 +455,10 @@
         dismissible: true,
         bodyHTML:
           '<div class="dialog-score">' +
-          '<span class="dialog-score-value">' + scorer.getTotal() + '</span>' +
+          '<span class="dialog-score-value">' + total + '</span>' +
           '<span class="dialog-score-label">celkem bodů</span>' +
-          '</div>',
+          '</div>' +
+          resultNote(outcome),
         actions: [
           { label: 'Hrát znovu', value: 'again', autofocus: true },
           { label: 'Zpět na výběr', value: 'back', variant: 'quiet' }
@@ -426,6 +489,7 @@
       over = false;
       busy = false;
       jokerLock = false;
+      runToken = null;
 
       if (isHard) {
         started = false;

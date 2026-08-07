@@ -248,11 +248,47 @@
     border-radius: 0;
     box-shadow: none;
   }
+
+  /* Odznak účtu je v panelu taky jen řádek. Přezdívka se smí rozvinout —
+     tady na ni je celá šířka okna, na rozdíl od lišty. */
+  .rail-panel .account-slot {
+    display: block;
+  }
+
+  :root .rail-panel .account-chip {
+    width: 100%;
+    justify-content: flex-start;
+    padding: calc(6px * var(--ui)) calc(10px * var(--ui));
+    border-color: transparent;
+    border-radius: var(--r-sm);
+    background-color: transparent;
+    color: var(--text);
+    font-size: 0.875rem;
+    box-shadow: none;
+    opacity: 1;
+  }
+
+  :root .rail-panel .account-chip:hover {
+    background-color: var(--surface-2);
+    border-color: transparent;
+    opacity: 1;
+  }
+
+  .rail-panel .account-name {
+    max-width: none;
+  }
+
+  /* Šipka odznaku míří v nabídce doprava — rozbalovat už není co. */
+  .rail-panel .account-chip > .icon {
+    margin-left: auto;
+  }
 }
 
 /* konzole se na úzkém displeji zalomí do dvou řádků, pole zůstává nedotčené */
 @media (max-width: 700px) {
-  body {
+  /* O dva řádky konzole roste --chrome jen tam, kde se konzole opravdu
+     láme — tabulka zůstává na jednom řádku a nechává poli víc místa. */
+  body[data-mode] {
     --chrome: calc(198px + 2 * var(--rail-pad-y));
   }
 
@@ -270,7 +306,11 @@
     flex: 0 0 auto;
   }
 
-  .console-actions {
+  /* Do druhého řádku se ovládání láme jen na stránkách hry proti balíčku
+     (body[data-mode]) — tam konzole nese ještě vytažené číslo a tři věci
+     se vedle sebe nevejdou. Tabulka má v konzoli jen dva údaje, takže
+     Vymazat zůstává v řádku napravo od nich. */
+  [data-mode] .console-actions {
     flex: 1 1 100%;
   }
 
@@ -290,7 +330,7 @@
 }
 
 @media (max-width: 460px) {
-  body {
+  body[data-mode] {
     --chrome: calc(206px + 2 * var(--rail-pad-y));
   }
 
@@ -318,6 +358,50 @@
 
   .dialog-actions .btn {
     flex-basis: 100%;
+  }
+}
+
+/* Pod tuhle šířku už karta statistiky ve dvou šestinách sloupce neuživí ani
+   nadpis — mřížka se překlápí na dva stejné sloupce a rozvržení 3 + 2 padá.
+   Selektory musí být specifičtější než .stat-card:nth-child v account.css. */
+@media (max-width: 700px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-grid .stat-card {
+    grid-column: auto;
+  }
+}
+
+/* Účet a souhlas na úzkém displeji. Ikona vedle textu ubírá řádku šířku,
+   kterou souvislý text potřebuje víc — proto se lišta souhlasu srovná do
+   jednoho sloupce a řádek profilu do dvou řádků. */
+@media (max-width: 560px) {
+  .consent {
+    padding: calc(10px * var(--ui));
+  }
+
+  .consent-card {
+    grid-template-columns: 1fr;
+    gap: var(--sp-3);
+  }
+
+  .consent-actions .btn {
+    flex-basis: 100%;
+  }
+
+  .profile-row {
+    grid-template-columns: auto 1fr;
+  }
+
+  .profile-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .data-row .btn {
+    flex: 1 1 100%;
   }
 }
 
@@ -368,7 +452,8 @@
 @media print {
   .rail,
   .console,
-  .toasts {
+  .toasts,
+  .consent {
     display: none;
   }
 }

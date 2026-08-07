@@ -110,6 +110,7 @@ a {
   min-height: 100dvh;
   margin-inline: auto;
   padding: calc(12px * var(--ui)) var(--gutter) calc(14px * var(--ui));
+  padding-top: 0;
   display: flex;
   flex-direction: column;
   gap: calc(10px * var(--ui));

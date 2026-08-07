@@ -404,8 +404,18 @@
 }
 
 /* ručně vyplňovaná tabulka */
+/* Prázdná buňka nemá řádkový box, takže `vertical-align: middle` nemá co
+   vystředit a psací kurzor se kreslí od horní hrany obsahu. Polohu kurzoru
+   v takové buňce určuje půlproložení řádku (line-height minus výška písma,
+   půl nahoru, půl dolů) — a to je při `line-height: 1` nula. Roztažením
+   řádkování na výšku buňky se z půlproložení stane polovina volného místa,
+   takže kurzor i zapsaná číslice sednou na osu buňky.
+
+   Hodnota je o vlásečnici nižší než buňka, aby se řádkový box vešel do
+   obsahové výšky i s dolním rámečkem a řádek tabulky nenarostl. */
 .board td[contenteditable="true"] {
   cursor: text;
+  line-height: calc(var(--cell) - var(--hairline));
 }
 
 .board td[contenteditable="true"]:focus {

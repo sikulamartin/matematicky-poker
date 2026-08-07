@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="cs" data-theme="terminal">
+<html lang="cs" data-theme="academism">
 
 <head>
   <meta charset="UTF-8">
@@ -20,7 +20,7 @@
         if (t === 'papir' || t === 'anthropic') { t = 'academism'; }
         if (t === 'studio') { t = 'terminal'; }
         if (t === 'noc') { t = 'legacy'; }
-        if (t !== 'terminal' && t !== 'academism' && t !== 'legacy') { t = 'terminal'; }
+        if (t !== 'terminal' && t !== 'academism' && t !== 'legacy') { t = 'academism'; }
         document.documentElement.setAttribute('data-theme', t);
       } catch (e) { /* localStorage nedostupný */ }
     })();
@@ -147,8 +147,11 @@
   </div>
 
   <script src="js/theme.js"></script>
-  <script src="js/nav.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/consent.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/nav.js"></script>
   <script src="js/scoring.js"></script>
   <script src="js/deck.js"></script>
   <script src="js/game.js"></script>

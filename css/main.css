@@ -13,7 +13,8 @@
    components.css  lišta, tlačítka, rozcestník, dialogy, hlášky
    board.css       konzole nad polem a samotné hrací pole
    picker.css      stránka Výběr čísel
-   prose.css       stránka Pravidla
+   prose.css       stránka Pravidla a Zásady
+   account.css     odznak účtu, stránka Profil, lišta souhlasu
 
    theme-*.css     jeden soubor = jeden vizuální motiv. Naplní proměnné
                    z tokens.css a případně přepíše komponenty, které se
@@ -31,6 +32,7 @@
 @import url("board.css");
 @import url("picker.css");
 @import url("prose.css");
+@import url("account.css");
 
 @import url("theme-terminal.css");
 @import url("theme-academism.css");
