@@ -4,27 +4,7 @@ Kombinační hra s čísly 1–13 na poli 5×5. Taháš karty z balíčku, rozho
 
 Celá hra běží jako statický web v prohlížeči. Žádný backend, žádný build, žádné závislosti a žádná data neopouštějí zařízení hráče.
 
-**Živá verze:** [sikulamartin.github.io/matematicky-poker](https://matematickypoker.netlify.app/)
-
----
-
-## Obsah
-
-- [Co hra umí](#co-hra-umí)
-- [Rychlý start](#rychlý-start)
-- [Nasazení](#nasazení)
-- [Pravidla ve zkratce](#pravidla-ve-zkratce)
-- [Bodovací tabulka](#bodovací-tabulka)
-- [Struktura projektu](#struktura-projektu)
-- [Architektura](#architektura)
-- [Motivy a design tokeny](#motivy-a-design-tokeny)
-- [Data, úložiště a soukromí](#data-úložiště-a-soukromí)
-- [Přístupnost a ovládání](#přístupnost-a-ovládání)
-- [Podpora prohlížečů](#podpora-prohlížečů)
-- [Vývoj a konvence](#vývoj-a-konvence)
-- [Licence](#licence)
-
----
+**Živá verze:** [matematicky-poker](https://matematickypoker.netlify.app/)
 
 ## Co hra umí
 
@@ -33,7 +13,7 @@ Celá hra běží jako statický web v prohlížeči. Žádný backend, žádný
 | **Hra — lehká** | `easy.html` | Plná hra bez časového tlaku. |
 | **Hra — těžká** | `hard.html` | Odpočet 3–300 sekund na jedno číslo. Co nestihneš uložit, propadne a políčko zůstane prázdné. |
 | **Výběr čísel** | `number selection.html` | Samostatný generátor pro hru na papíře. Historie tahů, přehled zbývajících karet, rozehraná hra přežije reload. |
-| **Tabulka** | `table.html` | Prázdné pole k ručnímu vyplnění s průběžným bodováním. Užitečné pro kontrolu papírové partie. |
+| **Tabulka** | `table.html` | Prázdné pole k ručnímu vyplnění s průběžným bodováním. |
 | **Profil** | `account.html` | Lokální účty (bez hesla a bez serveru), statistiky a správa uložených dat. |
 | **Pravidla** | `rules.html` | Kompletní pravidla a bodovací tabulka. |
 | **Zásady** | `privacy.html` | Co se ukládá, kam a jak to smazat. |
@@ -44,34 +24,25 @@ Dál:
 - **Žolíci** — dva v balíčku. Jde je použít hned s vlastní hodnotou, nebo uschovat na později; uschovaný žolík nespotřebuje tah.
 - **Vlastní dialogy** místo `alert()` / `confirm()` / `prompt()` — stylovatelné, přístupné, s ochrannou lhůtou proti nechtěnému potvrzení dojezdem stisku.
 - **Souhlas s ukládáním** — bez něj hra funguje, jen si po zavření karty nic nepamatuje.
-- **Responzivní layout** od ~380 px do 4K, včetně sbalené hamburgerové nabídky pod 860 px.
+- **Responzivní layout** — od úzkých telefonů po velké monitory, pod 860 px se lišta sbalí do hamburgeru.
 
-## Rychlý start
+## Spuštění
 
-Repozitář je čistě statický. Stačí ho naklonovat a otevřít přes libovolný lokální server:
+Repozitář je čistě statický. Stačí ho naklonovat a otevřít přes lokální server:
 
 ```bash
 git clone https://github.com/sikulamartin/matematicky-poker.git
 cd matematicky-poker
-
-# jakýkoli statický server, například:
 python3 -m http.server 8000
-# nebo
-npx serve .
 ```
 
 Pak otevři <http://localhost:8000>.
 
-> **Proč server a ne dvojklik na `index.html`?**
-> Přes `file://` část prohlížečů blokuje `localStorage` a cookies, takže by nefungovaly motivy ani profily. Samotná hra by šla, uložená data ne.
+Dvojklik na `index.html` (`file://`) není dobrý nápad — cookies přes něj nefungují, takže se rozbijí profily. Samotná hra by šla, ukládání ne.
 
-Nic se neinstaluje, nic se nekompiluje — žádné `package.json`, žádný bundler, žádný krok navíc. Jediná externí závislost jsou webfonty z Google Fonts; bez internetu se web vykreslí systémovým písmem.
+Nic se neinstaluje, nic se nekompiluje — žádné `package.json`, žádný bundler. Jediná externí věc jsou webfonty z Google Fonts; bez internetu se web vykreslí systémovým písmem.
 
-## Nasazení
-
-GitHub Pages: **Settings → Pages → Source: Deploy from a branch → `main` / `root`**. Nic dalšího není potřeba, repozitář je připravený k přímému servírování.
-
-Stejně dobře funguje jakýkoli statický hosting (Netlify, Vercel, Cloudflare Pages, obyčejný Apache/nginx). Jen pozor na název souboru `number selection.html` — obsahuje mezeru a v odkazech je psaný jako `number%20selection.html`. Některé konfigurace serverů mezeru v cestě odmítají.
+Nasazení je jen nahrání souborů na jakýkoli statický hosting. Pozor jen na `number selection.html` — má v názvu mezeru a v odkazech je psaný jako `number%20selection.html`.
 
 ## Pravidla ve zkratce
 
@@ -83,7 +54,7 @@ Stejně dobře funguje jakýkoli statický hosting (Netlify, Vercel, Cloudflare 
 
 **Balíček** má 54 karet: čtyři kusy od každé hodnoty 1–13 (52) plus dva žolíky. Míchá se Fisherovým–Yatesovým algoritmem a karta se nikdy neopakuje. Políček je jen 25, takže velkou část balíčku v jedné hře neuvidíš.
 
-**Vyhodnocuje se 12 linií** — 5 řádků, 5 sloupců a obě úhlopříčky. Z každé linie se počítá jen její *nejlepší* kombinace; v rámci jedné linie se body nesčítají. Teoretické maximum je proto 12 × 125 = **1500 bodů**.
+**Vyhodnocuje se 12 linií** — 5 řádků, 5 sloupců a obě úhlopříčky. Z každé linie se počítá jen její *nejlepší* kombinace; v rámci jedné linie se body nesčítají. Strop je tedy 12 × 125 = **1500 bodů**.
 
 ## Bodovací tabulka
 
@@ -135,7 +106,7 @@ Zdroj pravdy je pole `COMBOS` v [js/scoring.js](js/scoring.js) — tabulka v `ru
 ├── js/
 │   ├── icons.js               SVG sprite, načítá se jako první
 │   ├── theme.js               přepínač motivů
-│   ├── ui.js                  dialogy, výběr hodnoty, toasty
+│   ├── ui.js                  dialogy, výběr hodnoty, hlášky
 │   ├── consent.js             souhlas s ukládáním
 │   ├── store.js               lokální profily a statistiky
 │   ├── account.js             odznak účtu v liště
@@ -150,9 +121,9 @@ Zdroj pravdy je pole `COMBOS` v [js/scoring.js](js/scoring.js) — tabulka v `ru
 └── _original/                 první verze webu, ponechána pro srovnání
 ```
 
-Složka `_original/` je archiv původní implementace před přepsáním. Nic z ní se nenačítá a do nasazení nezasahuje.
+Složka `_original/` je archiv původní implementace před přepsáním. Nic z ní se nenačítá.
 
-## Architektura
+## Jak je to poskládané
 
 Žádný framework a žádné moduly — každý soubor je IIFE, která si na `window` pověsí jeden jmenný prostor. Sdílení stavu jde výhradně přes tato rozhraní.
 
@@ -165,7 +136,7 @@ Složka `_original/` je archiv původní implementace před přepsáním. Nic z 
 | `MPStore` | `js/store.js` | `list()`, `active()`, `create()`, `record()`, `exportJSON()`, `onChange()`, … |
 | `MPAccount` | `js/account.js` | `promptName()`, `openMenu()`, `refresh()` |
 | `MPDeck` | `js/deck.js` | `create()`, `VALUES`, `COPIES`, `JOKERS` |
-| `MPScore` | `js/scoring.js` | `attach(board, out)`, `evaluate(grid)`, `COMBOS` |
+| `MPScore` | `js/scoring.js` | `attach(table, totalEl)`, `evaluate(grid)`, `COMBOS` |
 
 ### Pořadí načítání
 
@@ -191,7 +162,7 @@ Tři tvrdé závislosti:
 
 Volba motivu se navíc nasazuje malým inline skriptem v `<head>` každé stránky, aby web při načtení neproblikl výchozím motivem.
 
-## Motivy a design tokeny
+## Motivy
 
 Motiv = jeden soubor `css/theme-*.css`, který naplní proměnné definované v [css/tokens.css](css/tokens.css). Komponenty smějí sahat **jen** na tyto proměnné — natvrdo napsaný hex v komponentě se rozbije v ostatních dvou motivech.
 
@@ -200,11 +171,11 @@ Přidání motivu:
 1. Zkopíruj existující `theme-*.css` a naplň všechny proměnné ze soupisu v `tokens.css`.
 2. Přidej `@import` do `css/main.css`.
 3. Zaregistruj ID a popisek v poli `THEMES` v [js/theme.js](js/theme.js).
-4. Pokud přejmenováváš existující motiv, doplň starý název do mapy `RENAMED`, ať se hráčům s uloženou volbou web nepřepne zpátky na výchozí.
+4. Když přejmenováváš existující motiv, doplň starý název do mapy `RENAMED`, ať se hráčům s uloženou volbou web nepřepne zpátky na výchozí.
 
-Aktuální motivy: `terminal`, `academism` (výchozí), `legacy`. Historické názvy `papir`, `anthropic`, `studio`, `noc` se automaticky mapují na nástupce.
+Motivy: `terminal`, `academism` (výchozí), `legacy`. Historické názvy `papir`, `anthropic`, `studio`, `noc` se automaticky mapují na nástupce.
 
-## Data, úložiště a soukromí
+## Co se ukládá
 
 Nic se neposílá na server — hra žádný nemá. Všechno leží v prohlížeči hráče a dělí se na dvě kategorie:
 
@@ -212,24 +183,17 @@ Nic se neposílá na server — hra žádný nemá. Všechno leží v prohlíže
 |---|---|---|---|
 | Nezbytné | volba motivu, záznam o souhlasu | `localStorage['mp-theme']`, `localStorage` + cookie `mp_consent` | ne |
 | Volitelné | lokální profily a statistiky | `localStorage['mp-profiles']`, cookies `mp_profile`, `mp_stats` | ano |
-| Provozní | rozehraná partie ve Výběru čísel | `localStorage['mp-picker']` | ano |
+| Volitelné | rozehraná partie ve Výběru čísel | `localStorage['mp-picker']` | ano |
 
 Bez souhlasu drží `store.js` data jen v paměti karty: hra funguje normálně, po zavření se nic nezachová. Udělení souhlasu paměť rovnou uloží, odvolání uložené stopy smaže. Cookies jsou jen záloha aktivního profilu pro případ, že prohlížeč vyhodí `localStorage` — proto se zrcadlí jen aktivní profil, do 4 kB se víc nevejde.
 
-### Kontroly zápisu skóre — a čím nejsou
+### Kontroly skóre — a čím nejsou
 
 `store.js` má tři vrstvy kontrol: žeton partie (`beginRun` → jeden zápis), test věrohodnosti (body jsou násobky pěti, strop 1500, dohraná partie nemůže být kratší než 5 sekund) a kontrolní součet uloženého záznamu.
 
 **Není to zabezpečení a nikdy jím být nemůže.** Celá hra běží u hráče, klíč k podpisu leží ve stejném souboru. Kdo si přečte zdroják, podvrhne si skóre. Kontroly zvedají laťku z „napiš do konzole jeden řádek“ na „přečti si zdroják a napiš skript“ a hlavně chytají poškozené zápisy — ručně přepsanou cookie, půlku objektu po zaplněném disku. Nepodvrhnutelnou tabulku rekordů umí jedině server, který sám drží balíček a sám vyhodnocuje tahy.
 
-## Přístupnost a ovládání
-
-- Hrací pole je `<table>` s `<caption>`, ne mřížka divů.
-- Dialogy si hlídají fokus, zavírají se `Esc` a po zavření vracejí fokus tam, odkud přišly.
-- Ikony jsou `aria-hidden`, význam nese text vedle nich.
-- Drobečková navigace používá `aria-current="page"`.
-
-Klávesové zkratky:
+## Ovládání a přístupnost
 
 | Klávesa | Akce |
 |---|---|
@@ -238,13 +202,11 @@ Klávesové zkratky:
 | `↑ ↓ ← →` | posun po ruční tabulce |
 | `Esc` | zavře dialog, který jde zrušit |
 
-## Podpora prohlížečů
+Hrací pole je `<table>` s `<caption>`, ne mřížka divů. Dialogy si hlídají fokus, zavírají se `Esc` a po zavření vracejí fokus tam, odkud přišly. Ikony jsou `aria-hidden`, význam nese text vedle nich.
 
-Kód je psaný ve stylu ES5 (`var`, `function`, žádné moduly ani build), takže běží i na starších enginech. Z novějších API se používá `Number.isNaN` a CSS custom properties — reálná spodní hranice jsou tedy evergreen prohlížeče a Safari 10+. Layout je responzivní od ~380 px šířky výš.
+## Když v tom budeš hrabat
 
-## Vývoj a konvence
-
-Žádný build, žádné testy, žádný linter — úpravy se dělají přímo v souborech a ověřují v prohlížeči.
+Žádný build, žádné testy — úpravy se dělají přímo v souborech a ověřují v prohlížeči. Kód je psaný ve stylu ES5 (`var`, `function`, žádné moduly).
 
 Co držet:
 
@@ -252,10 +214,4 @@ Co držet:
 - **Žádný hex v komponentách.** Nová barva jde nejdřív do `tokens.css` a pak do všech tří motivů.
 - **Žádná emoji v UI.** Ikony kreslí `js/icons.js` linkou 1,6 px a berou barvu z `currentColor`.
 - **Nezlomitelné mezery** po jednopísmenných předložkách a spojkách (`v&nbsp;poli`) — česká sazba je nenechává viset na konci řádku.
-- **Nové globální rozhraní** pověs na `window` jako `MP*` a doplň ho do tabulky v tomhle README.
-
-Commity zatím bez pevné konvence; pro nové doporučuji `feat:` / `fix:` / `docs:` prefixy.
-
-## Licence
-
-Zatím nestanovena. Bez licenčního souboru platí výchozí autorské právo — nikdo jiný nesmí kód použít, upravovat ani šířit. Pokud chceš projekt otevřít, přidej `LICENSE` (typicky MIT) a odkaz doplň sem.
+- **Nové globální rozhraní** pověs na `window` jako `MP*` a doplň ho do tabulky výš.
