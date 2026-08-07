@@ -1,0 +1,188 @@
+/* ==========================================================================
+   Stránka Výběr čísel — generátor, historie tažených čísel, zbytek balíčku
+   ========================================================================== */
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2.6vh, calc(22px * var(--ui)));
+  width: 100%;
+  max-width: var(--stack-w);
+}
+
+.draw-stage {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: clamp(14px, 3vh, calc(26px * var(--ui)))
+           clamp(16px, 3vw, calc(28px * var(--ui)));
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.draw-meta {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--ui));
+  min-width: 0;
+}
+
+.draw-order {
+  font-family: var(--label-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* Jediné místo, kde měřítko zůstává úmyslně krátké: popisek stojí v řádku
+   vedle vytaženého čísla, takže dlouhý řádek by číslo stlačil. Míra je v px,
+   ne v `ch`, aby vyšla stejně ve všech motivech. */
+.draw-hint {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  max-width: calc(440px * var(--ui));
+  text-wrap: pretty;
+}
+
+/* Vytažené číslo se čte přes celou místnost, takže na velkém displeji roste
+   rychleji než zbytek rozhraní: strop drží --draw-max, který responsive.css
+   zvedá nad běžný poměr --ui. */
+.draw-number {
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: clamp(3.4rem, 15vw, var(--draw-max, 6rem));
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.draw-number.is-joker {
+  color: var(--joker);
+}
+
+.draw-number.is-idle {
+  color: var(--text-faint);
+  opacity: 0.4;
+}
+
+/* --------------------------------------------------- historie tažených */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(5px * var(--ui));
+  align-content: flex-start;
+  min-height: calc(42px * var(--ui));
+}
+
+.chips-empty {
+  color: var(--text-faint);
+  font-size: 0.8125rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(3px * var(--ui));
+  min-width: calc(40px * var(--ui));
+  height: calc(34px * var(--ui));
+  padding: 0 calc(8px * var(--ui));
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-sm);
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.chip--joker {
+  background-color: var(--joker-soft);
+  border-color: var(--joker);
+  color: var(--joker);
+}
+
+.chip--latest {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* uschovaný žolík — políčko už zabral, hodnotu dostane až později */
+.chip--pending {
+  background-color: transparent;
+  border-style: dashed;
+  border-color: var(--joker);
+  color: var(--joker);
+}
+
+.chip-order {
+  font-family: var(--label-font);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  opacity: 0.5;
+}
+
+.chip .icon {
+  width: calc(13px * var(--ui));
+  height: calc(13px * var(--ui));
+}
+
+/* -------------------------------------------------------- zbytek balíčku */
+.deck-rest {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: calc(4px * var(--ui));
+}
+
+.deck-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(3px * var(--ui));
+  padding: calc(6px * var(--ui)) calc(2px * var(--ui));
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-sm);
+}
+
+.deck-slot.is-out {
+  opacity: 0.35;
+}
+
+.deck-slot-val {
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.deck-slot .icon {
+  width: calc(14px * var(--ui));
+  height: calc(14px * var(--ui));
+  color: var(--joker);
+}
+
+.deck-slot-pips {
+  display: flex;
+  gap: calc(2px * var(--ui));
+}
+
+.deck-pip {
+  width: calc(4px * var(--ui));
+  height: calc(4px * var(--ui));
+  border-radius: 50%;
+  background-color: var(--accent);
+}
+
+.deck-pip.is-used {
+  background-color: var(--border-strong);
+  opacity: 0.55;
+}

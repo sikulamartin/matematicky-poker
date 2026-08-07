@@ -1,0 +1,159 @@
+/* ==========================================================================
+   Reset, rozměry hracího pole a kostra stránky
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* pod přilepenou lištou nesmí skončit cíl odkazu ani zaostřený prvek */
+  scroll-padding-top: calc(72px * var(--ui));
+
+  /* Kořenová velikost písma je jediné místo, kde se --ui promítá do rem.
+     Díky tomu se každý rozměr psaný v rem zvětší sám, bez dalšího zápisu. */
+  font-size: calc(16px * var(--ui));
+}
+
+body {
+  /*
+     Velikost pole vychází z jediné proměnné. Bere se nejmenší ze tří mezí:
+     šířka okna, zbylá výška po odečtení lišty a konzole, a horní strop.
+     Poměr pole: 5 hracích sloupců (1) + 2 bodové (0,55) = 6,10 jednotky
+                 1 bodový řádek (0,55) + 5 hracích (1)   = 5,55 jednotky
+     --chrome je naměřená výška lišty, konzole a odsazení nad polem; roste
+     s --ui, protože se zvětšuje i samotná lišta a konzole.
+
+     --cell-max je ten horní strop. Na velkém displeji ho responsive.css
+     zvedá, aby o velikosti pole rozhodla výška okna, ne strop.
+  */
+  --gutter: clamp(12px, 2.4vw, calc(26px * var(--ui)));
+  /* svislé odsazení lišty — čte ho .rail a započítává se do --chrome */
+  --rail-pad-y: var(--sp-2);
+  --chrome: calc(156px * var(--ui) + 2 * var(--rail-pad-y));
+  --cell-max: calc(128px * var(--ui));
+  --cell:
+    min(calc((100vw - 2 * var(--gutter) - 4px) / 6.1),
+        calc((100vh - var(--chrome)) / 5.55),
+        var(--cell-max));
+  --cell:
+    min(calc((100vw - 2 * var(--gutter) - 4px) / 6.1),
+        calc((100dvh - var(--chrome)) / 5.55),
+        var(--cell-max));
+  --score-cell: calc(var(--cell) * 0.55);
+  --board-w: calc(var(--cell) * 5 + var(--score-cell) * 2);
+
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(115% 85% at 6% -12%, var(--bg-tint-1) 0%, transparent 55%),
+    radial-gradient(105% 75% at 102% 2%, var(--bg-tint-2) 0%, transparent 52%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-ring);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--r-sm);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ shell */
+.app {
+  width: 100%;
+  max-width: calc(1180px * var(--ui));
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding: calc(12px * var(--ui)) var(--gutter) calc(14px * var(--ui));
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--ui));
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(10px * var(--ui));
+  min-height: 0;
+}
+
+.app-main--top {
+  justify-content: flex-start;
+  gap: clamp(16px, 3vh, calc(28px * var(--ui)));
+  padding-top: clamp(8px, 4vh, calc(40px * var(--ui)));
+}
+
+.card {
+  width: 100%;
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  padding: clamp(18px, 3vw, calc(34px * var(--ui)));
+}
+
+/* Čtyři tečky v rozích — technický detail motivu terminál.
+   Motiv, kterému se to nehodí, nastaví --corner-dot na transparent
+   nebo tuhle třídu rovnou vypne ve svém theme-*.css. */
+.corner-dots {
+  background-image:
+    radial-gradient(circle, var(--corner-dot) 46%, transparent 47%),
+    radial-gradient(circle, var(--corner-dot) 46%, transparent 47%),
+    radial-gradient(circle, var(--corner-dot) 46%, transparent 47%),
+    radial-gradient(circle, var(--corner-dot) 46%, transparent 47%);
+  background-size: var(--corner-dot-size) var(--corner-dot-size);
+  background-repeat: no-repeat;
+  background-position:
+    8px 8px,
+    calc(100% - 8px) 8px,
+    8px calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 8px);
+}

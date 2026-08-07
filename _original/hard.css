@@ -1,0 +1,1173 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');
+
+.wrapper1 {
+  justify-content: center;
+}
+
+div#timer {
+  border: 10px solid green;
+  background-color: rgba(0, 255, 0, 0.2);
+}
+
+div#timer.default {
+  border-color: var(--clr-dark);
+  background-color: transparent;
+}
+
+body {
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+span#totalScore {
+  margin-bottom: 10px;
+  font-size: 50px;
+}
+
+@media (max-width: 544.98px) {
+  span#totalScore {
+    font-size: 60px;
+  }
+}
+
+@media (max-width: 447.98px) {
+  span#totalScore {
+    font-size: 55px;
+  }
+}
+
+@media (max-width: 427.98px) {
+  span#totalScore {
+    font-size: 59px;
+  }
+}
+
+@media (max-width: 440.98px) {
+  span#totalScore {
+    font-size: 58px;
+  }
+}
+
+@media (max-width: 434.98px) {
+  span#totalScore {
+    font-size: 57px;
+  }
+}
+
+@media (max-width: 421.98px) {
+  span#totalScore {
+    font-size: 50px;
+  }
+}
+
+@media (max-width: 375.98px) {
+  span#totalScore {
+    font-size: 40px;
+  }
+}
+
+table th,
+table td {
+  border: 1px solid #b4b4b4;
+  padding: 0px;
+  text-align: center;
+  position: relative;
+  width: 120px;
+  height: 105px;
+  font-size: 85px;
+  font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+  cursor: pointer;
+}
+
+@media (max-width: 1340.98px) {
+  .container {
+    margin: 0 40px;
+  }
+
+}
+
+#result {
+  margin-bottom: 0px;
+}
+
+#scoreContainer {
+  margin-top:-8px;
+  display: inline;
+  float: right;
+  margin-bottom: 15px;
+  font-size: 50px;
+  font-weight: bold;
+}
+
+@media (max-width: 1139.98px) {
+  .container {
+    margin: 0 40px;
+  }
+
+}
+
+@media (max-width: 849.98px) {
+  .container {
+    margin: 0 20px;
+  }
+
+  table td,
+  table th {
+    height: auto;
+  }
+}
+
+@media (max-width: 739.98px) {
+  table tr {
+    height: 70px;
+  }
+
+  table {
+    font-size: 15px;
+  }
+
+  .container {
+    margin: 0 8px;
+  }
+}
+
+@media (max-width:767.98px) {
+
+
+  table th,
+  table td {
+    font-size: 50px;
+  }
+}
+
+@media (max-width:520.98px) {
+
+  table th,
+  table td {
+    font-size: 35px;
+  }
+}
+
+@media (max-width:623.98px) {
+
+
+  .MP {
+    font-size: 70px;
+  }
+}
+
+@media (max-width:575.98px) {
+
+
+
+  .MP {
+    font-size: 70px;
+  }
+}
+
+@media (max-width:535.98px) {
+
+
+  .MP {
+    font-size: 65px;
+  }
+}
+
+@media (max-width:499.98px) {
+  .container {
+    padding: 12px;
+  }
+
+  .MP {
+    font-size: 60px;
+  }
+}
+
+@media (max-width:430.98px) {
+
+  table td,
+  table th {
+    font-size: 30px;
+  }
+}
+
+@media (max-width:370.98px) {
+
+  table td,
+  table th {
+    font-size: 25px;
+  }
+}
+
+@media (max-width:459.98px) {
+
+
+  .MP {
+    font-size: 50px;
+  }
+}
+
+@media (max-width:400.98px) {
+
+
+  .MP {
+    font-size: 50px;
+  }
+}
+
+@media (max-width:360.98px) {
+
+
+  .MP {
+    font-size: 45px;
+  }
+}
+
+@media (max-width:334.98px) {
+
+
+  .MP {
+    font-size: 40px;
+  }
+}
+
+
+label {
+
+  font-size: 1.2em;
+}
+
+#timeInput {
+  caret-color: #af4c4c;
+  border: 1px solid #007bff;
+  position: absolute;
+  width: 70px;
+  font-size: 1em;
+  padding: 10px;
+  height: 5px;
+  border-radius: 5px;
+}
+
+#timeInput:focus{
+  cursor: text;
+}
+
+#result {
+  display: inline-block;
+}
+
+.button1 {
+  font-size: 1em;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4caf50;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button1:hover {
+  background-color: #45a049;
+}
+
+#timer {
+  text-align: center;
+  font-size: 3em;
+  width: 200px;
+  height: 200px;
+  border: 10px solid transparent;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#timer.green {
+  border-color: green;
+  background-color: rgba(0, 255, 0, 0.2);
+}
+
+#timer.orange {
+  border-color: orange;
+  background-color: rgba(255, 165, 0, 0.2);
+}
+
+#timer.red {
+  border-color: red;
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+.container {
+  margin-left: 0px;
+
+
+}
+
+.red-button {
+  background-color: red;
+  color: white;
+}
+
+#timeInput{
+  background-color: rgba(0, 255, 0, 0);
+}
+
+table th,
+table td {
+  height: auto;
+}
+
+.zadejteCas {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.container1 {
+  display: inline-block;
+}
+
+.wrapper {
+  display: flex;
+}
+
+.container1 {
+  position: relative;
+}
+
+#timeInput {
+  position: absolute;
+  left: 46px;
+  top: 88.5px;
+
+}
+
+@media (max-width: 1439.98px) {
+  .body {
+    display: block;
+  }
+
+  .container {
+    margin: 0;
+  }
+}
+
+@media (max-width: 1139.98px) {
+  .container {
+    margin: 0 40px;
+  }
+
+}
+
+#rollButton {
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 50px;
+  line-height: 100%;
+  letter-spacing: 0px;
+  color: var(--clr-dark);
+  letter-spacing: -1.5px;
+  border-radius: 16px;
+}
+
+#scoreContainer {
+
+  float: right;
+
+  font-size: 60px;
+  font-weight: bold;
+}
+
+span#totalScore {
+  font-size: 60px;
+}
+
+@media (max-width: 629.98px) {
+  #scoreContainer {
+    float: none;
+    font-size: 25px;
+    font-weight: bold;
+  }
+
+  span#totalScore {
+    font-size: 25px;
+  }
+}
+
+@media (max-width: 629.98px) {
+  #result {
+    display: block;
+    float: none;
+    font-size: 25px;
+    font-weight: bold;
+  }
+}
+
+@media (max-width: 1139.98px) {
+  .container {
+    margin: 0 40px;
+  }
+
+}
+
+@media (max-width: 849.98px) {
+  .container {
+    margin: 0 20px;
+  }
+
+  table td,
+  table th {
+    height: auto;
+  }
+}
+
+@media (max-width: 739.98px) {
+  table tr {
+    height: 70px;
+  }
+
+  table {
+    font-size: 15px;
+  }
+
+  .container {
+    margin: 0 8px;
+  }
+}
+
+.wrapper {
+  gap: 16px;
+}
+
+@media (max-width:767.98px) {
+  #timer {
+    text-align: center;
+    font-size: 32px;
+    width: 100px;
+    height: 100px;
+  }
+
+  table th,
+  table td {
+    font-size: 50px;
+  }
+
+  #timeInput {
+    left: 26px;
+    width: 46px;
+    top: 46.5px;
+  }
+
+  #scoreContainer {
+    float: none;
+    font-size: 25px;
+    font-weight: bold;
+  }
+
+  span#totalScore {
+    font-size: 25px;
+  }
+
+  #result {
+    font-size: 25px;
+  }
+
+  #rollButton {
+    font-size: 35px;
+  }
+}
+
+
+
+@media (max-width:520.98px) {
+
+  table th,
+  table td {
+    font-size: 35px;
+  }
+}
+
+@media (max-width:623.98px) {
+
+
+  .MP {
+    font-size: 70px;
+  }
+}
+
+@media (max-width:575.98px) {
+
+
+  .MP {
+    font-size: 70px;
+  }
+}
+
+@media (max-width:535.98px) {
+
+
+  .MP {
+    font-size: 65px;
+  }
+}
+
+
+@media (max-width:430.98px) {
+
+  table td,
+  table th {
+    font-size: 30px;
+  }
+}
+
+@media (max-width:370.98px) {
+
+  table td,
+  table th {
+    font-size: 25px;
+  }
+}
+
+@media (max-width:459.98px) {
+
+
+  .MP {
+    font-size: 50px;
+  }
+}
+
+@media (max-width:400.98px) {
+
+
+  .MP {
+    font-size: 50px;
+  }
+}
+
+@media (max-width:360.98px) {
+
+  #rollButton {
+    font-size: 18px;
+  }
+
+  .MP {
+    font-size: 45px;
+  }
+}
+
+@media (max-width:334.98px) {
+
+
+  .MP {
+    font-size: 40px;
+  }
+}
+
+@media (max-width:767.98px) {
+  body {
+    height: auto;
+  }
+
+  .container {
+    margin-top: 20px;
+  }
+}
+
+.wrapper1 {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+#rollButton {
+  height: 100%;
+}
+
+#result{
+  margin-top: 8px;
+}
+
+#timeInput{
+  width: 90px;
+  border-radius: 16px;
+  border: 4px solid green;
+  cursor: pointer;
+}
+
+.imgArrow{
+  fill: var(--clr-dark);
+  width: 42px;
+  margin-left: 16px;
+}
+
+#rollButton{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#timeInput:focus{
+  outline: none !important;
+}
+
+#timeInput{
+  color: var(--clr-dark);
+  font-family: "Roboto", sans-serif;
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  text-align: center;
+  font-size: 28px;
+  padding: 16px;
+}
+
+
+#rollButton{
+  max-height: 96px;
+}
+
+@media (max-width:362.98px) {
+  #result {
+    font-size: 18px;
+  }
+
+  span#totalScore {
+    font-size: 18px;
+  }
+}
+
+#scoreContainer {
+  margin-bottom: 0px;
+}
+
+.wrapper {
+  margin-bottom: 16px;
+}
+
+@media (max-height:607.98px) {
+  body {
+    height: auto;
+  }
+}
+
+@media (max-width:499.98px) {
+  #rollButton {
+    font-size: 24px;
+    height: 70px;
+  }
+
+  .container {
+
+    padding: 12px;
+  }
+
+  .MP {
+    font-size: 60px;
+  }
+}
+
+
+@media (max-width:629.98px) {
+  #rollButton {
+    max-height: 50px;
+  }
+}
+
+@media (max-width:429.98px) {
+  #rollButton {
+    max-height: 45px;
+  }
+
+  #result {
+    margin-top: 6px;
+    font-size: 24px;
+  }
+
+  span#totalScore {
+    font-size: 18px;
+  }
+
+  .wrapper {
+    gap: 4px;
+  }
+}
+
+.container {
+  margin: 0 24px;
+  margin-top: 12px;
+}
+
+#timer{
+  color: var(--clr-dark);
+  font-family: "Orbitron", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 64px;
+}
+
+#result{
+  text-align: left;
+  font-size: 46px;
+  color: var(--clr-dark);
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+span#totalScore{
+  text-align: left;
+  font-size: 46px;
+  color: var(--clr-dark);
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.borderTopLeft {
+  -webkit-border-top-left-radius: 16px;
+  -moz-border-radius-topleft: 16px;
+  border-top-left-radius: 16px;
+}
+
+.borderTopRight {
+  -webkit-border-top-right-radius: 16px;
+  -moz-border-radius-topright: 16px;
+  border-top-right-radius: 16px;
+}
+
+.borderBottomLeft {
+  -webkit-border-bottom-left-radius: 16px;
+  -moz-border-radius-bottomleft: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.borderBottomRight {
+  -webkit-border-bottom-right-radius: 16px;
+  -moz-border-radius-bottomright: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+table{
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+
+table td, table th{
+  color: var(--clr-dark);
+  font-family: "Roboto", sans-serif;
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.container{
+  margin: 0 24px;
+  margin-top: 12px;
+  padding: 0;
+}
+
+@media (max-height:850px) {
+  body{
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width:767.98px) {
+  #timer{
+    font-size: 38px;
+    width: 140px;
+    height: 140px;
+    border-width: 7px;
+  }
+  #result{
+    margin: 4px 0;
+    margin-bottom: 4px;
+  }
+  #result, span#totalScore{
+    font-size: 36px;
+  }
+  #rollButton{
+    max-height: 72px;
+  }
+}
+
+@media (max-width:598.98px) {
+  #result, span#totalScore{
+    font-size: 34px;
+  }
+  #rollButton{
+    max-height: 60px;
+    font-size: 32px;
+  }
+  #timer{
+    width: 120px;
+    height: 120px;
+    font-size: 32px;
+  }
+}
+
+@media (max-width:529.98px) {
+  #result, span#totalScore{
+    font-size: 28px;
+  }
+  #rollButton{
+    max-height: 60px;
+    font-size: 28px;
+  }
+  #timer{
+    width: 100px;
+    height: 100px;
+    font-size: 28px;
+  }
+}
+
+@media (max-width:539.98px) {
+  #timer{
+    border-width: 5px;
+    left: 14px;
+    top: 27.5px;
+  }
+  
+}
+
+@media (max-width:471.98px) {
+  #result, span#totalScore{
+    font-size: 22px;
+  }
+  #rollButton{
+    max-height: 55px;
+    font-size: 28px;
+  }
+  #timer{
+    width: 95px;
+    height: 95px;
+    font-size: 26px;
+    border-width: 5px;
+  }
+}
+
+@media (max-width:409.98px) {
+  #result, span#totalScore{
+    font-size: 18px;
+  }
+  #rollButton{
+    max-height: 50px;
+    font-size: 26px;
+  }
+  #timer{
+    width: 85px;
+    height: 85px;
+    font-size: 26px;
+  }
+}
+
+@media (max-width:379.98px) {
+  #result, span#totalScore{
+    font-size: 18px;
+  }
+  #rollButton{
+    max-height: 45px;
+    font-size: 22px;
+  }
+  #timer{
+    width: 75px;
+    height: 75px;
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 534.98px) {
+  .container {
+      margin: 0 12px;
+      margin-top: 12px;
+  }
+}
+
+@media (max-width: 534.98px) {
+  .wrapperContainer {
+      padding: 20px;
+  }
+}
+
+@media (max-width:767.98px) {
+  #timeInput{
+    padding: 12px;
+    padding-top: 16px;
+    left: 19px;
+    top: 59.5px;
+  }
+  .imgArrow{
+  width: 32px;
+  height: 32px; 
+  }
+}
+
+@media (max-width:598.98px) {
+  #timeInput{
+    padding: 8px;
+    width: 65px;
+    left: 25.5px;
+    top: 54px;
+    font-size: 18px;
+    padding-top: 11px;
+  }
+  .imgArrow{
+    width: 28px;
+    height: 28px; 
+  }
+}
+
+@media (max-width:529.98px) {
+  #timeInput{
+    width: 65px;
+    left: 15.5px;
+    top: 44px;
+  }
+  .imgArrow{
+    width: 24px;
+    height: 24px; 
+  }
+}
+
+@media (max-width:471.98px) {
+  #timeInput{
+    width: 55px;
+    left: 18px;
+    top: 41.5px;
+  }
+  .imgArrow{
+    width: 24px;
+    height: 24px; 
+  }
+}
+
+@media (max-width:409.98px) {
+  #timeInput{
+    width: 45px;
+    left: 18px;
+    top: 36.5px;
+  }
+  .imgArrow{
+    width: 20px;
+    height: 20px; 
+    margin-left: 8px;
+  }
+}
+
+@media (max-width:379.98px) {
+  #timeInput{
+    width: 35px;
+    left: 18px;
+    top: 31.5px;
+  }
+}
+
+.container1{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width:767.98px) and (max-height:914.98px) {
+ table td, table th{
+  font-size: 80px;
+ }
+}
+
+@media (min-width:767.98px) and (max-height:859.98px) {
+  table td, table th{
+   font-size: 75px;
+  }
+ }
+
+@media (min-width:767.98px) and (max-height:804.98px) {
+  #timeInput{
+    padding: 8px;
+    width: 65px;
+    left: 23.5px;
+    top: 53.5px;
+    font-size: 18px;
+    padding-top: 11px;
+  }
+  .imgArrow{
+    width: 28px;
+    height: 28px; 
+  }
+
+  #result, span#totalScore{
+    font-size: 34px;
+  }
+  #rollButton{
+    max-height: 60px;
+    font-size: 32px;
+  }
+  #timer{
+    width: 120px;
+    height: 120px;
+    font-size: 32px;
+  }
+  #scoreContainer{
+    font-size: 0px;
+    margin-top: 8px;
+  }
+}
+
+@media (min-width:767.98px) and (max-height:729.98px) {
+  #timeInput{
+    padding: 8px;
+    width: 65px;
+    left: 23.5px;
+    top: 53.5px;
+    font-size: 18px;
+    padding-top: 11px;
+  }
+  .imgArrow{
+    width: 28px;
+    height: 28px; 
+  }
+
+  #result, span#totalScore{
+    font-size: 34px;
+  }
+  #rollButton{
+    max-height: 60px;
+    font-size: 32px;
+  }
+  #timer{
+    width: 120px;
+    height: 120px;
+    font-size: 32px;
+  }
+  #scoreContainer{
+    font-size: 0px;
+    margin-top: 8px;
+  }
+}
+
+
+@media (min-width:767.98px) and (max-height:749px){
+  table td, table th{
+    font-size: 65px;
+  }
+}
+
+
+@media (min-width:767.98px) and (max-height:709px){
+  table td, table th{
+    font-size: 60px;
+  }
+}
+
+@media (min-width:767.98px) and (max-height:665px){
+  table td, table th{
+    font-size: 55px;
+  }
+}
+
+@media (min-width:768.98px) and (min-height:805.98px){
+  #timer{
+    width: 180px;
+    height: 180px;
+    font-size: 48px;
+  }
+  #timeInput{
+    left: 35px;
+    top: 77.5px;
+  }
+}
+
+@media (min-width:767.98px) and (min-width:575.98px) and (max-height:604.98px){
+  table td, table th{
+    font-size: 48px;
+  }
+}
+
+@media (max-width:767.98px) and (min-width:575.98px) and (max-height:604.98px){
+  table td, table th{
+    font-size: 45px;
+  }
+}
+
+@media (max-width:742.98px) and (min-width:575.98px) and (max-height:649.98px){
+  table td, table th{
+    font-size: 45px;
+  }
+  table tr{
+    height: 60px;
+  }
+}
+
+@media (min-width:575.98px) and (min-width:379.98px) and  (max-height:604.98px){
+  table td, table th{
+    font-size: 48px;
+  }
+}
+
+@media (max-width:575.98px) and (min-width:379.98px) and (max-height:604.98px){
+  table td, table th{
+    font-size: 45px;
+  }
+}
+
+@media (max-width:575.98px) and (min-width:379.98px) and (max-height:649.98px){
+  table td, table th{
+    font-size: 45px;
+  }
+  table tr{
+    height: 60px;
+  }
+}
+
+@media (max-width:771.98px) and (min-width: 729.98px) and (max-height:580px){
+  table td, table th{
+    font-size: 40px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width:742.98px) and (min-width:599.98px) and (max-height:589.98px){
+  table td, table th{
+    font-size: 45px;
+  }
+  table tr{
+    height: 55px;
+  }
+}
+
+@media (max-width:321.98px) and (min-width:1.98px) and (max-height:499.98px){
+  table td, table th{
+    font-size: 25px;
+  }
+  table tr{
+    height: 45px;
+  }
+}
+

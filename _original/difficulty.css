@@ -1,0 +1,279 @@
+body {
+  display: flex;
+  align-items: center;
+  height: calc(100vh - 12px);
+  margin: 0;
+}
+
+@media (max-width: 1025.98px) {
+  .MP {
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+}
+
+.MP {
+  font-weight: 700;
+}
+
+.container {
+
+  max-width: 1300px;
+  margin: 0px 24px;
+  position: relative;
+}
+
+@media (max-width: 534.98px) {
+  .container {
+    margin: 0 12px;
+  }
+  .theme-checkbox{
+    margin: 0 8px;
+  }
+}
+
+@media (max-width:486.98px) {
+  .MP{
+    line-height: 60px;
+  }
+}
+
+.MP {
+  font-size: 100px;
+  text-align: center;
+  margin: 0;
+  padding-bottom: 16px;
+}
+
+@media (max-width:919.98px) {
+
+  .MP {
+    font-size: 80px;
+  }
+}
+
+@media (max-width:623.98px) {
+
+  .MP {
+    font-size: 70px;
+  }
+}
+
+@media (max-width:575.98px) {
+
+  .MP {
+    font-size: 70px;
+  }
+}
+
+@media (max-width:535.98px) {
+
+  .MP {
+    font-size: 65px;
+  }
+}
+
+@media (max-width:499.98px) {
+
+  .MP {
+    font-size: 60px;
+  }
+}
+
+@media (max-width:459.98px) {
+
+  .MP {
+    font-size: 50px;
+  }
+}
+
+
+@media (max-width:400.98px) {
+
+  .MP {
+    font-size: 50px;
+  }
+}
+
+@media (max-width:383.98px) {
+
+  .MP {
+    font-size: 45px;
+  }
+}
+
+@media (max-width:358.98px) {
+
+  .MP {
+    font-size: 40px;
+  }
+}
+
+@media (max-width:334.98px) {
+
+  .MP {
+    font-size: 35px;
+  }
+}
+
+@media (max-width:319.98px) {
+
+  .MP {
+    font-size: 25px;
+  }
+}
+
+@media (max-width:767.98px) {
+  body {
+    display: block;
+  }
+
+}
+
+@media (max-width:419.98px) {
+
+  .vyberCisla,
+  .vyberTabulka {
+    font-size: 40px;
+  }
+}
+
+@media (max-width:389.98px) {
+
+  .vyberCisla,
+  .vyberTabulka {
+    font-size: 35px;
+  }
+}
+
+@media (max-width:365.98px) {
+
+  .vyberCisla,
+  .vyberTabulka {
+    font-size: 30px;
+  }
+}
+
+@media (max-width:340.98px) {
+
+  .vyberCisla,
+  .vyberTabulka {
+    font-size: 27px;
+  }
+}
+
+@media (max-width:419.98px) {
+
+  .vyberCisla,
+  .vyberTabulka {
+    font-size: 40px;
+  }
+}
+
+@media (max-width:389.98px) {
+
+  .vyberCisla,
+  .vyberTabulka {
+    font-size: 35px;
+  }
+}
+
+@media (max-width:365.98px) {
+
+  .vyberCisla,
+  .vyberTabulka {
+    font-size: 30px;
+  }
+}
+
+@media (max-width:340.98px) {
+
+  .vyberCisla,
+  .vyberTabulka {
+    font-size: 27px;
+  }
+}
+
+@media (max-width:419.98px) {
+  .MP {
+    font-size: 40px;
+  }
+}
+
+@media (max-width:389.98px) {
+  .MP {
+    font-size: 35px;
+  }
+}
+
+@media (max-width:365.98px) {
+  .MP {
+    font-size: 30px;
+  }
+}
+
+@media (max-width:340.98px) {
+  .MP {
+    font-size: 27px;
+  }
+}
+
+@media (max-width:752px) {
+  .MP {
+    font-size: 75px;
+  }
+}
+
+@media (max-width:734px) {
+  .MP {
+    font-size: 72px;
+  }
+}
+
+@media (max-width:712px) {
+  .MP {
+    font-size: 69px;
+  }
+}
+
+@media (max-width:684px) {
+  .MP {
+    font-size: 65px;
+  }
+}
+
+@media (max-width:654px) {
+  .MP {
+    font-size: 61px;
+  }
+}
+
+@media (max-width:616px) {
+  .MP {
+    font-size: 57px;
+  }
+}
+
+@media (max-width:584px) {
+  .MP {
+    font-size: 52px;
+  }
+}
+
+@media (max-width:399.98px) {
+  .MP {
+    font-size: 47px;
+  }
+}
+
+@media (max-width: 534.98px) {
+  .vyber {
+      margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 534.98px) {
+  .wrapperContainer {
+      padding: 20px;
+  }
+}

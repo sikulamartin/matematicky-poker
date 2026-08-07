@@ -1,0 +1,124 @@
+/* ==========================================================================
+   Stránka Pravidla — souvislý text a bodovací tabulka
+   ========================================================================== */
+
+.prose {
+  width: 100%;
+  max-width: var(--stack-w);
+}
+
+.prose h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6.5vw, 3rem);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+  margin-bottom: var(--sp-3);
+  text-wrap: balance;
+}
+
+.prose h2 {
+  font-family: var(--label-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: var(--sp-7);
+  margin-bottom: var(--sp-3);
+  padding-bottom: calc(7px * var(--ui));
+  border-bottom: var(--hairline) solid var(--border);
+}
+
+/* O šířce řádku rozhoduje sloupec (--stack-w), ne míra v `ch` — ta by v každém
+   motivu skončila jinde než hrana karty. Viz komentář v tokens.css. */
+.prose p {
+  color: var(--text-muted);
+  margin-bottom: var(--sp-3);
+  max-width: 100%;
+  text-wrap: pretty;
+}
+
+.prose ul,
+.prose ol {
+  color: var(--text-muted);
+  margin: 0 0 var(--sp-4) 1.15rem;
+  display: grid;
+  gap: calc(6px * var(--ui));
+}
+
+.prose strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.lead {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight-sm);
+  font-size: clamp(1.05rem, 3vw, 1.4rem);
+  line-height: 1.35;
+  letter-spacing: var(--display-tracking);
+  color: var(--text);
+  margin-bottom: var(--sp-5);
+  max-width: 100%;
+  text-wrap: pretty;
+}
+
+/* ------------------------------------------------------ bodovací tabulka */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: clamp(0.82rem, 2.2vw, 0.92rem);
+}
+
+.score-table th,
+.score-table td {
+  padding: calc(9px * var(--ui)) calc(12px * var(--ui));
+  text-align: left;
+  border-bottom: var(--hairline) solid var(--border);
+}
+
+.score-table thead th {
+  font-family: var(--label-font);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  border-bottom-color: var(--border-strong);
+}
+
+.score-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.score-table td:first-child {
+  color: var(--text);
+}
+
+.score-table td:last-child,
+.score-table th:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.score-table .pts {
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 1.15em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.score-table .example {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+  white-space: nowrap;
+  letter-spacing: 0.06em;
+}

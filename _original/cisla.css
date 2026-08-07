@@ -1,0 +1,142 @@
+body {
+  font-family: "DM Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.container {
+  max-width: 1000px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th,
+table td {
+  border: 1px solid #b4b4b4;
+  padding: 0px;
+  text-align: center;
+  position: relative;
+  width: 100px;
+  height: 107px;
+  font-size: 70px;
+  font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+  cursor: pointer;
+}
+
+table th {
+  background-color: #e0e0e0;
+}
+
+table th:first-child,
+table td:first-child {
+  background-color: #e0e0e0;
+}
+
+table td[contenteditable="true"]:focus {
+  outline: 3px solid black;
+}
+
+.points {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translate(-50%, -50%);
+  background-color: #ffd700;
+  padding: 5px;
+  border: 1px solid #ffd700;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1;
+  display: none;
+}
+
+.has-points .points {
+  display: block;
+}
+
+#rollButton {
+  display: block;
+  width: 100%;
+  padding: 28px 96px;
+  font-size: 40px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff;
+  background-color: #f2f1f1;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#rollButton:hover {
+  opacity: 0.8;
+}
+
+#rollButton.disabled {
+  background-color: #dc3545;
+}
+
+
+table td.filled {
+  background-color: rgb(241, 241, 241);
+  cursor: not-allowed;
+}
+
+#scoreContainer {
+  float: right;
+  margin-bottom: 30px;
+  font-size: 50px;
+  font-weight: bold;
+}
+
+span#totalScore {
+  margin-bottom: 10px;
+  height: 66px;
+}
+
+.vyber {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 30px;
+  font-size: 40px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.vyber:hover {
+  background-color: #0056b3;
+}
+
+a {
+  text-decoration: none;
+}
+
+.vyberHra {
+  margin-bottom: 40px;
+}
+
+.vyberCisla {
+  margin-top: 40px;
+}
+
+.MP {
+  font-size: 62.58999px;
+}

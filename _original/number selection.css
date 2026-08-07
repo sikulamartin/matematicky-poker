@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+body {
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  align-items: center;
+}
+
+.container {
+  max-width: 1300px;
+  position: relative;
+  margin: 0 24px;
+  width: 100%;
+}
+
+#rollButton {
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 90px;
+  line-height: 100%;
+  letter-spacing: 0px;
+  color: var(--clr-dark);
+  letter-spacing: -1.5px;
+  border-radius: 16px;
+}
+
+#result {
+  font-size: 175px;
+}
+
+#hidden-result-display {
+  display: none;
+}
+
+#result-display,
+#result-display1 {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: -0px;
+}
+
+@media (max-width: 1077.98px) {
+  #result {
+    font-size: 140px;
+  }
+}
+
+@media (max-width:883.98px) {
+  #result {
+    font-size: 120px;
+  }
+
+}
+
+@media (max-width:777.98px) {
+  #rollButton {
+    padding: 28px 56px;
+  }
+
+  #result {
+    font-size: 100px;
+  }
+}
+
+@media (max-width:659.98px) {
+
+  #result {
+    font-size: 90px;
+  }
+
+}
+
+@media (max-width:609.98px) {
+  #result {
+    font-size: 80px;
+  }
+
+  #rollButton {
+    font-size: 65px;
+  }
+}
+
+@media (max-width:575.98px) {
+
+
+  #result {
+    font-size: 70px;
+  }
+}
+
+@media (max-width:519.98px) {
+  #rollButton {
+    padding: 28px 36px;
+  }
+
+  #result {
+    font-size: 60px;
+  }
+}
+
+@media (max-width:459.98px) {
+
+
+  #result {
+    font-size: 50px;
+  }
+}
+
+@media (max-width:429.98px) {
+
+
+  #result {
+    font-size: 50px;
+  }
+}
+
+@media (max-width:360.98px) {
+
+
+  #result {
+    font-size: 45px;
+  }
+}
+
+@media (max-width:439.98px) {
+  #rollButton {
+    font-size: 50px;
+  }
+}
+
+@media (max-width:359.98px) {
+  #rollButton {
+    font-size: 40px;
+  }
+}
+
+@media (max-width:334.98px) {
+
+  #rollButton {
+    font-size: 35px;
+  }
+
+  #result {
+    font-size: 42px;
+  }
+}
+
+@media (max-width:534.98px) {
+  .wrapperContainer {
+    padding: 20px;
+  }
+
+  .container {
+    margin: 0 12px;
+  }
+
+  .theme-checkbox {
+    margin: 0 8px;
+  }
+}
+
+#result {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: -0px;
+  margin: 16px 0;
+}
+
+#rollButton{
+  background-color: var(--clr-btn2);
+    color: var(--clr-dark);
+}

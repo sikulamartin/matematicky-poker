@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matematický Poker</title>
+  <link rel="icon" type="image/x-icon" href="img/image_Kv_uh2AR_1719232116258_512.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz@9..40&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="colors.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="easy.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="wrapperContainer">
+      <button id="rollButton">Generovat</button>
+      <div class="wrapperResult">
+        <div id="result"><span id="result-display"></span><span id="hidden-result-display"></span><span
+            id="result-display1"></span></div>
+        <div id="scoreContainer">
+          <span id="totalScore"></span>
+        </div>
+      </div>
+      <table id="bonusTable">
+        <thead>
+          <tr>
+            <th data-points="0" class="borderTopLeft" style="border-right: none;">0</th>
+            <th data-points="0" style="border-right: none; ">0</th>
+            <th data-points="0" style="border-right: none; ">0</th>
+            <th data-points="0" style="border-right: none; ">0</th>
+            <th data-points="0" style="border-right: none; ">0</th>
+            <th data-points="0" style="border-right: none; ">0</th>
+            <th data-points="0" class="borderTopRight">0</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th data-points="0" style="border-right: none; border-bottom: none; border-top: none;">0</th>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none; border-top: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none; border-top: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none; border-top: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none; border-top: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none; border-top: none;" inputmode="numeric"></td>
+            <th style="border-bottom: none; border-top: none;"></th>
+          </tr>
+          <tr>
+            <th data-points="0" style="border-right: none; border-bottom: none;">0</th>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <th style="border-bottom: none;"></th>
+          </tr>
+          <tr>
+            <th data-points="0" style="border-right: none; border-bottom: none;">0</th>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <th style="border-bottom: none;"></th>
+          </tr>
+          <tr>
+            <th data-points="0" style="border-right: none; border-bottom: none;">0</th>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)"
+              style="border-right: none; border-bottom: none;" inputmode="numeric"></td>
+            <th style="border-bottom: none;"></th>
+          </tr>
+          <tr>
+            <th data-points="0" class="borderBottomLeft" style="border-right: none;">0</th>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)" style="border-right: none;"
+              inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)" style="border-right: none;"
+              inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)" style="border-right: none;"
+              inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)" style="border-right: none;"
+              inputmode="numeric"></td>
+            <td data-points="0" contenteditable="false" oninput="checkCell(this)" style="border-right: none;"
+              inputmode="numeric"></td>
+            <th class="borderBottomRight"></th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script src="darkmode.js"></script>
+  <script src="script.js"></script>
+  <script src="loader.js"></script>
+</body>
+
+</html>

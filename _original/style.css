@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body {
+    display: flex;
+    align-items: center;
+    height: calc(100vh - 12px);
+    margin: 0;
+  }
+
+  .container {
+    max-width: 1300px;
+    margin: 0px 24px;
+    position: relative;
+  }
+  
+
+  .MP {
+    position: relative;
+    display: block;
+    font-size: 82px;
+    margin: 0px 0px;
+    text-align: center;
+    padding-bottom: 16px;
+  }
+
+  @media (max-width:798.98px) {
+    .MP {
+      font-size: 77px;
+    }
+  }
+
+  @media (max-width:629.98px) {
+
+    .MP {
+      font-size: 70px;
+    }
+  }
+
+  @media (max-width:582.98px) {
+
+    .MP {
+      font-size: 60px;
+    }
+  }
+
+  @media (max-width:535.98px) {
+
+    .MP {
+      font-size: 55px;
+    }
+  }
+
+  @media (max-width:499.98px) {
+
+
+    .MP {
+      font-size: 50px;
+    }
+  }
+
+  @media (max-width:459.98px) {
+
+
+    .MP {
+      font-size: 45px;
+    }
+  }
+
+  @media (max-width:400.98px) {
+
+    .MP {
+      font-size: 40px;
+    }
+  }
+
+  @media (max-width:360.98px) {
+
+    .MP {
+      font-size: 40px;
+    }
+  }
+
+  @media (max-width:334.98px) {
+
+    .MP {
+      font-size: 40px;
+    }
+  }
+  @media (max-width:767.98px) {
+    body{
+      display: block;
+    }
+    .container {
+      margin-top: 20px;
+  }
+}
+@media (max-width:419.98px) {
+  .vyberCisla, .vyberTabulka, .vyberHra{
+    font-size: 30px;
+    }
+}  @media (max-width:349.98px) {
+  .vyberCisla, .vyberTabulka, .vyberHra{
+    font-size: 25px;
+    }
+}
+@media (max-width:419.98px) {
+  .MP{
+    font-size: 40px;
+  }
+}
+@media (max-width:389.98px) {
+  .MP{
+    font-size: 35px;
+  }
+}
+@media (max-width:365.98px) {
+  .MP{
+    font-size: 30px;
+  }
+}
+@media (max-width:340.98px) {
+  .MP{
+    font-size: 27px;
+  }
+}
+
+@media (max-width:752px) {
+  .MP{
+    font-size: 75px;
+  }
+}
+
+@media (max-width:734px) {
+  .MP{
+    font-size: 72px;
+  }
+}
+
+@media (max-width:712px) {
+  .MP{
+    font-size: 69px;
+  }
+}
+
+@media (max-width:684px) {
+  .MP{
+    font-size: 65px;
+  }
+}
+
+@media (max-width:654px) {
+  .MP{
+    font-size: 61px;
+  }
+}
+
+@media (max-width:616px) {
+  .MP{
+    font-size: 57px;
+  }
+}
+
+@media (max-width:584px) {
+  .MP{
+    font-size: 52px;
+  }
+}
+
+@media (max-width:399.98px) {
+  .MP{
+    font-size: 47px;
+  }
+}
+
+@media (max-width:366px) {
+  .MP{
+    font-size: 35px;
+  }
+}
+
+@media (max-width:534.98px) {
+  .vyber{
+    margin-bottom: 16px;
+  }
+  .wrapperContainer{
+    padding: 20px;
+   } 
+   .container{
+    margin: 0 12px;
+   }
+   .theme-checkbox{
+    margin: 0 8px;
+  }
+}

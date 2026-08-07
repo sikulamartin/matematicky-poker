@@ -1,0 +1,74 @@
+/* ==========================================================================
+   Sdílené škály a smlouva mezi motivy a komponentami
+
+   Tady jsou jen hodnoty, které jsou pro všechny motivy stejné. Barvy, písma
+   a rádiusy sem nepatří — ty dodává soubor konkrétního motivu.
+
+   Smlouva: komponenty smějí sahat výhradně na proměnné z tohoto seznamu.
+   Když v komponentě potřebuješ novou barvu, přidej ji nejdřív sem do soupisu
+   a pak ji naplň ve všech třech theme-*.css. Natvrdo psaný hex v komponentě
+   je chyba — rozbije se v ostatních motivech.
+
+   Seznam proměnných, které musí každý motiv naplnit
+   -------------------------------------------------
+   měřítko     --ui (sdílené, motiv nepřepisuje)
+   šířky       --stack-w (sdílené, motiv nepřepisuje)
+   písma       --font-display --font-ui --font-num --font-mono --label-font
+               --display-weight --display-weight-sm --display-tracking
+               --num-weight --board-num-weight
+   tvary       --r-sm --r-md --r-lg --r-btn --r-pill --hairline
+   plochy      --bg --bg-tint-1 --bg-tint-2
+               --surface --surface-2 --surface-3 --surface-inset
+   linky       --border --border-strong --grid-line
+   text        --text --text-muted --text-faint
+   akcent      --accent --accent-hover --accent-ink --accent-soft --accent-ring
+   tlačítka    --btn-bg --btn-bg-hover --btn-ink
+   stavy       --joker --joker-soft --good --warn --bad
+   pole        --cell-empty --cell-fill --cell-ink
+               --score-bg --score-ink --score-hot-bg --score-hot-ink
+   hloubka     --shadow-sm --shadow-md --shadow-lg --overlay
+   ozdoba      --corner-dot --corner-dot-size --focus-offset
+   ========================================================================== */
+
+:root {
+  /*
+     Zvětšení pro velké displeje. Na běžném monitoru 1; nad 1500 px ho zvedá
+     responsive.css. Násobí kořenovou velikost písma (a tím i každou hodnotu
+     v rem), rozestupy níž a rozměry ovládání v komponentách.
+
+     Pravidlo pro nový kód: velikost písma piš v rem, rozměry a výplně
+     v calc(Npx * var(--ui)). Holé px si nech jen pro vlásečnice, rádiusy
+     a jiné detaily, které se zvětšovat nemají.
+  */
+  --ui: 1;
+
+  /* rozestupy — stejná řada ve všech motivech */
+  --sp-1: calc(4px * var(--ui));
+  --sp-2: calc(8px * var(--ui));
+  --sp-3: calc(12px * var(--ui));
+  --sp-4: calc(16px * var(--ui));
+  --sp-5: calc(24px * var(--ui));
+  --sp-6: calc(32px * var(--ui));
+  --sp-7: calc(48px * var(--ui));
+
+  /* časování */
+  --t-fast: 120ms ease;
+  --t-med: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Šířka textového sloupce. Jedna hodnota pro nadpis, perex i rozcestník,
+     aby všechno na stránce lícovalo na stejné pravé hraně.
+
+     Schválně v px, ne v `ch`: `ch` je šířka nuly v aktuálním písmu, takže
+     stejné číslo dá v každém motivu jinou šířku — serif v academism vyjde
+     o třetinu užší než grotesk. Sloupec by pak v jednom motivu lícoval
+     s rozcestníkem a v druhém končil někde uprostřed. */
+  --stack-w: calc(760px * var(--ui));
+
+  /* výchozí hodnoty pro proměnné, které většina motivů nepřepisuje */
+  --label-font: var(--font-ui);
+  --display-weight-sm: var(--display-weight);
+  --focus-offset: 2px;
+  --btn-bg: var(--accent);
+  --btn-bg-hover: var(--accent-hover);
+  --btn-ink: var(--accent-ink);
+}

@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+
+.icons {
+  display: flex;
+  width: 100%;
+  justify-content: right;
+  margin-bottom: 32px;
+  margin-top: 12px;
+}
+
+.backgroundImgDark {
+  background-image: url(img/pattern-background-desktop-dark.svg);
+}
+
+.filterMoonDark {
+  filter: invert(1) brightness(2) contrast(100%);
+}
+
+.filterSunDark {
+  filter: invert(1) brightness(2) contrast(100%);
+}
+
+.theme-checkbox {
+  margin: 0 16px;
+  --toggle-size: 48px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 48px;
+  height: 28px;
+  background: -o-linear-gradient(left, #0361c2 50%, #0361c2 50%) no-repeat;
+  background: linear-gradient(to right, #0361c2 50%, #0361c2 50%) no-repeat;
+  background-size: 205%;
+  background-position: 0;
+  -webkit-transition: 0.4s;
+  -o-transition: 0.4s;
+  transition: 0.4s;
+  border-radius: 99em;
+  position: relative;
+  cursor: pointer;
+  font-size: var(--toggle-size);
+}
+
+.theme-checkbox::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: -o-linear-gradient(left, #FFFFFF 50%, #FFFFFF 50%) no-repeat;
+  background: linear-gradient(to right, #FFFFFF 50%, #FFFFFF 50%) no-repeat;
+  background-size: 205%;
+  background-position: 100%;
+  border-radius: 50%;
+  -webkit-transition: 0.4s;
+  -o-transition: 0.4s;
+  transition: 0.4s;
+}
+
+
+.checked1::before {
+  left: calc(100% - 20px - 4px);
+}
+
+.theme-checkbox:checked {
+  background-position: 100%;
+}
+
+.imgMoonLight {
+  display: none;
+}
+
+.imgSunLight {
+  display: none;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.wrapperContainer {
+  background-color: var(--clr-btn);
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 24px;
+  filter: drop-shadow(0px 4px 16px rgba(0, 0, 0, 0.13));
+}
+
+:root {
+  --clr-tableth: #e0e0e0;
+  --clr-dark: rgba(49, 62, 81, 1);
+  --clr-light: #FFFFFF;
+  --clr-btn: #FFFFFF;
+  --clr-bckg: rgba(244, 246, 250, 1);
+  --clr-btn2: #f2f1f1;
+  --clr-border: #b4b4b4;
+  --clr-border1: #b4b4b4;
+  --clr-timer: rgba(49, 62, 81, 1);
+}
+
+.dark-mode {
+  --clr-timer: #FFFFFF;
+  --clr-border1: #c8c8c8;
+  --clr-border: #888888;
+  --clr-tableth: #999999;
+  --clr-btn2: #354357;
+  --clr-light: rgba(49, 62, 81, 1);
+  --clr-dark: #FFFFFF;
+  --clr-btn: rgba(59, 77, 102, 1);
+  --clr-bckg: rgba(49, 62, 81, 1);
+}
+
+
+#result {
+  font-size: 200px;
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  text-align: center;
+  color: var(--clr-dark);
+}
+
+body {
+  background-color: var(--clr-bckg);
+  background-image: url(img/pattern-background-desktop-light.svg);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+
+.MP {
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 64px;
+  line-height: 100%;
+  letter-spacing: 0px;
+  color: var(--clr-dark);
+  letter-spacing: -1.5px;
+}
+
+.vyber {
+  background-color: var(--clr-btn2);
+  color: var(--clr-dark);
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+table td{
+  background-color: var(--clr-btn2);
+}
+
+table th {
+  background-color: var(--clr-tableth);
+}

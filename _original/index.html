@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matematický Poker</title>
+  <link rel="icon" type="image/x-icon" href="img/image_Kv_uh2AR_1719232116258_512.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz@9..40&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="colors.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<script>
+  window.addEventListener('load', function() {
+    if (window.location.hash) {
+        window.location.hash = '';
+    }
+    window.scrollTo(0, 0);
+});
+</script>
+<body>
+  <div class="container">
+    <div class="icons">
+      <div class="imgSunDark" id="imgSunDark"><img src="img/icon-sun-dark.svg"></div>
+      <div class="imgSunLight" id="imgSunLight"><img src="img/icon-sun-light.svg"></div>
+      <input type="checkbox" class="theme-checkbox" id="theme-input">
+      <div class="imgMoonDark" id="imgMoonDark"><img src="img/icon-moon-dark.svg"></div>
+      <div class="imgMoonLight" id="imgMoonLight"><img src="img/icon-moon-light.svg"></div>
+    </div>
+    <div class="wrapperContainerContainer">
+      <div class="wrapperContainer">
+        <h1 class="MP">MATEMATICKÝ POKER</h1>
+        <a href="number&#32;selection.html"><button class="vyber vyberCisla">Výběr čísel</button></a>
+        <a href='table.html'><button class="vyber vyberTabulka">Tabulka</button></a>
+        <a href='difficulty.html'><button class="vyber vyberHra">Hra</button></a>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+  <script src="darkmode.js"></script>
+  <script src="loader.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,244 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+
+}
+
+.container {
+  max-width: 1300px;
+  margin: 0 24px;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+table th,
+table td {
+  border: 1px solid var(--clr-border);
+  padding: 0px;
+  text-align: center;
+  position: relative;
+  width: 120px;
+  height: auto;
+  font-size: 90px;
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  color: var(--clr-dark);
+  background-color: var(--clr-btn2);
+  cursor: pointer;
+}
+
+table th {
+  background-color: var(--clr-tableth);
+  border-color: var(--clr-border1);
+}
+
+@media (max-width:534.98px) {
+  .wrapperContainer {
+    padding: 20px;
+  }
+
+  .container {
+    margin: 0 12px;
+  }
+
+  .theme-checkbox {
+    margin: 0 8px;
+  }
+}
+
+#totalScore {
+  color: var(--clr-dark);
+}
+
+:root {
+  --clr-dark: rgba(49, 62, 81, 1);
+  --clr-light: #FFFFFF;
+  --clr-btn: #FFFFFF;
+  --clr-bckg: rgba(244, 246, 250, 1);
+}
+
+.dark-mode {
+  --clr-light: rgba(49, 62, 81, 1);
+  --clr-dark: #FFFFFF;
+  --clr-btn: rgba(59, 77, 102, 1);
+  --clr-bckg: rgba(49, 62, 81, 1);
+}
+
+
+table td[contenteditable="true"]:focus {
+  outline: 3px solid black;
+}
+
+.points {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translate(-50%, -50%);
+  background-color: #ffd700;
+  padding: 5px;
+  border: 1px solid #ffd700;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1;
+  display: none;
+}
+
+.has-points .points {
+  display: block;
+}
+
+#rollButton {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 30px;
+  font-size: 40px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#rollButton:hover {
+  background-color: #0056b3;
+}
+
+#rollButton.disabled {
+  background-color: #dc3545;
+}
+
+#result {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 50px;
+  font-weight: bold;
+}
+
+table td.filled {
+  background-color: rgb(241, 241, 241);
+  cursor: not-allowed;
+}
+
+#scoreContainer {
+  font-size: 50px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 767.98px) {
+  #scoreContainer {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 463.98px) {
+  #totalScore {
+    font-size: 43px;
+  }
+}
+
+#totalScore {
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+
+
+@media (max-width: 399.98px) {
+  span#totalScore {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 369.98px) {
+  span#totalScore {
+    font-size: 35px;
+  }
+}
+
+@media (max-width: 326.98px) {
+  span#totalScore {
+    font-size: 32px;
+  }
+}
+
+.borderTopLeft {
+  -webkit-border-top-left-radius: 16px;
+  -moz-border-radius-topleft: 16px;
+  border-top-left-radius: 16px;
+}
+
+.borderTopRight {
+  -webkit-border-top-right-radius: 16px;
+  -moz-border-radius-topright: 16px;
+  border-top-right-radius: 16px;
+}
+
+.borderBottomLeft {
+  -webkit-border-bottom-left-radius: 16px;
+  -moz-border-radius-bottomleft: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.borderBottomRight {
+  -webkit-border-bottom-right-radius: 16px;
+  -moz-border-radius-bottomright: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.vyber {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 30px;
+  font-size: 40px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.vyber:hover {
+  background-color: #0056b3;
+}
+
+a {
+  text-decoration: none;
+}
+
+.vyberHra {
+  margin-bottom: 40px;
+}
+
+.vyberCisla {
+  margin-top: 40px;
+}
+
+.MP {
+  font-size: 62.58999px;
+}

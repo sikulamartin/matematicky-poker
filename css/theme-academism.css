@@ -1,0 +1,323 @@
+/* ==========================================================================
+   Motiv ACADEMISM — teplá ivory plocha, jílový akcent, editorial serif
+
+   Hodnoty jsou odečtené z produkčního stylopisu anthropic.com
+   (ant-brand.shared…min.css) — odtud i názvy swatchů v komentářích níž.
+   Původní název proměnné je vždy u řádku, ať je vidět, odkud číslo pochází
+   a co při aktualizaci porovnat.
+
+   Pravidla, na kterých motiv stojí:
+     • plochý — žádné stíny ani přechody, hierarchii nese vlásková linka.
+       Stín zůstává výhradně modálnímu dialogu, který se musí odlepit
+       od překryvu.
+     • teplý — celá plocha stojí na ivory (#f0eee6 → #faf9f5 → #e8e6dc),
+       nikde není čistá bílá kromě zaplněné buňky pole
+     • serifový — nadpisy, odstavce i čísla v serifu; popisky mono verzálkami;
+       grotesk nese jen UI drobnosti (tlačítka, drobečky, statistiky)
+     • měkké rádiusy — 4 / 8 / 16 px, pill jako 100vw
+     • jíl je vyhrazený akcentu. Primární tlačítko je černé, protože
+       na anthropic.com je --button-primary--background = slate-dark.
+
+   Písma
+   -----
+   Anthropic Sans / Serif / Mono jsou licencované řezy. Stack je má na prvním
+   místě, takže kdo je má nainstalované, uvidí originál; ostatním padne volba
+   na nejbližší volné náhrady z Google Fonts:
+     Anthropic Serif → Source Serif 4   (přechodová antikva, stejný spád)
+     Anthropic Sans  → Inter            (neogrotesk, podobná šířka i výška x)
+     Anthropic Mono  → JetBrains Mono   (anthropic.com ho sám načítá)
+
+   Kontrast
+   --------
+   Několik odstínů je oproti oficiální paletě ztmavených, protože originál
+   nese na ivory malý text pod hranicí WCAG AA. Kde k tomu došlo, je u řádku
+   uvedený výchozí swatch i důvod.
+   ========================================================================== */
+
+:root[data-theme="academism"] {
+  color-scheme: light;
+
+  /* ------------------------------------------------------------- písma */
+  --font-display: "Anthropic Serif", "Source Serif 4", Georgia, serif;
+  --font-ui: "Anthropic Sans", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-num: "Anthropic Sans", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Anthropic Mono", "JetBrains Mono", ui-monospace, monospace;
+  /* mono verzálky na popisky — přesně jak to dělá anthropic.com s metadaty */
+  --label-font: var(--font-mono);
+
+  --display-weight: 400;          /* --font--display-serif-regular */
+  --display-weight-sm: 600;       /* --font--display-serif-semibold */
+  --display-tracking: -0.02em;    /* --letter-spacing--0-02em */
+  --num-weight: 500;              /* --font--display-sans-medium */
+  --board-num-weight: 400;
+
+  /* ------------------------------------------------------------- tvary */
+  --r-sm: 4px;                    /* --radius--small  .25rem */
+  --r-md: 8px;                    /* --radius--main   .5rem  */
+  --r-lg: 16px;                   /* --radius--large  1rem   */
+  --r-btn: 8px;                   /* .btn_main_wrap = --radius--main */
+  --r-pill: 100vw;                /* --radius--round */
+  --hairline: 1px;                /* --border-width--main .0625rem */
+  --focus-offset: 4px;            /* --focus--offset-outer .25rem */
+
+  /* ------------------------------------------------------------ plochy */
+  --bg: #f0eee6;                  /* --swatch--ivory-medium */
+  --bg-tint-1: transparent;       /* Anthropic je plochý — bez přechodů */
+  --bg-tint-2: transparent;
+
+  --surface: #faf9f5;             /* --swatch--ivory-light */
+  --surface-2: #e8e6dc;           /* --swatch--ivory-dark */
+  --surface-3: #e3dacc;           /* --swatch--oat */
+  --surface-inset: #ffffff;       /* --swatch--white */
+
+  --border: rgba(20, 20, 19, 0.1);    /* --swatch--slate-faded-10 */
+  --border-strong: rgba(20, 20, 19, 0.2); /* --swatch--slate-faded-20 */
+
+  /* -------------------------------------------------------------- text */
+  --text: #141413;                /* --swatch--slate-dark */
+  --text-muted: #5e5d59;          /* --swatch--slate-light */
+  --text-faint: #87867f;          /* --swatch--cloud-dark */
+
+  /* ------------------------------------------------------------ akcent */
+  --accent: #c6613f;              /* --swatch--accent (tmavý jíl) */
+  --accent-hover: #a8502f;        /* ztmavený accent pro hover */
+  --accent-ink: #faf9f5;          /* --swatch--ivory-light */
+  --accent-soft: rgba(217, 119, 87, 0.16); /* --swatch--clay #d97757 při 16 % */
+  --accent-ring: rgba(198, 97, 63, 0.55);
+
+  /* Světlý jíl v původní sytosti. --accent je jeho ztmavená varianta pro text
+     a ikony na ivory; --clay se používá výhradně jako VÝPLŇ, protože na ivory
+     má kontrast jen 3,0 : 1 a text by na něm nebyl čitelný. Text na jílu je
+     proto vždycky slate-dark (6,0 : 1), ne ivory. */
+  --clay: #d97757;                /* --swatch--clay */
+  --clay-hover: #c6613f;          /* --swatch--accent */
+  --clay-ink: #141413;            /* --swatch--slate-dark */
+
+  /* Obecné tlačítko je u Anthropicu černé, ne jílové:
+     --button-primary--background = --swatch--slate-dark
+     --button-primary--text       = --swatch--ivory-light
+     --button-primary--background-hover = --swatch--slate-medium
+     Jíl si drží jedinou hlavní akci na stránce — .btn-roll níž. */
+  --btn-bg: #141413;
+  --btn-bg-hover: #3d3d3a;
+  --btn-ink: #faf9f5;
+
+  /* ------------------------------------------------------------- stavy */
+  --joker: #b0567a;               /* ztmavená --swatch--fig #c46686 */
+  --joker-soft: rgba(196, 102, 134, 0.16); /* fig při 16 % */
+
+  --good: #5f7149;                /* ztmavená --swatch--olive #788c5d */
+  --warn: #a1703f;                /* ztmavená --swatch--kraft #d4a27f */
+  --bad: #b85535;                 /* ztmavený --swatch--accent #c6613f */
+
+  /* -------------------------------------------------------- hrací pole */
+  --cell-empty: #faf9f5;          /* ivory-light */
+  --cell-fill: #ffffff;           /* white */
+  --cell-ink: #141413;
+  --score-bg: #f0eee6;            /* ivory-medium */
+  --score-ink: #87867f;           /* cloud-dark */
+  --score-hot-bg: rgba(217, 119, 87, 0.16);
+  --score-hot-ink: #c6613f;
+  --grid-line: #e8e6dc;           /* ivory-dark */
+
+  /* ----------------------------------------------------------- hloubka */
+  /* Anthropic nepoužívá stíny — plochy odděluje jen vlásková linka.
+     Výjimka je modální dialog, který se musí odlepit od překryvu. */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 24px 60px rgba(20, 20, 19, 0.18);
+  --overlay: rgba(20, 20, 19, 0.45);
+
+  --corner-dot: transparent;      /* technické tečky sem nepatří */
+  --corner-dot-size: 0;
+}
+
+/* ==========================================================================
+   Přepis komponent — to, co samotné proměnné nezvládnou
+   ========================================================================== */
+
+/* žádné rohové tečky */
+:root[data-theme="academism"] .corner-dots {
+  background-image: none;
+}
+
+/* Tlačítko podle .btn_main_wrap: min-height 2.25rem, padding .5rem 1rem,
+   font-size 1rem, line-height 1, letter-spacing -0.005em, přechod 0,2 s. */
+:root[data-theme="academism"] .btn {
+  min-height: 2.25rem;
+  padding: var(--sp-2) var(--sp-4);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  border-color: var(--btn-bg);
+  transition: background-color 200ms, border-color 200ms, color 200ms,
+    transform var(--t-fast), opacity var(--t-fast);
+}
+
+:root[data-theme="academism"] .btn:hover:not(:disabled) {
+  border-color: var(--btn-bg-hover);
+}
+
+/* posun tlačítka při stisku je na plochý motiv příliš — stačí ztmavení */
+:root[data-theme="academism"] .btn:active:not(:disabled) {
+  transform: none;
+}
+
+/* Sekundární tlačítko v liště = .chip_layout: obrys v barvě textu,
+   padding .375rem 1rem, plný oblouk. Při najetí se invertuje. */
+:root[data-theme="academism"] .btn--ghost {
+  min-height: 0;
+  padding: 0.375rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: transparent;
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+:root[data-theme="academism"] .btn--ghost:hover:not(:disabled) {
+  background-color: var(--text);
+  border-color: var(--text);
+  color: var(--surface);
+}
+
+/* Tiché tlačítko = --button-tertiary: průhledné, obrys zesílí až při najetí. */
+:root[data-theme="academism"] .btn--quiet {
+  background-color: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+:root[data-theme="academism"] .btn--quiet:hover:not(:disabled) {
+  background-color: transparent;
+  border-color: var(--text);
+}
+
+/* Hlavní akce stránky (Start / Generovat / Táhnout) je jílová. Je to jediné
+   tlačítko, které jíl dostane — kdyby ho nesla i tlačítka v liště a dialozích,
+   přestal by být akcentem a stal by se druhou základní barvou. Text je
+   slate-dark, ne ivory: na #d97757 by ivory mělo kontrast jen 3,0 : 1. */
+:root[data-theme="academism"] .btn-roll:not(.is-restart) {
+  background-color: var(--clay);
+  border-color: var(--clay);
+  color: var(--clay-ink);
+  font-weight: 600;
+}
+
+:root[data-theme="academism"] .btn-roll:not(.is-restart):hover:not(:disabled) {
+  background-color: var(--clay-hover);
+  border-color: var(--clay-hover);
+}
+
+:root[data-theme="academism"] .btn--danger,
+:root[data-theme="academism"] .btn-roll.is-restart {
+  color: var(--accent-ink);
+}
+
+:root[data-theme="academism"] .btn--danger {
+  border-color: var(--bad);
+}
+
+:root[data-theme="academism"] .btn-roll.is-restart {
+  border-color: var(--good);
+}
+
+/* Přepínač motivů dostane obrys místo výplně — plochý motiv nemá stín,
+   takže aktivní stav musí nést linka. */
+:root[data-theme="academism"] .theme-switch {
+  background-color: transparent;
+  border-color: var(--border-strong);
+}
+
+:root[data-theme="academism"] .theme-switch button[aria-pressed="true"] {
+  background-color: var(--surface-2);
+}
+
+
+/* Nadpisy: serif v regularu snese víc řádkování než grotesk v extra bold. */
+:root[data-theme="academism"] .hero-title {
+  line-height: 1.05;             /* --line-height--1-05 */
+}
+
+:root[data-theme="academism"] .prose h1 {
+  line-height: 1.1;              /* --line-height--1-1 */
+}
+
+/* Odstavce jdou u Anthropicu do serifu — --font--paragraph-text. */
+:root[data-theme="academism"] .hero-sub,
+:root[data-theme="academism"] .prose p,
+:root[data-theme="academism"] .prose ul,
+:root[data-theme="academism"] .prose ol,
+:root[data-theme="academism"] .draw-hint,
+:root[data-theme="academism"] .dialog-text {
+  font-family: var(--font-display);
+  line-height: 1.5;              /* --line-height--1-5 */
+}
+
+/* mono popisky sedí opticky níž, verzálky nepotřebují tolik prostrkání */
+:root[data-theme="academism"] .eyebrow,
+:root[data-theme="academism"] .section-title,
+:root[data-theme="academism"] .prose h2,
+:root[data-theme="academism"] .draw-order,
+:root[data-theme="academism"] .console-label,
+:root[data-theme="academism"] .stat-label,
+:root[data-theme="academism"] .field label,
+:root[data-theme="academism"] .dialog-score-label,
+:root[data-theme="academism"] .score-table thead th {
+  font-weight: 500;              /* --font--mono-medium */
+  letter-spacing: 0.08em;
+}
+
+/* Tažené číslo je nejaktivnější prvek herní obrazovky — dostane jílový
+   přesvit, jílový obrys a jílovou číslici. Prázdný stav si nechává šedou,
+   aby bylo na první pohled poznat, že se ještě netáhlo. */
+:root[data-theme="academism"] .console-draw:not(.is-empty) {
+  border-color: var(--clay);
+}
+
+/* Velká čísla v serifu — na hracím poli i na stránce Výběr čísel. */
+:root[data-theme="academism"] .board td,
+:root[data-theme="academism"] .draw-number,
+:root[data-theme="academism"] .dialog-score-value {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Poslední sloupec pole je slepý pruh rámu. V motivu terminál ho nese
+   --surface-2, tady by z ivory-dark vznikl nápadný tmavý pás — sjednotíme
+   ho s bodovými buňkami. */
+:root[data-theme="academism"] .board tbody th:last-child {
+  background-color: var(--score-bg);
+}
+
+/* Bodovací tabulka v pravidlech: čísla v monu, jako metadata na webu. */
+:root[data-theme="academism"] .score-table .example {
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+/* Velké číslo na stránce Výběr čísel je jílové ve stejné roli jako tažené
+   číslo v konzoli. Klidový a žolíkový stav si drží vlastní barvu. */
+:root[data-theme="academism"] .draw-number:not(.is-idle):not(.is-joker) {
+  color: var(--accent);
+}
+
+/* Rozcestník: bez stínu potřebují dlaždice zřetelnější dělicí linku. */
+:root[data-theme="academism"] .menu {
+  background-color: var(--border-strong);
+}
+
+/* Ikony v rozcestníku nesou jíl už v klidu — na rozcestníku jinak žádná
+   barva není a stránka by byla celá v šedohnědé. Najetí přidá výplň. */
+:root[data-theme="academism"] .menu-icon {
+  background-color: transparent;
+  border-color: var(--border-strong);
+  color: var(--accent);
+}
+
+/* Karta pravidel: plochá, jen obrys. */
+:root[data-theme="academism"] .card {
+  background-color: var(--surface);
+}
+

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="cs" data-theme="terminal">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Generátor čísel pro matematický poker s přehledem už tažených čísel.">
+  <meta name="color-scheme" content="light dark">
+  <title>Výběr čísel — Matematický Poker</title>
+  <link rel="icon" type="image/x-icon" href="img/image_Kv_uh2AR_1719232116258_512.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400..700&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@200..700&family=Roboto:wght@400;500;700&family=Schibsted+Grotesk:wght@400..900&family=Source+Serif+4:opsz,wght@8..60,300..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <script>
+    // motiv se nasadí ještě před vykreslením, aby stránka neproblikla
+    (function () {
+      try {
+        var t = localStorage.getItem('mp-theme');
+        if (t === 'papir' || t === 'anthropic') { t = 'academism'; }
+        if (t === 'studio') { t = 'terminal'; }
+        if (t === 'noc') { t = 'legacy'; }
+        if (t !== 'terminal' && t !== 'academism' && t !== 'legacy') { t = 'terminal'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { /* localStorage nedostupný */ }
+    })();
+  </script>
+</head>
+
+<body>
+  <script src="js/icons.js"></script>
+  <div class="app">
+    <header class="rail">
+      <nav class="crumbs" aria-label="Drobečková navigace">
+        <a href="index.html"><svg class="icon" aria-hidden="true"><use href="#i-home"></use></svg>Domů</a>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <span class="crumb-current" aria-current="page">Výběr čísel</span>
+      </nav>
+      <div class="rail-actions">
+        <a class="btn btn--ghost" href="rules.html">Pravidla</a>
+        <div data-theme-switch></div>
+      </div>
+    </header>
+
+    <main class="app-main app-main--top">
+      <div class="picker">
+        <div class="draw-stage corner-dots">
+          <div class="draw-meta">
+            <span class="draw-order" id="drawOrder">zatím nic</span>
+            <p class="draw-hint" id="drawHint">Klikni na Generovat a&nbsp;balíček ti vydá kartu.</p>
+          </div>
+          <span class="draw-number is-idle" id="drawNumber">–</span>
+        </div>
+
+        <div class="console">
+          <div class="console-actions" style="flex: 1;">
+            <button type="button" class="btn btn-roll" id="rollButton" style="flex: 1;">
+              Generovat
+            </button>
+            <button type="button" class="joker-chip" id="jokerBadge" disabled
+              title="Uschovaní žolíci — klikni pro uplatnění">
+              <svg class="icon" aria-hidden="true"><use href="#i-joker"></use></svg><span id="jokerCount">0</span>
+            </button>
+            <button type="button" class="btn btn--quiet" id="resetButton" disabled>
+              <svg class="icon" aria-hidden="true"><use href="#i-shuffle"></use></svg> Zamíchat
+            </button>
+          </div>
+        </div>
+
+        <section aria-live="polite">
+          <div class="section-head">
+            <h2 class="section-title">Už padlo</h2>
+            <span class="section-meta" id="historyCount">0 z 25 čísel</span>
+          </div>
+          <div class="chips" id="history">
+            <span class="chips-empty">Zatím nic.</span>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <h2 class="section-title">Zbývá v balíčku</h2>
+            <span class="section-meta" id="deckCount">54 karet</span>
+          </div>
+          <div class="deck-rest" id="deckRest"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/deck.js"></script>
+  <script src="js/numbers.js"></script>
+</body>
+
+</html>

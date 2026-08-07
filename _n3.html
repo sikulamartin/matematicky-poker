@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="cs" data-theme="terminal">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Pravidla matematického pokeru — průběh hry, žolíci a kompletní bodovací tabulka.">
+  <meta name="color-scheme" content="light dark">
+  <title>Pravidla — Matematický Poker</title>
+  <link rel="icon" type="image/x-icon" href="img/image_Kv_uh2AR_1719232116258_512.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400..700&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@200..700&family=Roboto:wght@400;500;700&family=Schibsted+Grotesk:wght@400..900&family=Source+Serif+4:opsz,wght@8..60,300..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <script>
+    // motiv se nasadí ještě před vykreslením, aby stránka neproblikla
+    (function () {
+      try {
+        var t = localStorage.getItem('mp-theme');
+        if (t === 'papir' || t === 'anthropic') { t = 'academism'; }
+        if (t === 'studio') { t = 'terminal'; }
+        if (t === 'noc') { t = 'legacy'; }
+        if (t !== 'terminal' && t !== 'academism' && t !== 'legacy') { t = 'terminal'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { /* localStorage nedostupný */ }
+    })();
+  </script>
+</head>
+
+<body>
+  <script src="js/icons.js"></script>
+  <div class="app">
+    <header class="rail">
+      <nav class="crumbs" aria-label="Drobečková navigace">
+        <a href="index.html"><svg class="icon" aria-hidden="true"><use href="#i-home"></use></svg>Domů</a>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <span class="crumb-current" aria-current="page">Pravidla</span>
+      </nav>
+      <div class="rail-actions">
+        <a class="btn btn--ghost" href="difficulty.html">Hrát</a>
+        <div data-theme-switch></div>
+      </div>
+    </header>
+
+    <main class="app-main app-main--top">
+      <article class="prose card corner-dots">
+        <h1>Pravidla</h1>
+        <!-- Nezlomitelné mezery po jednopísmenných předložkách a spojkách —
+             česká sazba je nenechává viset na konci řádku. -->
+        <p class="lead">
+          Hra pro jednoho. Taháš čísla z&nbsp;balíčku a&nbsp;rozhoduješ, kam je v&nbsp;poli 5×5
+          zapíšeš. Zapsané číslo už nejde přesunout, takže každé rozhodnutí je konečné.
+        </p>
+
+        <h2>Průběh hry</h2>
+        <ol>
+          <li>Klikneš na <strong>Generovat</strong> a balíček ti vydá první kartu.</li>
+          <li>Vybereš prázdné políčko a číslo do něj vložíš.</li>
+          <li>Další číslo se natáhne <strong>samo</strong> — klikat už nemusíš.
+            Tlačítko <strong>Táhnout ručně</strong> zůstává jen jako záloha.</li>
+          <li>Body se přepočítají hned — u každého řádku, sloupce i obou úhlopříček.</li>
+          <li>Hra končí, když je všech 25 políček zaplněných.</li>
+        </ol>
+
+        <h2>Balíček</h2>
+        <p>
+          Balíček má <strong>54 karet</strong>: čtyři kusy od každé hodnoty 1 až 13
+          (dohromady 52) a <strong>dva žolíky</strong>. Karta se nikdy neopakuje —
+          co padlo, už v balíčku není. Políček je jen 25, takže velkou část balíčku
+          v jedné hře vůbec neuvidíš.
+        </p>
+
+        <h2>Žolíci</h2>
+        <p>Když vytáhneš žolíka, máš dvě možnosti:</p>
+        <ul>
+          <li><strong>Použít teď</strong> — vybereš mu hodnotu 1 až 13 a rovnou ho zapíšeš do pole.</li>
+          <li><strong>Uschovat</strong> — žolík ti zůstane v ruce a taháš dál.
+            Uschovaný žolík <em>nespotřebuje</em> tah.</li>
+        </ul>
+        <div class="note">
+          <svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg>
+          <p>
+            Uschované žolíky ukazuje počítadlo v konzoli nad polem. Kliknutím na něj
+            žolíka kdykoli uplatníš. Když by ti měly propadnout, hra se sama zeptá.
+          </p>
+        </div>
+
+        <h2>Bodování</h2>
+        <p>
+          Vyhodnocuje se <strong>12 linií</strong>: 5 řádků, 5 sloupců a obě úhlopříčky.
+          Každá linie se počítá zvlášť a započítá se jen její <strong>nejlepší</strong>
+          kombinace — body se v rámci jedné linie nesčítají.
+        </p>
+        <p>
+          <strong>Vedle sebe</strong> znamená, že stejná čísla leží v linii bez přerušení
+          hned za sebou. Za to je vždycky víc bodů než za stejnou kombinaci rozházenou.
+        </p>
+
+        <div class="table-scroll">
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th scope="col">Kombinace</th>
+                <th scope="col">Příklad</th>
+                <th scope="col">Body</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Pětice — pětkrát stejné číslo</td><td class="example">7 7 7 7 7</td><td><span class="pts">125</span></td></tr>
+              <tr><td>Čtveřice vedle sebe</td><td class="example">3 3 3 3 9</td><td><span class="pts">100</span></td></tr>
+              <tr><td>Seřazená postupka — pět čísel za sebou vzestupně nebo sestupně</td><td class="example">4 5 6 7 8</td><td><span class="pts">75</span></td></tr>
+              <tr><td>Čtveřice rozházená</td><td class="example">3 3 9 3 3</td><td><span class="pts">70</span></td></tr>
+              <tr><td>Postupka v libovolném pořadí</td><td class="example">6 4 8 5 7</td><td><span class="pts">50</span></td></tr>
+              <tr><td>Full house vedle sebe — trojice i dvojice pohromadě</td><td class="example">2 2 2 9 9</td><td><span class="pts">50</span></td></tr>
+              <tr><td>Full house — trojice a dvojice</td><td class="example">2 9 2 9 2</td><td><span class="pts">40</span></td></tr>
+              <tr><td>Dva páry vedle sebe</td><td class="example">5 5 8 8 1</td><td><span class="pts">35</span></td></tr>
+              <tr><td>Dva páry</td><td class="example">5 8 5 1 8</td><td><span class="pts">30</span></td></tr>
+              <tr><td>Trojice vedle sebe</td><td class="example">6 6 6 2 9</td><td><span class="pts">25</span></td></tr>
+              <tr><td>Trojice</td><td class="example">6 2 6 9 6</td><td><span class="pts">20</span></td></tr>
+              <tr><td>Pár vedle sebe</td><td class="example">4 11 11 2 7</td><td><span class="pts">15</span></td></tr>
+              <tr><td>Pár</td><td class="example">4 11 2 7 11</td><td><span class="pts">10</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Obtížnosti</h2>
+        <ul>
+          <li><strong>Lehká</strong> — bez časomíry.</li>
+          <li><strong>Těžká</strong> — před startem zadáš, kolik sekund máš na jedno číslo
+            (3 až 300). Co nestihneš uložit, propadne a hra rovnou táhne další.
+            Políčko zůstane prázdné, takže tě zdržení stojí body.</li>
+        </ul>
+
+        <h2>Ostatní režimy</h2>
+        <ul>
+          <li><strong>Výběr čísel</strong> — jen generátor. Hodí se, když hraješ na papíře.
+            Ukazuje historii všeho, co padlo, i kolik kusů které hodnoty zbývá.</li>
+          <li><strong>Tabulka</strong> — prázdné pole, do kterého si čísla píšeš sám.
+            Body se počítají průběžně, mezi políčky se skáče šipkami.</li>
+        </ul>
+
+        <h2>Klávesnice</h2>
+        <ul>
+          <li><span class="kbd">G</span> vygeneruje další číslo</li>
+          <li><span class="kbd">Tab</span> a <span class="kbd">Enter</span> vyberou a potvrdí políčko</li>
+          <li><span class="kbd">↑ ↓ ← →</span> posouvají po ruční tabulce</li>
+          <li><span class="kbd">Esc</span> zavře dialog, který jde zrušit</li>
+        </ul>
+      </article>
+    </main>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/nav.js"></script>
+  <script>document.addEventListener("DOMContentLoaded",function(){setTimeout(function(){window.MPTheme.apply("legacy");document.querySelector(".rail-burger").click();},50);});</script>
+</body>
+
+</html>

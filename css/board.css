@@ -1,0 +1,415 @@
+/* ==========================================================================
+   Herní obrazovka — konzole nad polem a hrací pole
+
+   Zásada: hrací pole je hrdina stránky. Všechno ovládání je stlačené
+   do jediného tenkého pruhu nad ním, aby poli zbylo co nejvíc místa.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- konzole */
+.console {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--ui));
+  width: 100%;
+  max-width: max(var(--board-w), calc(320px * var(--ui)));
+  padding: calc(7px * var(--ui)) calc(8px * var(--ui))
+           calc(7px * var(--ui)) calc(7px * var(--ui));
+  background-color: var(--surface);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.console-draw {
+  display: flex;
+  align-items: baseline;
+  gap: calc(8px * var(--ui));
+  padding: calc(4px * var(--ui)) calc(12px * var(--ui));
+  min-width: calc(104px * var(--ui));
+  border-radius: var(--r-sm);
+  background-color: var(--accent-soft);
+  border: var(--hairline) solid var(--accent);
+  transition: background-color var(--t-fast), border-color var(--t-fast);
+}
+
+.console-draw.is-empty {
+  background-color: var(--surface-2);
+  border-color: var(--border);
+}
+
+.console-label {
+  font-family: var(--label-font);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.console-draw-value {
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 1.875rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+
+.console-draw.is-empty .console-draw-value {
+  color: var(--text-faint);
+}
+
+.draw-pop {
+  animation: drawPop 340ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes drawPop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.console-stats {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding: calc(2px * var(--ui)) calc(14px * var(--ui));
+  border-left: var(--hairline) solid var(--border);
+  min-width: 0;
+}
+
+.stat:first-child {
+  border-left: 0;
+}
+
+.stat-label {
+  font-family: var(--label-font);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.stat-value {
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 1.1875rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.stat--timer .stat-value {
+  transition: color var(--t-fast);
+}
+
+.stat--timer.t-good .stat-value {
+  color: var(--good);
+}
+
+.stat--timer.t-warn .stat-value {
+  color: var(--warn);
+}
+
+.stat--timer.t-bad .stat-value {
+  color: var(--bad);
+  animation: tick 1s steps(2) infinite;
+}
+
+@keyframes tick {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.console-actions {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--ui));
+  flex: none;
+}
+
+/* indikátor uschovaných žolíků */
+.joker-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(6px * var(--ui));
+  padding: calc(8px * var(--ui)) calc(11px * var(--ui));
+  border-radius: var(--r-btn);
+  border: var(--hairline) solid var(--border);
+  background-color: var(--surface-2);
+  color: var(--text-faint);
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  cursor: not-allowed;
+  transition: background-color var(--t-fast), border-color var(--t-fast),
+    color var(--t-fast);
+}
+
+.joker-chip .icon {
+  width: calc(17px * var(--ui));
+  height: calc(17px * var(--ui));
+}
+
+.joker-chip.has-jokers {
+  background-color: var(--joker-soft);
+  border-color: var(--joker);
+  color: var(--joker);
+  cursor: pointer;
+}
+
+.joker-chip.is-armed {
+  animation: armed 1.5s ease-in-out infinite;
+}
+
+@keyframes armed {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--joker-soft);
+  }
+  55% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+.btn-roll {
+  white-space: nowrap;
+  padding: calc(10px * var(--ui)) calc(20px * var(--ui));
+}
+
+.btn-roll.is-restart {
+  background-color: var(--good);
+  color: #fff;
+}
+
+/* pole pro zadání času v těžké obtížnosti */
+.field {
+  display: flex;
+  align-items: center;
+  gap: calc(7px * var(--ui));
+  padding-left: calc(10px * var(--ui));
+}
+
+.field label {
+  font-family: var(--label-font);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.field input {
+  width: calc(62px * var(--ui));
+  padding: calc(7px * var(--ui)) calc(8px * var(--ui));
+  background-color: var(--surface-inset);
+  border: var(--hairline) solid var(--border-strong);
+  border-radius: var(--r-sm);
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: 0.9375rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- hrací pole */
+.board-wrap {
+  width: var(--board-w);
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.board {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  border: var(--hairline) solid var(--border-strong);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background-color: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.board th,
+.board td {
+  border-right: var(--hairline) solid var(--grid-line);
+  border-bottom: var(--hairline) solid var(--grid-line);
+  text-align: center;
+  vertical-align: middle;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.board tr > *:last-child {
+  border-right: 0;
+}
+
+.board tr:last-child > * {
+  border-bottom: 0;
+}
+
+.board col.col-score {
+  width: calc(var(--score-cell) / var(--board-w) * 100%);
+}
+
+.board col.col-play {
+  width: calc(var(--cell) / var(--board-w) * 100%);
+}
+
+.board thead th {
+  height: var(--score-cell);
+}
+
+.board tbody tr {
+  height: var(--cell);
+}
+
+/* Rohové buňky nesou body za úhlopříčky. Malá šikmá ryska v rohu ukazuje,
+   kterým směrem úhlopříčka vede. */
+/* Ryska se měří polem, ne --ui: pole roste i tam, kde --ui zůstává na jedné
+   (nízké široké okno), a značka musí držet stejný poměr k rohu buňky. */
+.board thead th.corner::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--cell) * 0.04);
+  width: calc(var(--cell) * 0.102);
+  height: 0;
+  border-top: max(1.5px, calc(var(--cell) * 0.012)) solid currentColor;
+  opacity: 0.4;
+}
+
+.board thead th.corner:first-child::before {
+  left: calc(var(--cell) * 0.04);
+  transform: rotate(45deg);
+  transform-origin: left top;
+}
+
+.board thead th.corner:last-child::before {
+  right: calc(var(--cell) * 0.04);
+  transform: rotate(-45deg);
+  transform-origin: right top;
+}
+
+/* bodové buňky v záhlaví a na okraji řádků */
+.board th {
+  background-color: var(--score-bg);
+  color: var(--score-ink);
+  font-family: var(--font-num);
+  font-weight: var(--num-weight);
+  font-size: calc(var(--cell) * 0.2);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  cursor: default;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.board th.is-scoring {
+  background-color: var(--score-hot-bg);
+  color: var(--score-hot-ink);
+}
+
+/* poslední sloupec je jen pokračování rámu, ne hrací plocha */
+.board tbody th:last-child {
+  background-color: var(--surface-2);
+}
+
+/* hrací buňky */
+.board td {
+  background-color: var(--cell-empty);
+  color: var(--cell-ink);
+  font-family: var(--font-num);
+  font-weight: var(--board-num-weight);
+  font-size: calc(var(--cell) * 0.48);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  transition: background-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.board td.filled {
+  background-color: var(--cell-fill);
+  cursor: default;
+}
+
+.board td.from-joker {
+  color: var(--joker);
+  background-color: var(--joker-soft);
+}
+
+.board td.just-placed {
+  animation: cellIn 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cellIn {
+  from {
+    transform: scale(0.55);
+    opacity: 0;
+  }
+}
+
+/* Když čeká číslo k umístění, volné buňky se dají kliknout a pod kurzorem
+   ukážou předběžný náhled toho čísla. */
+.board.is-placing td:not(.filled) {
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--accent-ring);
+}
+
+.board.is-placing td:not(.filled)::after {
+  content: attr(data-ghost);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity var(--t-fast);
+  pointer-events: none;
+}
+
+.board.is-placing td:not(.filled):hover,
+.board.is-placing td:not(.filled):focus-visible {
+  background-color: var(--accent-soft);
+}
+
+.board.is-placing td:not(.filled):hover::after,
+.board.is-placing td:not(.filled):focus-visible::after {
+  opacity: 0.45;
+}
+
+/* ručně vyplňovaná tabulka */
+.board td[contenteditable="true"] {
+  cursor: text;
+}
+
+.board td[contenteditable="true"]:focus {
+  outline: 0;
+  background-color: var(--accent-soft);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
