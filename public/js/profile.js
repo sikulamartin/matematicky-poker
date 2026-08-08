@@ -264,9 +264,11 @@
         : 'Zatím ses nerozhodl. Dokud ukládání nepovolíš, statistiky se po zavření karty ztratí.');
   }
 
-  /* Zveřejnění přezdívky v žebříčku je vlastní rozhodnutí, ne součást
-     souhlasu s ukládáním: jedno znamená „pamatuj si mě“, druhé „ukaž mě
-     ostatním“. Klíč mp-publish drží js/online.js. */
+  /* Zveřejnění přezdívky ve veřejných tabulkách je vlastní rozhodnutí, ne
+     součást souhlasu s ukládáním: jedno znamená „pamatuj si mě“, druhé „ukaž
+     mě ostatním“. Platí pro žebříček i pro tabulku denní výzvy — obojí je
+     veřejné, tak se to nerozhoduje dvakrát. Klíč mp-publish drží
+     js/online.js. */
   function publishAllowed() {
     try {
       return localStorage.getItem('mp-publish') === '1';
@@ -280,9 +282,10 @@
     publishButton.textContent = on ? 'Vypnout' : 'Zapnout';
     publishButton.className = 'btn' + (on ? ' btn--quiet' : '');
     publishDesc.textContent = on
-      ? 'Dohrané partie o žebříček posílají na server přezdívku, skóre, obtížnost a čas.'
-      : 'Hrát o žebříček jde dál, ale výsledek se do veřejné tabulky nezapíše. ' +
-        'Statistiky profilu běží dál — ty nejsou veřejné.';
+      ? 'Dohrané partie o žebříček a denní výzvy posílají na server přezdívku, ' +
+        'skóre, obtížnost a čas.'
+      : 'Hrát o žebříček i denní výzvu jde dál, ale výsledek se do veřejné ' +
+        'tabulky nezapíše. Statistiky profilu běží dál — ty nejsou veřejné.';
   }
 
   /* Vypnutí zveřejnění dřív zahodilo i serverovou identitu. Od chvíle, kdy pod

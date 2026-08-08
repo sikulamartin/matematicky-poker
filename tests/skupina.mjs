@@ -401,6 +401,28 @@ test('propadlé číslo se v těžké obtížnosti přeskočí', () => {
   assert.equal(guest(lobby).placed, 0);
 });
 
+test('propadlé číslo spotřebuje políčko — hráč dohraje dřív', () => {
+  const lobby = newLobby('hard', 5);
+  startLobby(lobby, host(lobby));
+
+  // 24 políček zaplněných, poslední místo čeká
+  const player = guest(lobby);
+  for (let i = 0; i < 24; i++) {
+    player.grid[Math.floor(i / 5)][i % 5] = 5;
+  }
+  player.placed = 24;
+
+  unpace(lobby);
+  drawCard(lobby, host(lobby));
+  lobby.sequence[player.cursor].at = Date.now() - 60000;
+  catchUp(lobby);
+
+  assert.equal(player.forfeited, 1);
+  assert.equal(player.placed, 24);
+  assert.equal(player.done, true, 'poslední políčko propadlo, hráč dohrál');
+  assert.equal(player.grid[4][4], null, 'políčko zůstává prázdné');
+});
+
 test('propadnutí před termínem server odmítne', () => {
   const lobby = newLobby('hard', 60);
   startLobby(lobby, host(lobby));

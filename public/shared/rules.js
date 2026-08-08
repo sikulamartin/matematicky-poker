@@ -37,7 +37,7 @@
   var CELLS_TOTAL = 25;
   var LINES_TOTAL = 12;                              // 5 řádků + 5 sloupců + 2 úhlopříčky
 
-  /** Fisher–Yates. `rand` se dá podstrčit kvůli testům. */
+  /** Fisher–Yates. `rand` se dá podstrčit kvůli testům i kvůli denní výzvě. */
   function shuffle(array, rand) {
     var random = rand || Math.random;
     for (var i = array.length - 1; i > 0; i--) {
@@ -60,6 +60,48 @@
       deck.push({ type: 'joker', value: null });
     }
     return shuffle(deck, rand);
+  }
+
+  /* -------------------------------------------- deterministické míchání */
+
+  /* Denní výzva stojí na tom, že všichni hráči dostanou týž balíček ve
+     stejném pořadí. Math.random() se k tomu použít nedá — je jiný pro každý
+     start funkce. Proto tenhle pár: `seedFrom` udělá z textu (datum dne)
+     32bitové semínko, `randomFrom` z něj vyrobí posloupnost. Obojí je pár
+     řádků bez stavu mimo vrácenou funkci a na stejný text vrátí stejné pořadí
+     kdykoli — po restartu serveru i za rok.
+
+     Není to kryptografie a nemá být. Kdo si tenhle soubor přečte, dopočítá si
+     dnešní balíček dopředu; proti tomu chrání jediný pokus denně hlídaný na
+     serveru (viz netlify/functions/hra.mjs), ne utajení algoritmu. */
+
+  /** xmur3 — z řetězce 32bitové semínko. */
+  function seedFrom(text) {
+    var str = String(text);
+    var h = 1779033703 ^ str.length;
+    for (var i = 0; i < str.length; i++) {
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return (h ^ (h >>> 16)) >>> 0;
+  }
+
+  /** mulberry32 — ze semínka generátor s rozhraním Math.random. */
+  function randomFrom(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /** Balíček denní výzvy. Stejný klíč = stejné pořadí karet. */
+  function dailyDeck(key) {
+    return buildDeck(randomFrom(seedFrom(key)));
   }
 
   function isValue(value) {
@@ -406,6 +448,9 @@
     COMBOS: COMBOS,
     shuffle: shuffle,
     buildDeck: buildDeck,
+    seedFrom: seedFrom,
+    randomFrom: randomFrom,
+    dailyDeck: dailyDeck,
     isValue: isValue,
     isCard: isCard,
     cleanCard: cleanCard,

@@ -17,11 +17,12 @@
    -------------------------
    žebříček     jen partie se všemi 25 políčky a jen se souhlasem hráče
                 se zveřejněním přezdívky (`publish`)
+   denní výzva  místo žebříčku vlastní tabulka dne, jinak stejná podmínka
    statistiky   každá skončená partie, souhlas ani žebříček v tom nehrají roli.
                 Jsou to osobní čísla profilu — a jediný důvod, proč se přes
                 server hraje i mimo žebříček (viz public/js/online.js).
 
-   Odpověď vždycky: { state, player?, placements?, stats?, records?, error? } */
+   Odpověď vždycky: { state, player?, placements?, stats?, records?, daily?, error? } */
 
 import {
   emptyRun, publicState, apply, RunError, MODES, rules
@@ -29,7 +30,8 @@ import {
 import {
   loadRun, saveRun, newRunId, maybeSweep,
   issuePlayer, verifyPlayer, touchPlayer, submitScore, checkRunLimit,
-  recordPlayerStats, playerStats
+  recordPlayerStats, playerStats,
+  dailyDay, dailyDeck, claimDaily, finishDaily, submitDaily, readDaily
 } from './lib/store.mjs';
 
 const NAME_MAX = 24;
@@ -82,6 +84,10 @@ async function start(body, request) {
   player = await touchPlayer(player, name);
 
   const mode = MODES.includes(body.mode) ? body.mode : 'easy';
+  if (mode === 'daily') {
+    return startDaily(body, player, name, issued);
+  }
+
   let seconds = null;
   if (mode === 'hard') {
     seconds = parseInt(body.seconds, 10);
@@ -106,6 +112,135 @@ async function start(body, request) {
   });
 }
 
+/* --------------------------------------------------------- denní výzva */
+
+/* Jeden balíček na den pro všechny a jeden pokus na hráče.
+   ==========================================================================
+
+   Balíček se nemíchá náhodně, ale odvozuje z data (lib/store.mjs → dailyDeck),
+   takže každý hráč dostane týž den tytéž karty ve stejném pořadí. Tím se
+   z výsledku stane porovnatelné číslo: nerozhoduje, komu se sešly lepší
+   karty, ale kdo je líp poskládal.
+
+   Právě proto musí být pokus jenom jeden. Kdo by směl začít podruhé, hraje
+   podruhé se znalostí celého pořadí — a měřilo by se paměť, ne hra. Pokus se
+   drží v záznamu hráče a spotřebuje ho i partie, která se do veřejné tabulky
+   nikdy nedostane (bez souhlasu se zveřejněním).
+
+   Rozehraná partie se dá dokončit i po zavření karty: druhý start ve stejný
+   den vrátí ten samý stav, ne nový. */
+
+function playerField(player, issued) {
+  return issued ? { id: issued.id, secret: issued.secret } : { id: player.id };
+}
+
+/** Odpověď „dnešek už máš za sebou“ i s tím, co k němu server ví. */
+function dailyDone(attempt) {
+  return json({
+    error: 'daily_done',
+    day: attempt.day,
+    score: attempt.score,
+    rank: attempt.rank === undefined ? null : attempt.rank,
+    at: attempt.at || null
+  }, 409);
+}
+
+async function startDaily(body, player, name, issued) {
+  const day = dailyDay();
+  const claim = await claimDaily(player.id, day, newRunId());
+  if (!claim) {
+    // hráč se v úložišti ještě neprojevil — bez zamluveného pokusu se nehraje
+    return fail('server_error', 500);
+  }
+
+  if (!claim.fresh) {
+    if (claim.score !== null && claim.score !== undefined) {
+      return dailyDone(claim);
+    }
+    const stored = await loadRun(claim.runId);
+    if (stored && stored.tombstone) {
+      return dailyDone({ ...claim, score: stored.state ? stored.state.score : null });
+    }
+    if (stored && stored.over) {
+      return dailyDone({ ...claim, score: stored.score });
+    }
+    if (stored) {
+      /* Nedohraná partie z dneška — pokračuje se v ní, ne v nové. Balíček
+         zůstává tam, kde hráč přestal, takže se restartem nedá dostat
+         k lepšímu začátku. */
+      return json({
+        state: publicState(stored),
+        player: playerField(player, issued),
+        stats: playerStats(player)
+      });
+    }
+    /* Zamluvený pokus, ale partie v úložišti není. Stane se to jedině
+       úklidem po vypršení (RUN_TTL_MS) — pak se dnešek smí založit znovu,
+       balíček je stejně tentýž. */
+  }
+
+  const run = emptyRun({
+    id: claim.runId,
+    mode: 'daily',
+    playerId: player.id,
+    day,
+    deck: dailyDeck(day)
+  });
+  run.name = name;
+  // Bez souhlasu se zveřejněním se výzva odehraje, ale do denní tabulky nejde.
+  run.publish = body.publish === true;
+  await saveRun(run);
+
+  return json({
+    state: publicState(run),
+    player: playerField(player, issued),
+    stats: playerStats(player)
+  });
+}
+
+/**
+ * Uzavře denní výzvu: zápis do tabulky dne a do záznamu hráče.
+ * Smí selhat ze stejného důvodu jako žebříček — dohraná partie je fakt sám
+ * o sobě a nesmí padnout s tím, co se k ní zapisuje.
+ */
+async function closeDaily(run, state, finishedAt, complete) {
+  const result = { day: run.day, score: run.score, rank: null, record: null, count: 0 };
+  try {
+    if (run.publish && complete) {
+      const placed = await submitDaily({
+        playerId: run.playerId,
+        name: run.name,
+        score: run.score,
+        mode: run.mode,
+        day: run.day,
+        durationMs: state.durationMs,
+        at: finishedAt
+      });
+      result.rank = placed.rank;
+      result.record = placed.record;
+      result.count = placed.count;
+    } else {
+      const list = await readDaily(run.day);
+      result.record = list.length ? list[0].score : null;
+      result.count = list.length;
+    }
+  } catch (err) {
+    console.error('vyzva:', err);
+    result.failed = true;
+  }
+
+  try {
+    await finishDaily(run.playerId, run.day, {
+      score: run.score,
+      at: finishedAt,
+      rank: result.rank
+    });
+  } catch (err) {
+    console.error('vyzva (zápis pokusu):', err);
+  }
+  return result;
+}
+
 /* -------------------------------------------------------------- ostatní */
 
 async function step(body) {
@@ -128,7 +263,8 @@ async function step(body) {
       state: stored.state,
       placements: stored.placements || null,
       stats: stored.stats || null,
-      records: stored.records || []
+      records: stored.records || [],
+      daily: stored.daily || null
     });
   }
 
@@ -164,6 +300,7 @@ async function step(body) {
     placements: null,
     stats: null,
     records: [],
+    daily: null,
     finishedAt: run.finishedAt
   });
 
@@ -176,7 +313,11 @@ async function step(body) {
      počítá sám, si taky sám vymyslí.
 
      Selhat smí ze stejného důvodu jako žebříček (viz komentář výš) — dohraná
-     partie je fakt sám o sobě a nesmí padnout s tím, co se k ní zapisuje. */
+     partie je fakt sám o sobě a nesmí padnout s tím, co se k ní zapisuje.
+
+     Denní výzva se do statistik počítá jako lehká obtížnost: lib/stats.mjs
+     zná jen `hard` a všechno ostatní bere jako `easy`, a výzva se opravdu
+     hraje bez časomíry. Vlastní rekord tedy nemá — má vlastní tabulku dne. */
   let stats = null;
   let records = [];
   let statsFailed = false;
@@ -197,9 +338,16 @@ async function step(body) {
     statsFailed = true;
   }
 
+  /* Denní výzva má vlastní tabulku a do žebříčku nejde: srovnávat partii
+     z pevného balíčku s partiemi z náhodných by nedávalo smysl. */
+  let daily = null;
+  if (run.mode === 'daily') {
+    daily = await closeDaily(run, state, finishedAt, complete);
+  }
+
   let placements = null;
   let boardFailed = false;
-  if (run.publish && complete) {
+  if (run.publish && complete && run.mode !== 'daily') {
     try {
       placements = await submitScore({
         playerId: run.playerId,
@@ -226,6 +374,7 @@ async function step(body) {
     placements,
     stats,
     records,
+    daily,
     finishedAt: run.finishedAt
   });
 
@@ -234,6 +383,7 @@ async function step(body) {
     placements,
     stats,
     records,
+    daily,
     boardFailed: boardFailed || undefined,
     statsFailed: statsFailed || undefined
   });

@@ -381,9 +381,14 @@
 }
 
 /* --------------------------------------------------------- 4. ovládání */
-/* Lišta = zúžená verze .pm-topbar: linka pod ní, drobečky ve verzálkách. */
+/* Lišta = zúžená verze .pm-topbar: linka pod ní, drobečky ve verzálkách.
+   Linka jde na podklad (::before), ne na .rail — jinak by končila na hraně
+   shellu, zatímco pruh pod ní sahá až k okrajům okna. */
 :root[data-theme="terminal"] .rail {
   padding-bottom: calc(11px * var(--ui));
+}
+
+:root[data-theme="terminal"] .rail::before {
   border-bottom: var(--hairline) solid var(--border);
 }
 

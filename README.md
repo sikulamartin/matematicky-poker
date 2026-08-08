@@ -2,9 +2,9 @@
 
 Kombinační hra s čísly 1–13 na poli 5×5. Taháš karty z balíčku, rozhoduješ, kam je zapíšeš, a sbíráš body za pokerové kombinace ve všech řádcích, sloupcích a obou úhlopříčkách. Zapsané číslo už nejde přesunout — každý tah je konečný.
 
-Hra běží jako statický web v prohlížeči. Výjimky jsou dvě: režim **o žebříček**, kde partii řídí server (veřejná tabulka rekordů jinak nemá cenu — skóre spočítané v prohlížeči si každý přepíše), a **hra ve skupině**, kde server rozdává jednu řadu čísel celému lobby.
+Hra běží jako statický web v prohlížeči. Výjimky jsou tři: režim **o žebříček**, kde partii řídí server (veřejná tabulka rekordů jinak nemá cenu — skóre spočítané v prohlížeči si každý přepíše), **denní výzva**, kde balíček vzniká z data a pokus se počítá jednou za den, a **hra ve skupině**, kde server rozdává jednu řadu čísel celému lobby.
 
-Bez serveru je web pořád plně hratelný. Odpadne jenom žebříček a hra ve skupině.
+Bez serveru je web pořád plně hratelný. Odpadne jenom žebříček, denní výzva a hra ve skupině.
 
 **Živá verze:** [matematicky-poker](https://matematickypoker.netlify.app/)
 
@@ -15,6 +15,7 @@ Bez serveru je web pořád plně hratelný. Odpadne jenom žebříček a hra ve 
 | **Hra — lehká** | `easy.html` | Plná hra bez časového tlaku. Karty rozdává a body počítá server, aby se partie dala připsat do statistik profilu; bez připojení hra běží dál místně a nezapíše se. |
 | **Hra — těžká** | `hard.html` | Odpočet 3–300 sekund na jedno číslo. Co nestihneš uložit, propadne a políčko zůstane prázdné. Jinak stejné jako lehká — server rozdává, statistiky se počítají u něj. |
 | **Hra — o žebříček** | `ranked.html` | Karty rozdává a body počítá server. Výsledek jde do veřejné tabulky. Vyžaduje připojení. |
+| **Denní výzva** | `vyzva.html` | Balíček se míchá z data, takže ho v ten den mají všichni stejný a ve stejném pořadí — nerozhoduje, komu se sešly lepší karty. Pokus je jeden na den, výsledek jde do tabulky dne a rekord dne je vidět pořád. Vyžaduje připojení i zapnuté ukládání. |
 | **Hra — ve skupině** | `skupina.html` | Zadavatel tahá čísla pro celou skupinu, každý je skládá do vlastního pole. Na konci pořadí skupiny. Vyžaduje připojení. |
 | **Žebříček** | `leaderboard.html` | Nejlepší hráči za dnešek, týden, měsíc a celkově. |
 | **Výběr čísel** | `number selection.html` | Samostatný generátor pro hru na papíře. Historie tahů, přehled zbývajících karet, rozehraná hra přežije reload. |
@@ -26,13 +27,14 @@ Bez serveru je web pořád plně hratelný. Odpadne jenom žebříček a hra ve 
 Dál:
 
 - **Tři vizuální motivy** — Terminál, Academism, Legacy. Volba se ukládá a platí napříč stránkami.
-- **Náhled bodů** — u každého volného políčka svítí, kolik by tam čekající číslo přineslo. Nejvyšší zisk je zvýrazněný barvou. Počítá to prohlížeč z toho, co je vidět na obrazovce, takže se to nepere se serverovým skóre; vypínač je v konzoli nad polem.
+- **Náhled bodů** — u každého volného políčka svítí, kolik by tam čekající číslo přineslo. Nejvyšší zisk je zvýrazněný barvou. Počítá to prohlížeč z toho, co je vidět na obrazovce, takže se to nepere se serverovým skóre; vypínač je v konzoli nad polem. V denní výzvě a ve hře o žebříček se `js/preview.js` vůbec nenačítá — tam se hraje o pořadí proti ostatním.
 - **Žolíci** — dva v balíčku. Jde je použít hned s vlastní hodnotou, nebo uschovat na později; uschovaný žolík nespotřebuje tah.
 - **Vlastní dialogy** místo `alert()` / `confirm()` / `prompt()` — stylovatelné, přístupné, s ochrannou lhůtou proti nechtěnému potvrzení dojezdem stisku.
 - **Souhlas s ukládáním** — bez něj hra funguje, jen si po zavření karty nic nepamatuje.
 - **Responzivní layout** — od úzkých telefonů po velké monitory, pod 860 px se lišta sbalí do hamburgeru.
 - **Žebříček řízený serverem** — čtyři období (dnes, tento týden, tento měsíc, celkově), jeden nejlepší výsledek na hráče, skóre vzniká na serveru.
 - **Skupinová hra v lobby** — kód o pěti znacích, až dvanáct hráčů, sdílená řada čísel a průběžné pořadí vedle pole.
+- **Denní výzva** — jeden balíček na den pro všechny (míchá se ze semínka odvozeného z data), jeden pokus na hráče a vlastní tabulka dne. Rekord dne se píše nad polem, ne až po dohrání.
 
 ## Spuštění
 
@@ -63,7 +65,7 @@ npm run dev          # netlify dev na http://localhost:8888
 npm run serve       # http://localhost:8788
 ```
 
-`tests/server.mjs` je náhrada všech tří funkcí: drží data v paměti a všechnu herní
+`tests/server.mjs` je náhrada všech serverových funkcí: drží data v paměti a všechnu herní
 logiku bere ze stejného `lib/run.mjs` a `lib/lobby.mjs` jako produkce, takže se pod
 ním dá zkoušet i `ranked.html` a `skupina.html`. Nic se neinstaluje.
 
@@ -86,6 +88,7 @@ a scénář s uschovanými žolíky.
 | `tests/statistiky.mjs` | počítání statistik profilu a jejich podmíněný zápis do záznamu hráče včetně souběhu dvou karet |
 | `tests/skupina.mjs` | lobby skupinové hry: sdílená řada čísel, oprávnění zadavatele, uschovaní žolíci, propadnutí v těžké obtížnosti, pořadí a nové kolo |
 | `tests/nahled.mjs` | náhled bodů: zisk na dotčených liniích proti přepočtu celého pole, chování vypínače |
+| `tests/vyzva.mjs` | denní výzva: balíček odvozený z data, hranice dne v českém čase, jeden pokus na hráče a den, zápis do tabulky dne |
 
 `tests/zebricek.mjs` si podstrkuje vlastní úložiště přes nepovinný parametr
 `submitScore(entry, store)`, takže testuje skutečný zápisový cyklus, ne jeho
@@ -117,7 +120,7 @@ Pozor na `number selection.html` — má v názvu mezeru a v odkazech je psaný 
 4. Body se přepočítají hned, u každého řádku, sloupce i obou úhlopříček.
 5. Hra končí, jakmile je zaplněných všech 25 políček.
 
-**Balíček** má 54 karet: čtyři kusy od každé hodnoty 1–13 (52) plus dva žolíky. Míchá se Fisherovým–Yatesovým algoritmem a karta se nikdy neopakuje. Políček je jen 25, takže velkou část balíčku v jedné hře neuvidíš.
+**Balíček** má 54 karet: čtyři kusy od každé hodnoty 1–13 (52) plus dva žolíky. Míchá se Fisherovým–Yatesovým algoritmem a karta se nikdy neopakuje. V denní výzvě se míchá týmž algoritmem, jen z generátoru odvozeného z data — pořadí je pak pro všechny hráče toho dne stejné. Políček je jen 25, takže velkou část balíčku v jedné hře neuvidíš.
 
 **Vyhodnocuje se 12 linií** — 5 řádků, 5 sloupců a obě úhlopříčky. Z každé linie se počítá jen její *nejlepší* kombinace; v rámci jedné linie se body nesčítají. Strop je tedy 12 × 125 = **1500 bodů**.
 
@@ -157,6 +160,7 @@ Zdroj pravdy je pole `COMBOS` v [public/shared/rules.js](public/shared/rules.js)
 │   ├── difficulty.html            volba režimu
 │   ├── easy.html  hard.html       místní hra (bez času / s odpočtem)
 │   ├── ranked.html                hra o žebříček, řízená serverem
+│   ├── vyzva.html                 denní výzva — balíček z data, jeden pokus
 │   ├── skupina.html               hra ve skupině — lobby, sdílená čísla, pořadí
 │   ├── leaderboard.html           tabulka nejlepších
 │   ├── number selection.html      generátor čísel pro hru na papíře
@@ -194,7 +198,7 @@ Zdroj pravdy je pole `COMBOS` v [public/shared/rules.js](public/shared/rules.js)
 │   │   ├── deck.js                balíček v prohlížeči
 │   │   ├── game.js                místní hra bez serveru — záložní režim
 │   │   ├── api.js                 jediné místo, kde web sahá na síť
-│   │   ├── online.js              hra na serveru: easy, hard i žebříček
+│   │   ├── online.js              hra na serveru: easy, hard, žebříček i denní výzva
 │   │   ├── skupina.js             skupinová hra — tenký klient s dotazováním
 │   │   ├── leaderboard.js         stránka Žebříček
 │   │   ├── profile.js             stránka Profil
@@ -207,12 +211,13 @@ Zdroj pravdy je pole `COMBOS` v [public/shared/rules.js](public/shared/rules.js)
 │   ├── hra.mjs                POST /api/hra — start, tah, žolík, konec
 │   ├── skupina.mjs            POST /api/skupina — lobby, tažení, pokládání
 │   ├── zebricek.mjs           GET  /api/zebricek — výpis pořadí
+│   ├── vyzva.mjs              GET|POST /api/vyzva — tabulka dne a vlastní pokus
 │   ├── profil.mjs             POST /api/profil — ověřené statistiky hráče
 │   └── lib/
 │       ├── run.mjs                stavový automat partie (čistá logika)
 │       ├── lobby.mjs              stavový automat lobby (čistá logika)
 │       ├── stats.mjs              výpočet statistik profilu (čistá logika)
-│       └── store.mjs              Netlify Blobs: partie, hráči, žebříček, lobby
+│       └── store.mjs              Netlify Blobs: partie, hráči, žebříček, výzva, lobby
 │
 ├── tests/
 │   ├── run.mjs                testy serverového automatu (npm test)
@@ -220,6 +225,7 @@ Zdroj pravdy je pole `COMBOS` v [public/shared/rules.js](public/shared/rules.js)
 │   ├── zebricek.mjs           zápis do žebříčku s ETagy i bez nich
 │   ├── statistiky.mjs         statistiky profilu: výpočet i souběžný zápis
 │   ├── skupina.mjs            lobby: sdílená čísla, oprávnění, pořadí
+│   ├── vyzva.mjs              denní výzva: balíček z data, pokus na den, tabulka
 │   └── server.mjs             lokální náhrada všech funkcí (npm run serve)
 └── _original/                 první verze webu, ponechána pro srovnání
 ```
@@ -242,7 +248,7 @@ Složka `_original/` je archiv původní implementace před přepsáním. Nic z 
 | `MPScore` | `js/scoring.js` | `attach(table, totalEl)`, `evaluate(grid)`, `combos` |
 | `MPPreview` | `js/preview.js` | `paint(cells, value)`, `clear(cells)`, `deltas(grid, value)`, `enabled()`, `set()`, `mount()` |
 | `MPRules` | `shared/rules.js` | `COMBOS`, `evaluate()`, `scoreGrid()`, `buildDeck()`, … |
-| `MPApi` | `js/api.js` | `startRun()`, `act()`, `lobby()`, `leaderboard()`, `stats()`, `resetStats()`, `probe()`, `player()` |
+| `MPApi` | `js/api.js` | `startRun()`, `act()`, `lobby()`, `daily()`, `leaderboard()`, `stats()`, `resetStats()`, `probe()`, `player()` |
 | `MPGame` | `js/game.js` | `start({ statsNote })` — spouští ji `online.js`, sama se nespustí |
 | `MPRanked` | `js/online.js` | `publishAllowed()`, `setPublish()`, `decided()` |
 
@@ -291,18 +297,19 @@ Přepínač v liště je rozbalovací seznam: spouštěč ukazuje zvolený motiv
 
 ## Server a žebříček
 
-Celý server jsou čtyři funkce a čtyři úložiště v Netlify Blobs. Žádná databáze, žádný druhý účet.
+Celý server je pět funkcí a pět úložišť v Netlify Blobs. Žádná databáze, žádný druhý účet.
 
 | Endpoint | Co dělá |
 |---|---|
 | `POST /api/hra` | jediný vstup do partie: `start`, `draw`, `place`, `joker`, `usejoker`, `timeout`, `giveup` |
 | `POST /api/skupina` | jediný vstup do skupinové hry: `create`, `join`, `state`, `start`, `draw`, `place`, `storejoker`, `usejoker`, `timeout`, `finish`, `restart`, `leave`, `hostplaying` |
 | `GET /api/zebricek?obdobi=day\|week\|month\|all` | výpis pořadí |
+| `GET\|POST /api/vyzva` | denní výzva: tabulka dne a rekord dne. POSTem s identitou hráče navíc jeho dnešní pokus — GET je veřejný |
 | `POST /api/profil` | ověřené statistiky hráče; `action: 'reset'` je vynuluje. POST proto, že k nim je potřeba tajemství — v adrese by skončilo v historii a v logu |
 
 **Klient nikdy neposílá skóre.** Balíček i pole leží na serveru, klient říká jen „polož kartu na 2,3“ a dostane zpátky nový stav. Odpověď schválně neobsahuje zbytek balíčku (`publicState()` v [run.mjs](netlify/functions/lib/run.mjs)) — kdyby ho posílala, mohl by si hráč tahy naplánovat dopředu a celá práce by byla k ničemu.
 
-Přes stejný endpoint jde i lehká a těžká obtížnost. Není to kvůli žebříčku, ale kvůli statistikám profilu: číslo, které si spočítá prohlížeč, si hráč v konzoli přepíše, a žádná kontrola s tím nic neudělá, protože běží na stejném místě, kde se podvádí. Rozdíl je jen v tom, co se s výsledkem stane — do žebříčku jde pouze `ranked.html` a jen se souhlasem se zveřejněním.
+Přes stejný endpoint jde i lehká a těžká obtížnost a denní výzva. Není to kvůli žebříčku, ale kvůli statistikám profilu: číslo, které si spočítá prohlížeč, si hráč v konzoli přepíše, a žádná kontrola s tím nic neudělá, protože běží na stejném místě, kde se podvádí. Rozdíl je jen v tom, co se s výsledkem stane — do žebříčku jde pouze `ranked.html` a jen se souhlasem se zveřejněním, výzva má vlastní tabulku dne.
 
 Další věci, které z toho plynou:
 
@@ -336,6 +343,40 @@ Další věci, které z toho plynou:
 - **Období jsou čtyři** a každé je vlastní klíč: `d-RRRR-MM-DD`, `w-RRRR-Www`, `m-RRRR-MM` a `all`. Hranice dne, týdne i měsíce se počítají v **českém čase**, ne v UTC — partie dohraná ve 23:30 by jinak spadla do včerejška a v tabulce „Dnes“ by se neobjevila.
 - **Na hráče se drží jediný nejlepší výsledek** v každém období. Jinak by deset dobrých partií jednoho člověka vytlačilo z první desítky všechny ostatní.
 - **Do žebříčku jdou jen dohrané partie** se všemi 25 políčky, a jen když hráč zapnul zveřejnění přezdívky.
+
+### Denní výzva
+
+Celá výzva stojí na jedné větě: **balíček je funkcí data.** Míchá se ze semínka
+`mp-vyzva-RRRR-MM-DD` deterministickým generátorem (xmur3 + mulberry32
+v [shared/rules.js](public/shared/rules.js)), takže ho v ten den dostane každý
+hráč stejný a ve stejném pořadí — a dostane ho stejný i po restartu funkce nebo
+za rok. Tím se ze skóre stane porovnatelné číslo: nerozhoduje, komu se sešly
+lepší karty, ale kdo je líp poskládal.
+
+- **Pokus je jeden na den**, a proto: kdo by směl začít podruhé, hraje se
+  znalostí celého pořadí karet a měřila by se paměť, ne hra. Pokus se drží
+  v záznamu hráče (`player.daily = { day, runId, score, rank }`) a spotřebuje ho
+  i partie, která se do veřejné tabulky nikdy nedostane. Je to stejně slabá
+  hranice jako celá zdejší identita — kdo si smaže uložená data, dostane nový
+  pokus. Brání to nazkoušení balíčku nanečisto, ne odhodlanému podvodníkovi.
+  Právě proto výzva vyžaduje zapnuté ukládání: bez uložené identity by měl
+  každý pokusů kolik chce.
+- **Rozehraná výzva se dá dohrát**, i když hráč zavřel kartu. Druhý start
+  v tentýž den nezaloží novou partii, ale vrátí stav té rozehrané. Restartem
+  se tedy nedá dostat k lepšímu začátku.
+- **Vlastní tabulka, ne období žebříčku.** Klíč `c-RRRR-MM-DD` leží ve stejném
+  úložišti `mp-board`, ale stranou od `d-` / `w-` / `m-` / `all`. Míchat partie
+  z pevného balíčku s partiemi z náhodných by znamenalo srovnávat nesrovnatelné.
+- **Rozhoduje den balíčku, ne okamžik dohrání.** Partie rozehraná ve 23:50
+  a dokončená po půlnoci patří pořád ke svému dni; podle času dohrání by spadla
+  k dalšímu balíčku, kde by ji nikdo nedohnal.
+- **Rekord dne se píše pořád** — nad polem, ne až v dialogu na konci. Je to
+  jediné číslo, proti kterému má dnešní výsledek smysl poměřovat, protože skóre
+  z jiných dnů vzniklo na jiném balíčku.
+
+Hlídá to [tests/vyzva.mjs](tests/vyzva.mjs): shodné pořadí karet pro dva hráče
+téhož dne, různé pro různé dny, hranice dne v českém čase, jeden pokus na den
+a zápis do tabulky dne včetně partie přes půlnoc.
 
 ### Skupinová hra
 

@@ -229,6 +229,18 @@
     return postTo('/skupina', body);
   }
 
+  /**
+   * Stav denní výzvy — tabulka dneška a vlastní pokus.
+   * Posílá se POSTem, protože se k němu přikládá tajemství hráče (viz
+   * poznámka u statistik níž). Bez identity odpoví server jen veřejnou částí.
+   */
+  function daily(profileId) {
+    var player = readPlayer(profileId);
+    return postTo('/vyzva', player
+      ? { playerId: player.id, playerSecret: player.secret }
+      : {});
+  }
+
   function leaderboard(period) {
     return call('/zebricek?obdobi=' + encodeURIComponent(period || 'all'), {
       method: 'GET'
@@ -286,6 +298,7 @@
     startRun: startRun,
     act: act,
     lobby: lobby,
+    daily: daily,
     leaderboard: leaderboard,
     stats: stats,
     resetStats: resetStats,

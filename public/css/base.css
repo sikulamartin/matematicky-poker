@@ -16,6 +16,11 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Podklad lišty je široký 100vw, což je se svislým posuvníkem o pár pixelů
+     víc než plocha stránky. Clip ten přesah ustřihne, aniž by (na rozdíl od
+     hidden) udělal ze stránky rolovací kontejner — position: sticky funguje
+     dál. Svislé rolování zůstává nedotčené. */
+  overflow-x: clip;
   /* pod přilepenou lištou nesmí skončit cíl odkazu ani zaostřený prvek */
   scroll-padding-top: calc(72px * var(--ui));
 

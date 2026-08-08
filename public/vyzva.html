@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Hra o žebříček — partii řídí server, skóre se zapisuje do celkového pořadí.">
+  <meta name="description" content="Denní výzva — každý den jeden balíček pro všechny, jeden pokus a tabulka dne.">
   <meta name="color-scheme" content="light dark">
-  <title>Hra o žebříček — Matematický Poker</title>
+  <title>Denní výzva — Matematický Poker</title>
   <link rel="icon" type="image/x-icon" href="img/image_Kv_uh2AR_1719232116258_512.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,25 +27,28 @@
   </script>
 </head>
 
-<body data-mode="ranked">
+<body data-mode="daily">
   <script src="js/icons.js"></script>
   <div class="app">
     <header class="rail">
       <nav class="crumbs" aria-label="Drobečková navigace">
         <a href="index.html"><svg class="icon" aria-hidden="true"><use href="#i-home"></use></svg>Domů</a>
         <span class="crumb-sep" aria-hidden="true">/</span>
-        <a href="difficulty.html">Hra</a>
-        <span class="crumb-sep" aria-hidden="true">/</span>
-        <span class="crumb-current" aria-current="page">O žebříček</span>
+        <span class="crumb-current" aria-current="page">Denní výzva</span>
       </nav>
       <div class="rail-actions">
-        <a class="btn btn--ghost" href="leaderboard.html">Žebříček</a>
+        <a class="btn btn--ghost" href="difficulty.html">Hra</a>
         <a class="btn btn--ghost" href="rules.html">Pravidla</a>
         <div data-theme-switch></div>
       </div>
     </header>
 
     <main class="app-main page-board">
+      <!-- Rekord dne je to jediné, proti čemu se dnešní výsledek dá poměřit:
+           skóre z jiných dnů vzniklo na jiném balíčku. Proto stojí nad polem
+           a je vidět pořád, ne až v dialogu na konci. -->
+      <p class="foot-note" id="dailyNote" aria-live="polite">Rekord dne se načítá…</p>
+
       <div class="console corner-dots">
         <div class="console-draw is-empty" id="drawTile">
           <span class="console-label" id="drawOrder">tah</span>
@@ -61,23 +64,13 @@
             <span class="stat-label">Políčka</span>
             <span class="stat-value" id="placedCount">0/25</span>
           </div>
-          <div class="stat stat--timer" id="timerTile" hidden>
-            <span class="stat-label">Zbývá</span>
-            <span class="stat-value" id="timerValue">00:00</span>
+          <div class="stat">
+            <span class="stat-label">Rekord dne</span>
+            <span class="stat-value" id="dailyRecord">–</span>
           </div>
         </div>
 
         <div class="console-actions">
-          <div class="field" id="setupRow">
-            <label for="modeSelect">Režim</label>
-            <select id="modeSelect" class="field-select">
-              <option value="easy">Lehká</option>
-              <option value="hard">Těžká</option>
-            </select>
-            <label for="timeInput" id="timeLabel" hidden>Sekund</label>
-            <input id="timeInput" type="number" min="3" max="300" step="1" value="15"
-              inputmode="numeric" hidden>
-          </div>
           <button type="button" class="joker-chip" id="jokerBadge" disabled
             title="Uschovaní žolíci — klikni pro uplatnění">
             <svg class="icon" aria-hidden="true"><use href="#i-joker"></use></svg><span id="jokerCount">0</span>
@@ -87,7 +80,7 @@
       </div>
 
       <!-- Spojení se serverem je u téhle stránky podmínka, ne ozdoba —
-           bez něj se nedá odehrát ani tah, tak to musí být vidět. -->
+           balíček dne se jinde než na serveru nevezme. -->
       <div class="net-bar" id="netBar" hidden>
         <svg class="icon" aria-hidden="true"><use href="#i-alert"></use></svg>
         <span id="netText">Server neodpovídá.</span>
@@ -146,6 +139,22 @@
           </tbody>
         </table>
       </div>
+
+      <section class="block" aria-labelledby="dailyHead">
+        <div class="section-head">
+          <h2 class="section-title" id="dailyHead">Dnešní pořadí</h2>
+          <span class="section-meta" id="dailyMeta">–</span>
+        </div>
+        <div id="dailyHost" aria-live="polite">
+          <p class="list-empty">Načítám výsledky dne…</p>
+        </div>
+      </section>
+
+      <p class="foot-note">
+        Balíček se míchá z&nbsp;data, takže ho dnes mají všichni stejný a&nbsp;ve stejném
+        pořadí. Pokus je jeden na&nbsp;den; zítra se zamíchá nový.
+        <a href="privacy.html">Co se odesílá</a>
+      </p>
     </main>
   </div>
 
@@ -155,8 +164,8 @@
   <script src="js/consent.js"></script>
   <script src="js/store.js"></script>
   <script src="js/account.js"></script>
-  <!-- js/preview.js tu schválně chybí: v žebříčku se hraje o pořadí, takže
-       nápověda „kolik bodů políčko přinese“ by z toho udělala jiný závod. -->
+  <!-- js/preview.js tu schválně chybí: výzva dne je pro všechny stejný balíček
+       a měří se pořadím, takže náhled bodů by srovnání rozbil. -->
   <script src="js/nav.js"></script>
   <script src="js/api.js"></script>
   <script src="js/online.js"></script>

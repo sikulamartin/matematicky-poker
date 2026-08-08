@@ -805,7 +805,10 @@
       }
 
       var mine = me();
-      var free = mine && mine.playing ? 25 - mine.placed : 0;
+      /* Propadlé číslo políčko spotřebuje — do volných se nepočítá. */
+      var free = mine && mine.playing
+        ? 25 - mine.placed - (mine.forfeited || 0)
+        : 0;
       if (over) {
         el.sideHint.textContent = isHost()
           ? 'Můžeš rozdat další kolo se stejnou sestavou.'

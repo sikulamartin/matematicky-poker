@@ -75,6 +75,9 @@
 
     var pending = null;      // { value, fromJoker }
     var placed = 0;
+    /* Čísla propadlá kvůli času. Každé spotřebuje jedno z 25 políček — pole
+       po něm zůstane prázdné a náhradní karta nepřijde. */
+    var forfeited = 0;
     var jokers = 0;
     var drawNo = 0;
     var over = false;
@@ -112,6 +115,11 @@
 
     function renderCounters() {
       placedCount.textContent = placed + '/' + CELLS_TOTAL;
+      /* Propadlá políčka se do počtu nikdy nedopočítají, takže hráči říkáme
+         rovnou, kolik jich ztratil — jinak by hledal chybu v počítání. */
+      placedCount.title = forfeited
+        ? forfeited + '× propadlo číslo — tolik políček zůstane prázdných'
+        : '';
       jokerCount.textContent = String(jokers);
       jokerBadge.classList.toggle('has-jokers', jokers > 0);
       jokerBadge.disabled = !(jokers > 0 && !pending && !over && started);
@@ -170,10 +178,20 @@
       rollButton.disabled = Boolean(pending) || busy;
     }
 
+    /** Kolik z 25 políček je vyřízených — zaplněných nebo propadlých. */
+    function usedCells() {
+      return placed + forfeited;
+    }
+
+    /** Kolik políček ještě čeká na číslo. */
+    function freeCells() {
+      return CELLS_TOTAL - usedCells();
+    }
+
     /** Balíček došel, ale hráč má v ruce žolíky — jinak by hra stála. */
     function mustUseJoker() {
       return !over && started && !pending && !busy &&
-        deck.remaining() === 0 && jokers > 0 && placed < CELLS_TOTAL;
+        deck.remaining() === 0 && jokers > 0 && freeCells() > 0;
     }
 
     function render() {
@@ -242,8 +260,14 @@
         return;
       }
       if (pending) {
-        MPUI.toast('Čas vypršel, číslo ' + pending.value + ' propadlo.', 'warn', 0, 'alert');
+        MPUI.toast('Čas vypršel, číslo ' + pending.value +
+          ' propadlo. Políčko po něm zůstane prázdné.', 'warn', 0, 'alert');
         pending = null;
+        forfeited++;              // propadlé číslo zabere jedno z 25 políček
+      }
+      if (usedCells() >= CELLS_TOTAL) {
+        finish('Poslednímu číslu vypršel čas.');
+        return;
       }
       render();
       roll();
@@ -255,13 +279,13 @@
       if (over || busy || pending) {
         return;
       }
-      if (placed >= CELLS_TOTAL) {
+      if (usedCells() >= CELLS_TOTAL) {
         finish();
         return;
       }
 
       // zbývá tolik políček, kolik má hráč žolíků — jinak by o ně přišel
-      if (jokers > 0 && CELLS_TOTAL - placed <= jokers && !jokerLock) {
+      if (jokers > 0 && freeCells() <= jokers && !jokerLock) {
         offerLeftoverJokers();
         return;
       }
@@ -375,7 +399,7 @@
       scorer.recalculate();
       render();
 
-      if (placed >= CELLS_TOTAL) {
+      if (usedCells() >= CELLS_TOTAL) {
         finish();
         return;
       }
@@ -422,7 +446,14 @@
       var total = scorer.getTotal();
       var text = full
         ? 'Zaplnil jsi celé pole.'
-        : (reason || 'Hra skončila.') + ' Zaplněno ' + placed + ' z ' + CELLS_TOTAL + ' políček.';
+        : (reason || (forfeited ? 'Všechna políčka jsou vyřízená.' : 'Hra skončila.')) +
+          ' Zaplněno ' + placed + ' z ' + CELLS_TOTAL + ' políček.';
+      if (forfeited > 0) {
+        text += ' ' + (forfeited === 1
+          ? 'Jedno číslo propadlo kvůli času.'
+          : forfeited + (forfeited < 5 ? ' čísla propadla' : ' čísel propadlo') +
+            ' kvůli času.');
+      }
       if (jokers > 0) {
         text += ' Nevyužit' + (jokers === 1 ? 'ý zůstal 1 žolík' : 'í zůstali ' + jokers + ' žolíci') + '.';
       }
@@ -466,6 +497,7 @@
       scorer.recalculate();
       pending = null;
       placed = 0;
+      forfeited = 0;
       jokers = 0;
       drawNo = 0;
       over = false;
@@ -486,7 +518,7 @@
 
     /** Připomene uschované žolíky, když by jinak propadly. */
     function offerLeftoverJokers() {
-      var free = CELLS_TOTAL - placed;
+      var free = freeCells();
       busy = true;
       render();
       MPUI.open({

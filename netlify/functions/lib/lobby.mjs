@@ -257,7 +257,10 @@ export function catchUp(lobby, now = Date.now()) {
       }
     }
 
-    if (player.placed >= rules.CELLS_TOTAL) {
+    /* Propadlé číslo spotřebuje políčko stejně jako položené — zůstane po něm
+       prázdné místo a náhradní číslo nepřijde. Bez toho by hráč, kterému
+       propadla tři čísla, dohrával o tři čísla dýl než ostatní. */
+    if (player.placed + player.forfeited >= rules.CELLS_TOTAL) {
       player.done = true;
       player.finishedAt = player.finishedAt || now;
       rescore(player);

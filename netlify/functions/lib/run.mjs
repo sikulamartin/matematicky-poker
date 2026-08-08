@@ -35,7 +35,11 @@ export const MIN_MOVE_MS = 120;                 // rychlejší tah než člověk
    položit včas. */
 export const LATE_GRACE_MS = 1500;
 
-export const MODES = ['easy', 'hard'];
+/* `daily` je denní výzva: pravidla lehké obtížnosti, ale balíček nepřichází
+   z Math.random — zakládající funkce ho podstrčí odvozený z data (viz
+   netlify/functions/hra.mjs). Tady se tím nic nemění, jen se ten režim musí
+   uznat jako platný. */
+export const MODES = ['easy', 'hard', 'daily'];
 
 /** Chyba, kterou funkce převede na HTTP odpověď s daným kódem. */
 export class RunError extends Error {
@@ -46,14 +50,19 @@ export class RunError extends Error {
   }
 }
 
-export function emptyRun({ id, mode, playerId, seconds }) {
+export function emptyRun({ id, mode, playerId, seconds, deck, day }) {
   return {
     id,
     mode: MODES.includes(mode) ? mode : 'easy',
     playerId,
     /** jen v těžké obtížnosti: kolik sekund má hráč na jeden tah */
     seconds: seconds || null,
-    deck: rules.buildDeck(),
+    /* Balíček se dá podstrčit. Denní výzva ho míchá z data (viz
+       rules.dailyDeck), aby ho celý den dostali všichni stejný; bez něj
+       se namíchá nový náhodný. */
+    deck: deck || rules.buildDeck(),
+    /** jen v denní výzvě: den, ze kterého je balíček — 'RRRR-MM-DD' */
+    day: day || null,
     grid: rules.emptyGrid(),
     /** políčka položená ze žolíka — kreslí se jinou barvou */
     jokerCells: [],
@@ -66,6 +75,9 @@ export function emptyRun({ id, mode, playerId, seconds }) {
     /** vytažený žolík čeká na rozhodnutí „použít teď / uschovat“ */
     awaitingJoker: false,
     placed: 0,
+    /* Kolik čísel propadlo kvůli času. Každé z nich spotřebuje jedno z 25
+       políček — pole po něm zůstane prázdné a nová karta ho nenahradí. */
+    forfeited: 0,
     drawNo: 0,
     score: 0,
     lines: [],
@@ -88,6 +100,7 @@ export function publicState(run) {
   return {
     runId: run.id,
     mode: run.mode,
+    day: run.day || null,
     seconds: run.seconds,
     grid: run.grid,
     jokerCells: run.jokerCells,
@@ -100,6 +113,7 @@ export function publicState(run) {
     now: Date.now(),
     awaitingJoker: Boolean(run.awaitingJoker),
     placed: run.placed,
+    forfeited: run.forfeited || 0,
     drawNo: run.drawNo,
     score: run.score,
     lines: run.lines,
@@ -128,11 +142,21 @@ function isLate(run) {
   return deadline !== null && Date.now() > deadline + LATE_GRACE_MS;
 }
 
-/** Karta propadla — mizí z ruky, políčko zůstává prázdné. */
+/** Kolik z 25 políček je už vyřízených — zaplněných nebo propadlých. */
+function usedCells(run) {
+  return run.placed + (run.forfeited || 0);
+}
+
+/* Karta propadla — mizí z ruky a políčko po ní zůstává prázdné navždy.
+   Náhradní kartu hráč nedostane: to je celý smysl těžké obtížnosti. Propadlé
+   číslo proto spotřebuje jedno z 25 políček a partie o něj bude kratší. */
 function forfeit(run) {
   run.pending = null;
   run.pendingAt = null;
   run.forfeited = (run.forfeited || 0) + 1;
+  if (usedCells(run) >= rules.CELLS_TOTAL) {
+    return finish(run, 'Poslednímu číslu vypršel čas.');
+  }
   return run;
 }
 
@@ -173,7 +197,10 @@ function finish(run, reason) {
     return run;
   }
   run.over = true;
-  run.reason = reason || null;
+  /* Bez důvodu končí partie zaplněným polem. Když ale některá čísla propadla,
+     zůstane pole neúplné a hráč by jinak hádal, proč se přestalo táhnout. */
+  run.reason = reason ||
+    (run.forfeited ? 'Všechna políčka jsou vyřízená.' : null);
   run.pending = null;
   run.finishedAt = Date.now();
   rescore(run);
@@ -195,7 +222,8 @@ export function draw(run) {
   }
   assertPace(run);
 
-  if (run.placed >= rules.CELLS_TOTAL) {
+  // propadlá čísla se počítají jako vyřízená políčka — dál se za ně netahá
+  if (usedCells(run) >= rules.CELLS_TOTAL) {
     return finish(run);
   }
 
@@ -298,7 +326,7 @@ export function place(run, row, col) {
   run.pending = null;
   rescore(run);
 
-  if (run.placed >= rules.CELLS_TOTAL) {
+  if (usedCells(run) >= rules.CELLS_TOTAL) {
     return finish(run);
   }
   return run;

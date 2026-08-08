@@ -11,6 +11,7 @@
    mp-players <playerId>         otisk tajemství hráče a jeho přezdívka
    mp-board   all | m-RRRR-MM    žebříček jednoho období: pole záznamů
               | w-RRRR-Www         seřazené sestupně, oříznuté na TOP_N
+              | c-RRRR-MM-DD       denní výzva má vlastní tabulku na den
    mp-limits  <hashIP>           počítadlo rozehraných partií v okně
    mp-lobby   <kód>              skupinová hra: balíček, řada čísel a pole
                                  všech hráčů v jednom záznamu
@@ -25,7 +26,7 @@
 
 import { getStore } from '@netlify/blobs';
 import { createHash, randomUUID, randomBytes } from 'node:crypto';
-import { RUN_TTL_MS } from './run.mjs';
+import { RUN_TTL_MS, rules } from './run.mjs';
 import { LOBBY_TTL_MS, CODE_ALPHABET, CODE_LENGTH } from './lobby.mjs';
 import { emptyStats, normalizeStats, applyRun } from './stats.mjs';
 
@@ -414,11 +415,16 @@ export async function submitScore(entry, store = board()) {
   const placements = {};
   for (const period of PERIODS) {
     const key = periodKey(period, new Date(entry.at));
-    placements[period] = await casMerge(key, entry, store);
+    placements[period] = (await casMerge(key, entry, store)).rank;
   }
   return placements;
 }
 
+/**
+ * Zařadí záznam do jednoho klíče a vrátí i výslednou tabulku.
+ * Seznam jde ven proto, aby volající nemusel po zápisu číst znovu — a hlavně
+ * aby mezitím nedostal cizí verzi. Denní výzva z něj bere rekord dne.
+ */
 async function casMerge(key, entry, store = board()) {
   for (let attempt = 0; attempt < CAS_RETRIES; attempt++) {
     const { list, etag, exists } = await readPeriod(key, store);
@@ -427,11 +433,122 @@ async function casMerge(key, entry, store = board()) {
     const { modified } = await store.setJSON(key, next, options || {});
     if (modified) {
       const rank = next.findIndex((item) => item.playerId === entry.playerId);
-      return rank === -1 ? null : rank + 1;
+      return { rank: rank === -1 ? null : rank + 1, list: next };
     }
     // někdo nás předběhl — přečteme znovu a zkusíme to s jeho verzí
   }
   throw new Error('board_busy');
+}
+
+/* ----------------------------------------------------------- denní výzva */
+
+/* Denní výzva má vlastní tabulku, ne období žebříčku. V žebříčku se
+   porovnávají partie z různých balíčků a rozhoduje i to, komu se karty sešly;
+   ve výzvě dostali všichni tentýž balíček ve stejném pořadí, takže se sem
+   srovnávají opravdu jen tahy. Míchat obojí do jedné tabulky by znamenalo
+   srovnávat nesrovnatelné.
+
+   Leží to ve stejném úložišti (mp-board), jen pod vlastní předponou `c-`,
+   aby se to nepletlo s klíči žebříčku (d- / w- / m- / all). */
+
+/** Kalendářní den v českém čase jako 'RRRR-MM-DD'. */
+export function dailyDay(when = new Date()) {
+  const { year, month, day } = localDate(when);
+  return year + '-' + pad(month) + '-' + pad(day);
+}
+
+/** Klíč denní tabulky. */
+export function dailyKey(day) {
+  return 'c-' + day;
+}
+
+/* Z čeho se míchá balíček dne. Předpona je tu proto, aby semínko nebylo
+   holé datum — samotné „2026-08-08“ by se mohlo trefit do jiného použití. */
+export function dailySeed(day) {
+  return 'mp-vyzva-' + day;
+}
+
+/** Balíček dnešního dne. Stejný pro všechny hráče, jiný každý den. */
+export function dailyDeck(day) {
+  return rules.dailyDeck(dailySeed(day));
+}
+
+/** Tabulka jednoho dne, seřazená a oříznutá stejně jako žebříček. */
+export async function readDaily(day, store = board()) {
+  const { list } = await readPeriod(dailyKey(day), store);
+  return list.slice(0, PAGE_N);
+}
+
+/**
+ * Zapíše výsledek denní výzvy.
+ *
+ * Rozhoduje `entry.day` — den, ze kterého byl balíček — ne okamžik dohrání.
+ * Partie rozehraná před půlnocí a dokončená po ní patří pořád ke svému
+ * balíčku; podle času by spadla k dalšímu dni, kde by ji nikdo nedohnal.
+ *
+ * @returns {{ rank: number|null, record: number|null, count: number }}
+ */
+export async function submitDaily(entry, store = board()) {
+  if (!entry.day) {
+    throw new Error('daily_without_day');
+  }
+  const { rank, list } = await casMerge(dailyKey(entry.day), entry, store);
+  return {
+    rank,
+    record: list.length ? list[0].score : null,
+    count: list.length
+  };
+}
+
+/* Pokus na den se hlídá v záznamu hráče, ne v tabulce: do tabulky jdou jen
+   výsledky se souhlasem se zveřejněním, kdežto pokus spotřebuje i ten, kdo
+   se zveřejnit nechce. Je to stejně slabá hranice jako celá zdejší identita
+   (viz komentář u issuePlayer) — kdo si smaže uložená data, dostane nový
+   pokus. Brání to tomu, aby si někdo balíček nazkoušel a pak ho zahrál
+   načisto, ne odhodlanému podvodníkovi. */
+
+/**
+ * Zamluví hráči dnešní pokus.
+ *
+ * @param {string} playerId
+ * @param {string} day    'RRRR-MM-DD'
+ * @param {string} runId  id partie, kdyby se pokus teprve zakládal
+ * @returns {{ day, runId, score, at, fresh }|null} `fresh` říká, jestli
+ *   pokus vznikl teď (true), nebo hráč dnešek už začal (false). null, když
+ *   hráč v úložišti není.
+ */
+export async function claimDaily(playerId, day, runId, store = players()) {
+  return updatePlayer(playerId, (player) => {
+    const current = player.daily;
+    if (current && current.day === day) {
+      return { ...current, fresh: false };
+    }
+    player.daily = { day, runId, score: null, at: null };
+    return { ...player.daily, fresh: true };
+  }, store);
+}
+
+/** Zapíše výsledek dnešního pokusu do záznamu hráče. */
+export async function finishDaily(playerId, day, result, store = players()) {
+  return updatePlayer(playerId, (player) => {
+    const current = player.daily;
+    if (!current || current.day !== day) {
+      return null;      // mezitím se přehouplo datum — dopisovat není kam
+    }
+    current.score = result.score;
+    current.at = result.at;
+    current.rank = result.rank === undefined ? null : result.rank;
+    return current;
+  }, store);
+}
+
+/** Co má hráč za dnešek, nebo null. */
+export function dailyOf(player, day) {
+  const current = player && player.daily;
+  if (!current || current.day !== day) {
+    return null;
+  }
+  return current;
 }
 
 /* --------------------------------------------------------- skupinová hra */

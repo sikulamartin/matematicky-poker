@@ -88,9 +88,10 @@
 
 /* ------------------------------------------------------------------ lišta */
 /* Lišta se při rolování přilepí k hornímu okraji. Podklad nekreslí sama, ale
-   pseudoprvek: ten smí přetéct do odsazení .app (nahoru o padding shellu, do
-   stran o --gutter), takže obsah neprosvítá rohy, a přitom se nehne šířka
-   obsahu ani spodní linka, kterou si na .rail kreslí motiv terminál. */
+   pseudoprvek: ten sahá nahoru o padding shellu a do stran až k okrajům okna,
+   takže obsah neprosvítá rohy a pruh nekončí svislou hranou na kraji shellu.
+   Šířka obsahu ani spodní linka, kterou si na .rail kreslí motiv terminál,
+   se přitom nehnou. */
 .rail {
   position: sticky;
   top: 0;
@@ -112,7 +113,14 @@
   position: absolute;
   /* 12px = padding-top shellu .app. Dole končí podklad na hraně padding boxu,
      aby zůstala vidět spodní linka, kterou si .rail kreslí v motivu terminál. */
-  inset: calc(-12px * var(--ui)) calc(-1 * var(--gutter)) 0;
+  top: calc(-12px * var(--ui));
+  bottom: 0;
+  /* Přes celou šířku okna, ne jen po hranu shellu (max-width 1180px): na
+     širokém displeji by jinak pruh i jeho stín končily svislým řezem uvnitř
+     plochy. 100vw počítá i se svislým posuvníkem, proto html přesah ořízne. */
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
   z-index: -1;
   background-color: var(--bg);
   pointer-events: none;

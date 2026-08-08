@@ -5,7 +5,7 @@
   "description": "Matematický poker — kombinační hra 5×5 se serverem řízeným žebříčkem",
   "scripts": {
     "dev": "netlify dev",
-    "test": "node tests/run.mjs && node tests/joker.mjs && node tests/zebricek.mjs && node tests/statistiky.mjs && node tests/skupina.mjs && node tests/nahled.mjs",
+    "test": "node tests/run.mjs && node tests/joker.mjs && node tests/zebricek.mjs && node tests/statistiky.mjs && node tests/skupina.mjs && node tests/nahled.mjs && node tests/vyzva.mjs",
     "serve": "node tests/server.mjs"
   },
   "dependencies": {

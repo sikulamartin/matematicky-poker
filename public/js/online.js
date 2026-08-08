@@ -1,7 +1,8 @@
 /* Hra na serveru — klient, který si sám nic nepočítá.
 
-   Jeden soubor obsluhuje tři stránky: easy.html, hard.html a ranked.html.
-   Liší se jen v tom, co se s výsledkem stane, ne v tom, jak se hraje.
+   Jeden soubor obsluhuje čtyři stránky: easy.html, hard.html, ranked.html
+   a vyzva.html. Liší se jen v tom, co se s výsledkem stane, ne v tom, jak
+   se hraje.
 
      easy / hard   partie se počítá do statistik profilu, do žebříčku nejde.
                    Když server není, stránka předá řízení místní hře
@@ -9,6 +10,9 @@
      ranked        navíc se ptá na zveřejnění přezdívky a zapisuje do
                    žebříčku. Bez serveru nemá co dělat, takže se místo hry
                    ukáže hláška.
+     daily         denní výzva: balíček je odvozený z data, takže ho mají
+                   všichni stejný, a pokus je jeden na den. Výsledek jde do
+                   tabulky dne, ne do žebříčku.
 
    Proč přes server i mimo žebříček
    --------------------------------
@@ -46,6 +50,7 @@
     if (mode === 'ranked') {
       return {
         ranked: true,
+        daily: false,
         mode: null,             // vybírá se v rozhraní
         fallback: false,        // bez serveru stránka nedává smysl
         needConsent: false,     // bez souhlasu se hraje s jednorázovou identitou
@@ -53,8 +58,23 @@
         backLabel: 'Do žebříčku'
       };
     }
+    if (mode === 'daily') {
+      return {
+        ranked: false,
+        daily: true,
+        mode: 'daily',
+        fallback: false,        // místní hra by rozdala jiný balíček
+        /* Bez souhlasu s ukládáním by hráč dostal při každém načtení novou
+           identitu — a s ní další pokus. Jeden pokus denně je přitom celý
+           smysl výzvy, takže se bez uložené identity nehraje. */
+        needConsent: true,
+        backHref: 'index.html',
+        backLabel: 'Domů'
+      };
+    }
     return {
       ranked: false,
+      daily: false,
       mode: mode === 'hard' ? 'hard' : 'easy',
       fallback: true,
       /* Bez souhlasu s ukládáním se serverová identita nikam nezapíše, takže
@@ -99,6 +119,12 @@
     var netBar = byId('netBar');
     var netText = byId('netText');
     var netRetry = byId('netRetry');
+    /* Prvky denní výzvy — jinde na stránce nejsou, takže se s jejich
+       chybějícím tvarem počítá stejně jako u nastavení výš. */
+    var dailyRecord = byId('dailyRecord');
+    var dailyNote = byId('dailyNote');
+    var dailyMeta = byId('dailyMeta');
+    var dailyHost = byId('dailyHost');
 
     var cells = [];
     var scoreOut = [];
@@ -128,6 +154,11 @@
     /* Hráč si přeje táhnout dál a na uschované žolíky se ho už neptáme.
        Platí do nejbližšího položení, stejně jako v místní hře. */
     var jokerLock = false;
+    /* Poslední známý stav denní výzvy ze serveru: { day, label, record,
+       holder, count, entries, mine }. Rekord se z něj píše i před hrou. */
+    var daily = null;
+    var dailySpent = false;   // dnešní pokus je pryč — Start už nemá co dělat
+    var dailyFailed = false;  // stav výzvy se nepodařilo načíst
 
     /* --------------------------------------------------------- vykreslení */
 
@@ -220,8 +251,13 @@
     function renderCounters() {
       var placed = state ? state.placed : 0;
       var jokers = state ? state.jokers : 0;
+      var lost = state ? (state.forfeited || 0) : 0;
       totalScore.textContent = state ? String(state.score) : '0';
       placedCount.textContent = placed + '/25';
+      /* Propadlá políčka se do počtu nikdy nedopočítají — hráč má vědět proč. */
+      placedCount.title = lost
+        ? lost + '× propadlo číslo — tolik políček zůstane prázdných'
+        : '';
       jokerCount.textContent = String(jokers);
       jokerBadge.classList.toggle('has-jokers', jokers > 0);
       jokerBadge.disabled = !(state && jokers > 0 && !state.pending &&
@@ -233,15 +269,16 @@
 
     function renderButton() {
       if (!state) {
-        rollButton.textContent = idleLabel;
-        rollButton.disabled = busy || !validTime();
+        // Vyčerpaný pokus se nedá zopakovat, tak ať to tlačítko neslibuje.
+        rollButton.textContent = dailySpent ? 'Zítra znovu' : idleLabel;
+        rollButton.disabled = busy || dailySpent || !validTime();
         rollButton.classList.remove('is-restart');
         return;
       }
       if (state.over) {
-        rollButton.textContent = 'Hrát znovu';
+        rollButton.textContent = CONFIG.daily ? 'Zítra znovu' : 'Hrát znovu';
         rollButton.classList.add('is-restart');
-        rollButton.disabled = busy;
+        rollButton.disabled = busy || CONFIG.daily;
         return;
       }
       rollButton.classList.remove('is-restart');
@@ -270,12 +307,114 @@
       setupRow.hidden = Boolean(state) && !state.over;
     }
 
+    /* ------------------------------------------------------- denní výzva */
+
+    /* Rekord dne se píše pořád — před hrou, během ní i po ní. Je to jediné
+       číslo, proti kterému má hráč dnes co poměřovat: skóre z jiných dnů
+       vzniklo na jiném balíčku. */
+
+    function escapeHTML(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function formatDuration(ms) {
+      return window.MPStore ? MPStore.formatDuration(ms) : Math.round(ms / 1000) + ' s';
+    }
+
+    /** Věta o rekordu dne. Používá ji stránka i závěrečný dialog. */
+    function recordSentence() {
+      if (!daily) {
+        return dailyFailed
+          ? 'Rekord dne se nepodařilo načíst.'
+          : 'Rekord dne se načítá…';
+      }
+      if (!daily.record) {
+        return 'Dnešní balíček ještě nikdo nedohrál — první výsledek bude rekord.';
+      }
+      return 'Rekord dne ' + daily.label + ': ' + daily.record + ' bodů (' +
+        escapeHTML(daily.holder || 'Hráč') + ').';
+    }
+
+    function renderDaily() {
+      if (!CONFIG.daily) {
+        return;
+      }
+      if (dailyRecord) {
+        dailyRecord.textContent = daily && daily.record ? String(daily.record) : '–';
+      }
+      if (dailyNote) {
+        dailyNote.innerHTML = recordSentence();
+      }
+      if (dailyMeta) {
+        var count = daily ? daily.count : 0;
+        dailyMeta.textContent = count + ' ' +
+          (count === 1 ? 'hráč' : count < 5 ? 'hráči' : 'hráčů');
+      }
+      if (!dailyHost) {
+        return;
+      }
+      if (!daily) {
+        dailyHost.innerHTML = '<p class="list-empty">' +
+          (dailyFailed ? 'Výsledky dne se nepodařilo načíst.' : 'Načítám výsledky dne…') +
+          '</p>';
+        return;
+      }
+      if (!daily.entries.length) {
+        dailyHost.innerHTML = '<p class="list-empty">Dnešní výzvu zatím nikdo ' +
+          'nedohrál. Buď první.</p>';
+        return;
+      }
+      var mine = window.MPApi.player();
+      var myId = mine ? mine.id : null;
+      dailyHost.innerHTML = '<ol class="board-list">' + daily.entries.map(function (entry) {
+        var isMine = myId && entry.playerId === myId;
+        return '<li class="board-row' + (isMine ? ' is-mine' : '') +
+          (entry.rank <= 3 ? ' is-podium' : '') + '">' +
+          '<span class="board-rank">' + entry.rank + '</span>' +
+          '<span class="board-who">' +
+          '<span class="board-name">' +
+          '<span class="board-nick">' + escapeHTML(entry.name) + '</span>' +
+          (isMine ? '<span class="pill pill--on">ty</span>' : '') + '</span>' +
+          '<span class="board-meta">' + formatDuration(entry.durationMs) + '</span>' +
+          '</span>' +
+          '<span class="board-score">' + entry.score + '</span>' +
+          '</li>';
+      }).join('') + '</ol>';
+    }
+
+    /** Přinese stav výzvy ze serveru. `mine` řekne, jestli je pokus vyčerpaný. */
+    function loadDaily() {
+      if (!CONFIG.daily || !window.MPApi.daily) {
+        return Promise.resolve(null);
+      }
+      return MPApi.daily(profileId).then(function (result) {
+        if (!result.ok) {
+          dailyFailed = true;
+          renderDaily();
+          return null;
+        }
+        dailyFailed = false;
+        daily = result.data;
+        if (daily.mine && daily.mine.status === 'done') {
+          dailySpent = true;
+        }
+        renderDaily();
+        renderButton();
+        return daily;
+      });
+    }
+
     function render() {
       renderDraw();
       renderBoard();
       renderCounters();
       renderButton();
       renderSetup();
+      renderDaily();
     }
 
     /* ------------------------------------------------------------ časomíra */
@@ -324,8 +463,13 @@
       }
       var lost = state.pending.value;
       send({ action: 'timeout' }).then(function (ok) {
-        if (ok) {
-          MPUI.toast('Čas vypršel, číslo ' + lost + ' propadlo.', 'warn', 0, 'alert');
+        if (!ok) {
+          return;
+        }
+        MPUI.toast('Čas vypršel, číslo ' + lost +
+          ' propadlo. Políčko po něm zůstane prázdné.', 'warn', 0, 'alert');
+        // propadlým číslem mohlo dojít poslední políčko — pak už se netáhne
+        if (state && !state.over) {
           scheduleRoll();
         }
       });
@@ -453,22 +597,26 @@
     }
 
     /* Zveřejnění přezdívky je vlastní rozhodnutí, ne součást souhlasu
-       s ukládáním — proto se na něj ptáme zvlášť a jen jednou. */
+       s ukládáním — proto se na něj ptáme zvlášť a jen jednou. Odpověď platí
+       pro žebříček i pro tabulku dne; obojí je veřejná tabulka, tak se to
+       neptá dvakrát, jen se to pojmenuje podle stránky, kde hráč stojí. */
     function askPublish() {
       var stored = window.MPConsent && MPConsent.granted();
       return MPUI.open({
         icon: 'trophy',
-        title: 'Ukázat se v žebříčku?',
+        title: CONFIG.daily ? 'Ukázat se v tabulce dne?' : 'Ukázat se v žebříčku?',
         text: 'Do veřejné tabulky se pošle tvoje přezdívka, skóre, obtížnost ' +
           'a čas partie. Nic dalšího — žádný e‑mail, žádná IP adresa.' +
           (stored ? '' : ' Bez zapnutého ukládání navíc dostaneš při každé partii ' +
             'novou identitu, takže se výsledky nesečtou.'),
         dismissible: true,
         bodyHTML: '<p class="dialog-note">' + MPIcons.markup('shield') +
-          'Rozmyslet si to jde kdykoli v profilu.</p>',
+          'Rozmyslet si to jde kdykoli v profilu. Platí to pro žebříček ' +
+          'i pro denní výzvu.</p>',
         actions: [
           { label: 'Ano, zveřejnit', value: 'yes', autofocus: true },
-          { label: 'Hrát bez žebříčku', value: 'no', variant: 'quiet' }
+          { label: CONFIG.daily ? 'Hrát bez tabulky' : 'Hrát bez žebříčku',
+            value: 'no', variant: 'quiet' }
         ]
       }).then(function (choice) {
         if (choice === undefined) {
@@ -484,7 +632,13 @@
         MPUI.toast('Zadej čas 3 až 300 sekund.', 'warn', 0, 'alert');
         return;
       }
-      if (CONFIG.ranked && !MPRanked.decided()) {
+      if (dailySpent) {
+        showSpent();
+        return;
+      }
+      /* Zveřejnění se ptáme i před výzvou — tabulka dne je stejně veřejná
+         jako žebříček a odpověď platí pro obojí. */
+      if ((CONFIG.ranked || CONFIG.daily) && !MPRanked.decided()) {
         askPublish().then(function (answered) {
           if (answered) {
             beginRun();
@@ -498,8 +652,8 @@
 
       var profile = activeProfile();
       profileId = profile ? profile.id : null;
-      var publish = CONFIG.ranked && window.MPConsent && MPConsent.granted() &&
-        MPRanked.publishAllowed();
+      var publish = (CONFIG.ranked || CONFIG.daily) && window.MPConsent &&
+        MPConsent.granted() && MPRanked.publishAllowed();
 
       MPApi.startRun({
         profileId: profileId,
@@ -512,6 +666,12 @@
       }).then(function (result) {
         busy = false;
         if (!result.ok) {
+          if (result.error === 'daily_done') {
+            dailySpent = true;
+            render();
+            showSpent(result.data);
+            return;
+          }
           showNet(describe(result.error));
           render();
           return;
@@ -521,7 +681,55 @@
         state = result.data.state;
         runId = state.runId;
         render();
-        scheduleRoll(0);
+        /* Rozehraná výzva se vrací tam, kde hráč přestal — a to klidně
+           s kartou v ruce. Tažení by ji přepsalo, tak se v tom případě
+           jenom vykreslí. */
+        if (state.awaitingJoker) {
+          askJoker();
+        } else if (state.pending) {
+          syncTimer();
+        } else {
+          scheduleRoll(0);
+        }
+      });
+    }
+
+    /* Dnešek je pryč. Není to chyba spojení, tak ať to neříká chybová lišta
+       nad polem — dialog rovnou ukáže, jak partie dopadla a jak vysoko je
+       rekord dne. */
+    function showSpent(info) {
+      var score = info && typeof info.score === 'number' ? info.score : null;
+      /* Pořadí radši z čerstvé tabulky: to v odpovědi je z okamžiku dohrání
+         a od té doby mohl někdo lepší hráče předběhnout. */
+      var rank = daily && daily.mine && daily.mine.rank
+        ? daily.mine.rank
+        : (info && info.rank ? info.rank : null);
+      if (score === null && daily && daily.mine) {
+        score = daily.mine.score;
+      }
+      MPUI.open({
+        icon: 'check',
+        title: 'Dnešní výzvu už máš za sebou',
+        text: 'Balíček je pro všechny stejný, tak se hraje jednou denně. ' +
+          'Zítra se zamíchá nový.',
+        dismissible: true,
+        bodyHTML:
+          (score === null ? '' :
+            '<div class="dialog-score">' +
+            '<span class="dialog-score-value">' + score + '</span>' +
+            '<span class="dialog-score-label">tvůj dnešní výsledek</span>' +
+            '</div>') +
+          (rank ? '<p class="dialog-note is-record">' + MPIcons.markup('trophy') +
+            'V tabulce dne jsi ' + rank + '.</p>' : '') +
+          '<p class="dialog-note">' + MPIcons.markup('info') + recordSentence() + '</p>',
+        actions: [
+          { label: 'Zavřít', value: 'close', autofocus: true },
+          { label: 'Hrát bez výzvy', value: 'other', variant: 'quiet' }
+        ]
+      }).then(function (choice) {
+        if (choice === 'other') {
+          window.location.href = 'difficulty.html';
+        }
       });
     }
 
@@ -554,13 +762,19 @@
       }, delay === undefined ? AUTO_ROLL_DELAY : delay);
     }
 
+    /* Kolik políček ještě čeká na číslo. Propadlé číslo políčko spotřebuje —
+       zůstane prázdné a další karta ho nenahradí (těžká obtížnost). */
+    function freeCells() {
+      return 25 - state.placed - (state.forfeited || 0);
+    }
+
     function roll() {
       if (!state || state.over || state.pending || state.awaitingJoker || busy) {
         return;
       }
       // Zbývá tolik políček, kolik má hráč žolíků — další karta z balíčku by
       // je připravila o poslední místo, kam se dají uplatnit.
-      if (state.jokers > 0 && 25 - state.placed <= state.jokers && !jokerLock) {
+      if (state.jokers > 0 && freeCells() <= state.jokers && !jokerLock) {
         offerLeftoverJokers();
         return;
       }
@@ -580,7 +794,7 @@
      * a táhnout dál je legitimní volba (třeba když chce vyšší číslo).
      */
     function offerLeftoverJokers() {
-      var free = 25 - state.placed;
+      var free = freeCells();
       busy = true;
       render();
       MPUI.open({
@@ -694,15 +908,7 @@
 
     /* -------------------------------------------------------- konec hry */
 
-    function escapeHTML(text) {
-      return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    /** @param {Object} data odpověď serveru: { state, placements, stats, records } */
+    /** @param {Object} data odpověď serveru: { state, placements, stats, records, daily } */
     function finish(data) {
       stopTimer();
       cancelAutoRoll();
@@ -710,16 +916,27 @@
          akce už do ní nepatří — id proto zahazujeme. */
       runId = null;
       cacheStats(data.stats);
+      if (CONFIG.daily) {
+        dailySpent = true;
+        applyDailyResult(data.daily);
+        loadDaily();          // ať je v tabulce dne rovnou vidět vlastní řádek
+      }
       render();
 
       var full = state.placed >= 25;
+      var lost = state.forfeited || 0;
       var text = full
         ? 'Zaplnil jsi celé pole.'
         : (state.reason || 'Hra skončila.') + ' Zaplněno ' + state.placed + ' z 25 políček.';
+      if (lost > 0) {
+        text += ' ' + (lost === 1
+          ? 'Jedno číslo propadlo kvůli času.'
+          : lost + (lost < 5 ? ' čísla propadla' : ' čísel propadlo') + ' kvůli času.');
+      }
 
       MPUI.open({
         icon: full ? 'trophy' : 'dice',
-        title: 'Konec hry',
+        title: CONFIG.daily ? 'Denní výzva dohraná' : 'Konec hry',
         text: text,
         dismissible: true,
         bodyHTML:
@@ -728,11 +945,14 @@
           '<span class="dialog-score-label">celkem bodů</span>' +
           '</div>' +
           statsNote(data) +
-          (CONFIG.ranked ? placementNote(data.placements, full, data.boardFailed) : ''),
-        actions: [
-          { label: 'Hrát znovu', value: 'again', autofocus: true },
-          { label: CONFIG.backLabel, value: 'back', variant: 'quiet' }
-        ]
+          (CONFIG.ranked ? placementNote(data.placements, full, data.boardFailed) : '') +
+          (CONFIG.daily ? dailyNotes(data.daily, full) : ''),
+        // Výzva se dnes už neopakuje, tak se ani nenabízí.
+        actions: CONFIG.daily
+          ? [{ label: CONFIG.backLabel, value: 'back', autofocus: true },
+            { label: 'Zavřít', value: 'close', variant: 'quiet' }]
+          : [{ label: 'Hrát znovu', value: 'again', autofocus: true },
+            { label: CONFIG.backLabel, value: 'back', variant: 'quiet' }]
       }).then(function (choice) {
         if (choice === 'again') {
           restart();
@@ -740,6 +960,41 @@
           window.location.href = CONFIG.backHref;
         }
       });
+    }
+
+    /** Promítne výsledek výzvy do toho, co drží stránka — hlavně rekord dne. */
+    function applyDailyResult(result) {
+      if (!result || !daily) {
+        // stav výzvy se ještě nenačetl; přinese ho loadDaily() za chvíli
+        return;
+      }
+      if (result.record !== null && result.record !== undefined) {
+        daily.record = result.record;
+        daily.count = result.count;
+      }
+      daily.mine = { status: 'done', score: result.score, rank: result.rank, at: null };
+    }
+
+    /** Řádky o denní výzvě: kam to stačilo a jak vysoko je rekord dne. */
+    function dailyNotes(result, full) {
+      var notes = '';
+      if (!full) {
+        notes += '<p class="dialog-note">' + MPIcons.markup('info') +
+          'Do tabulky dne jdou jen partie se všemi 25 zaplněnými políčky.</p>';
+      } else if (!result || result.failed) {
+        notes += '<p class="dialog-note is-warn">' + MPIcons.markup('alert') +
+          'Do tabulky dne se výsledek teď nepodařilo zapsat. Skóre ale platí.</p>';
+      } else if (result.rank) {
+        notes += '<p class="dialog-note is-record">' + MPIcons.markup('trophy') +
+          'V dnešní tabulce jsi ' + result.rank + '.</p>';
+      } else {
+        notes += '<p class="dialog-note">' + MPIcons.markup('info') +
+          'Výsledek se do tabulky dne nezapsal — nemáme souhlas se zveřejněním ' +
+          'přezdívky.</p>';
+      }
+      // Rekord dne se píše vždycky, ať partie dopadla jakkoli.
+      return notes + '<p class="dialog-note">' + MPIcons.markup('star') +
+        recordSentence() + '</p>';
     }
 
     /** Řádek o statistikách profilu: co se překonalo, nebo kde rekord stojí. */
@@ -922,6 +1177,10 @@
     }
 
     function noServerMessage() {
+      if (CONFIG.daily) {
+        return 'Server není dostupný — denní výzva bez něj nemá odkud vzít ' +
+          'balíček dne. Hru bez výzvy najdeš v sekci Hra.';
+      }
       return CONFIG.ranked
         ? 'Server není dostupný. Hru bez žebříčku najdeš v sekci Hra.'
         : 'Server není dostupný — hraje se místně a partie se nezapíše do statistik.';
@@ -934,6 +1193,16 @@
        identita by se nikam neuložila a každá partie by patřila novému hráči.
        Hraje se rovnou místně, ať se kvůli tomu vůbec nechodí na síť. */
     if (CONFIG.needConsent && !(window.MPConsent && MPConsent.granted())) {
+      /* U výzvy to místní hrou nahradit nejde: balíček by byl jiný a pokus
+         by se nedal počítat. Zůstane hláška a zamčené tlačítko. */
+      if (CONFIG.daily) {
+        showNet('Denní výzva potřebuje zapnuté ukládání — jinak dostaneš při ' +
+          'každém načtení novou identitu a pokus na den by nešlo hlídat.');
+        rollButton.disabled = true;
+        rollButton.textContent = idleLabel;
+        loadDaily();
+        return;
+      }
       goLocal('Statistiky se počítají po zapnutí ukládání v nastavení soukromí.');
       return;
     }
@@ -942,6 +1211,7 @@
       if (up) {
         listen();
         render();
+        loadDaily();
         return;
       }
       if (CONFIG.fallback) {

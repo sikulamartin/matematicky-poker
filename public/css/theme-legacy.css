@@ -12,7 +12,9 @@
      • Roboto — všechna čísla (hrací pole, skóre, tažené číslo)
      • šedá tlačítka — hlavní rozcestník nesl světle šedou #f2f1f1 s tmavým
        textem; modrá #007bff zůstává akční barvě
-     • velké rádiusy — 16 px u tlačítek a pole, 24 px u karet
+     • měkké rádiusy — 10 px u tlačítek a pole, 14 px u karet; starý projekt
+       měl 16/24 px, ale při dnešní hustotě prvků z toho byly kapsle, takže
+       jsou hodnoty stažené na polovinu a tvar zůstává čitelně oblý
      • zlatá #ffd700 patří bodům; ve starém projektu ji nosil bublinový
        štítek .points nad buňkou, tady zvýrazněná bodová buňka
    ========================================================================== */
@@ -35,9 +37,9 @@
 
   /* ------------------------------------------------------------- tvary */
   --r-sm: 4px;                    /* .points border-radius */
-  --r-md: 16px;                   /* .borderTopLeft & spol. */
-  --r-lg: 24px;                   /* .wrapperContainer border-radius */
-  --r-btn: 16px;                  /* .vyber, #rollButton */
+  --r-md: 10px;                   /* .borderTopLeft & spol. — původně 16 px */
+  --r-lg: 14px;                   /* .wrapperContainer — původně 24 px */
+  --r-btn: 10px;                  /* .vyber, #rollButton — původně 16 px */
   --r-pill: 999px;                /* .theme-checkbox border-radius: 99em */
   --hairline: 1px;
   --focus-offset: 2px;
@@ -134,15 +136,16 @@
 }
 
 /* ------------------------------------------------------------- tlačítka */
-/* .vyber i #rollButton: Oswald verzálkami, plný oblouk 16 px, při najetí
-   se jenom zprůhlední (.vyber:hover { opacity: .8 }). */
+/* .vyber i #rollButton: Oswald verzálkami, při najetí se jenom zprůhlední
+   (.vyber:hover { opacity: .8 }). Oswald je úzký, takže verzálky snesou
+   menší stupeň než grotesk — 0.875rem drží stejnou optickou váhu. */
 :root[data-theme="legacy"] .btn {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: 0.9375rem;
-  letter-spacing: 0;
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
-  padding: calc(9px * var(--ui)) calc(18px * var(--ui));
+  padding: calc(8px * var(--ui)) calc(16px * var(--ui));
 }
 
 :root[data-theme="legacy"] .btn--ghost,
@@ -161,8 +164,8 @@
 /* hlavní akce stránky — ve starém projektu největší prvek nad polem */
 :root[data-theme="legacy"] .btn-roll {
   font-weight: 700;
-  font-size: 1.1875rem;
-  padding: calc(9px * var(--ui)) calc(26px * var(--ui));
+  font-size: 1.0625rem;
+  padding: calc(9px * var(--ui)) calc(22px * var(--ui));
 }
 
 :root[data-theme="legacy"] .btn-roll.is-restart {
@@ -206,9 +209,15 @@
    šedá tlačítka pod sebou. Dlaždice .menu-item tuhle roli přebírají.
    Zarovnání nadpisu na střed převzaly components.css a prose.css, takže
    ho už motiv nemusí přepisovat — platí ve všech třech. */
+/* Oswald je kondenzovaný a ve verzálkách nese víc optické váhy než grotesk
+   z ostatních motivů — na sdíleném stupni (až 4.2rem) z něj byl blok přes
+   půl obrazovky. Vlastní clamp ho drží o dva stupně níž, sloupec zůstává
+   stejný, takže nadpis pořád končí na jednom řádku. */
 :root[data-theme="legacy"] .hero-title {
   text-transform: uppercase;
   line-height: 1;
+  font-size: clamp(1.9rem, 7vw, 3.2rem);
+  font-size: clamp(1.9rem, 7.4cqi, 3.2rem);
 }
 
 /* .MP byl celý v jedné barvě — tlumená první polovina sem nepatří */
@@ -216,10 +225,13 @@
   color: inherit;
 }
 
+/* Mezera mezi dlaždicemi je jenom dělítko, ne samostatný pruh plochy:
+   při --sp-4 (16 px) se rozcestník o devíti položkách roztáhl na dvě
+   obrazovky. --sp-2 drží položky pohromadě jako jeden blok. */
 :root[data-theme="legacy"] .menu {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-4);
+  gap: var(--sp-2);
   background-color: transparent;
   border: 0;
   border-radius: 0;
@@ -229,8 +241,8 @@
 :root[data-theme="legacy"] .menu-item {
   background-color: var(--surface-2);
   border-radius: var(--r-btn);
-  padding: clamp(12px, 2.4vh, calc(18px * var(--ui)))
-           clamp(16px, 3vw, calc(24px * var(--ui)));
+  padding: clamp(10px, 1.8vh, calc(14px * var(--ui)))
+           clamp(14px, 2.4vw, calc(18px * var(--ui)));
   box-shadow: var(--shadow-sm);
   transition: opacity var(--t-fast);
 }
@@ -240,12 +252,16 @@
   opacity: 0.8;
 }
 
+/* Popisek pod názvem má 0.83rem. Při starých 2.2rem byl mezi nimi skok
+   přes dva a půl násobku a řádek se rozpadl na nadpis + poznámku pod ním.
+   1.3rem drží název o stupeň nad popiskem — pořád vede, ale čte se to
+   jako jeden řádek. */
 :root[data-theme="legacy"] .menu-label {
   font-weight: var(--display-weight-sm);
-  font-size: clamp(1.35rem, 5vw, 2.2rem);
+  font-size: clamp(1.05rem, 3vw, 1.3rem);
   text-transform: uppercase;
-  letter-spacing: 0;
-  line-height: 1.1;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
 }
 
 :root[data-theme="legacy"] .menu-icon {
@@ -421,6 +437,12 @@
 :root[data-theme="legacy"] .prose h1,
 :root[data-theme="legacy"] .dialog-title {
   text-transform: uppercase;
+}
+
+/* Stejný důvod jako u .hero-title — verzálky v Oswaldu snesou nižší stupeň
+   a nadpis stránky se pak nepere s textem pod sebou. */
+:root[data-theme="legacy"] .prose h1 {
+  font-size: clamp(1.75rem, 5.6vw, 2.4rem);
 }
 
 :root[data-theme="legacy"] .lead {

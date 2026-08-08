@@ -289,6 +289,37 @@ test('po vypršení limitu jde karta odhodit', () => {
   assert.equal(run.forfeited, 1);
 });
 
+test('propadlé číslo spotřebuje políčko — náhradní karta nepřijde', () => {
+  const run = hardWithPending(11000);
+  apply(run, { action: 'timeout' });
+  assert.equal(run.forfeited, 1);
+
+  // dohraje se zbytek pole: 24 položení a 25. políčko zůstane prázdné
+  playThrough(run);
+  assert.equal(run.over, true);
+  assert.equal(run.placed, 24, 'poslední políčko zůstává prázdné');
+  assert.equal(run.forfeited, 1);
+  assert.equal(run.grid.flat().filter((value) => value === null).length, 1);
+});
+
+test('propadnutí na posledním políčku partii rovnou ukončí', () => {
+  const run = emptyRun({ id: 'test', mode: 'hard', seconds: 10, playerId: 'p1' });
+  // 24 políček zaplněných, poslední karta v ruce a po termínu
+  for (let i = 0; i < 24; i++) {
+    run.grid[Math.floor(i / 5)][i % 5] = 5;
+  }
+  run.placed = 24;
+  run.pending = { value: 7, fromJoker: false };
+  run.pendingAt = Date.now() - 30000;
+
+  apply(unpace(run), { action: 'timeout' });
+  assert.equal(run.over, true);
+  assert.equal(run.placed, 24);
+  assert.equal(run.forfeited, 1);
+  assert.equal(run.grid[4][4], null, 'poslední políčko zůstává prázdné');
+  assert.equal(publicState(run).forfeited, 1);
+});
+
 test('v lehké obtížnosti se karta odhodit nedá', () => {
   const run = unpace(newRun('easy'));
   draw(run);
